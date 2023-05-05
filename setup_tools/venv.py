@@ -1,4 +1,6 @@
 import sys
+
+from .commands import run_command, get_python
 from .os import is_windows
 import os
 
@@ -16,16 +18,17 @@ def in_venv():
 
 
 def activate_venv():
+    if in_venv():
+        return
     if not os.path.isdir(venv_name):
-        pass
-    # Launch the main.py with the venv
-    exit()  # Exit after the venv'ed version exits
+        print('no venv found, creating venv')
+        run_command(get_python(), '-m venv venv')
+    run_command([('call' if is_windows() else 'source', venv_activate_path), ('python', ' '.join([f'"{arg}"' for arg in sys.argv]))])  # Launch the main.py with the venv
+    exit()  # Exit after the venv'ed version exits (maximum depth will be 2 because the venv is already activated in that case)
 
 
 def ensure_venv():
     if not in_venv():
         print('activating venv')
         activate_venv()
-    else:
-        print('in venv')
-    print('after venv in venv:', in_venv())
+

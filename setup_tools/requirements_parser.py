@@ -1,3 +1,4 @@
+from .commands import run_pip
 from .os import is_windows
 
 
@@ -25,3 +26,13 @@ def parse_requirements(req_file='install_requirements.txt'):
                         if package:
                             requirements_parsed.append(f'{package} {args}')
     return requirements_parsed
+
+
+large_packages = ['torch']
+
+
+def install_requirements(req_file='install_requirements.txt'):
+    for requirement in parse_requirements(req_file):
+        name = requirement.split(" ")[0]
+        print(f'Installing requirement {name}...' + (' This could take a while' if name in large_packages else ''))
+        run_pip(requirement)
