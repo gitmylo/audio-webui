@@ -3,3 +3,6 @@
 ;;; If there's no condition, always install.
 torch torchvision torchaudio;--index-url https://download.pytorch.org/whl/cu117;windows
 torch torchvision torchaudio;;not windows
+transformers
+diffusers
+gradio

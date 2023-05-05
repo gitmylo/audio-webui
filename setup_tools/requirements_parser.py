@@ -18,13 +18,11 @@ def parse_requirements(req_file='install_requirements.txt'):
             line = line + add_semis
 
             packages, args, condition = line.split(';')[:3]
-            # if eval(condition):
-            if condition:
-                if eval(condition):
-                    for package in packages.split(' '):
-                        package = package.strip()
-                        if package:
-                            requirements_parsed.append(f'{package} {args}')
+            if not condition or eval(condition):
+                for package in packages.split(' '):
+                    package = package.strip()
+                    if package:
+                        requirements_parsed.append(f'{package} {args}')
     return requirements_parsed
 
 
