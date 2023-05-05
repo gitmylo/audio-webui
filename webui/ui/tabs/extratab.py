@@ -1,6 +1,9 @@
+import shutil
+
 import gradio
 import huggingface_hub
 import webui.modules.download as dl
+import webui.modules.models as mod
 
 
 def login_hf(token):
@@ -11,26 +14,44 @@ def login_hf(token):
     return True
 
 
+def choices():
+    return [_type + '/' + model for _type in dl.model_types for model in mod.get_installed_models(_type)]
+
+
+def refresh_choices():
+    return gradio.Dropdown.update('', choices())
+
+
+def delete_model(model):
+    shutil.rmtree(f'data/models/{model}')
+    return refresh_choices()
+
+
 def extra_tab():
     gradio.HTML('<h1>Huggingface</h1>')
     with gradio.Row():
-        textbox = gradio.Textbox(placeholder='Huggingface token from https://huggingface.co/settings/tokens goes here',
-                                 label='Huggingface token for private/gated models')
-        login = gradio.Button('Log in with this token')
-        login.click(fn=login_hf, inputs=textbox, api_name='login_hf', show_progress=True)
-    with gradio.Row():
-        repo = gradio.Textbox(placeholder='microsoft/speecht5_tts', label='Model repo')
-        model_type = gradio.Dropdown(dl.model_types, value=dl.model_types[0], label='Model type')
-        download = gradio.Button('Download model')
-    model_result = gradio.HTML()
-    download.click(fn=dl.hub_download, inputs=[repo, model_type], outputs=model_result, api_name='download',
-                   show_progress=True)
+        with gradio.Column():
+            textbox = gradio.Textbox(placeholder='Huggingface token from https://huggingface.co/settings/tokens goes here',
+                                     label='Huggingface token for private/gated models', lines=1)
+            login = gradio.Button('Log in with this token', variant='primary')
+            login.click(fn=login_hf, inputs=textbox, api_name='login_hf', show_progress=True)
+        with gradio.Column():
+            installed_models = gradio.Dropdown(choices(), label='Installed models')
+            with gradio.Row():
+                delete = gradio.Button('Delete model', variant='stop')
+                refresh = gradio.Button('Refresh models', variant='primary')
+            delete.click(fn=delete_model, inputs=installed_models, outputs=installed_models, show_progress=True, api_name='models/delete')
+            refresh.click(fn=refresh_choices, outputs=installed_models, show_progress=True)
+
     with gradio.Row():
         for _type in dl.model_types:
-            models = dl.fill_models(_type)
+            # models = dl.fill_models(_type)
             with gradio.Column():
-                repo = gradio.Dropdown(models, value=models[0], label=f'{_type} models')
-                download = gradio.Button('Download model')
+                repo = gradio.Dropdown(label=f'{_type} models', allow_custom_value=True)
+                with gradio.Row():
+                    download = gradio.Button('Download model')
+                    refresh = gradio.Button('Refresh models', variant='primary')
                 model_result = gradio.HTML()
-                download.click(fn=dl.hub_download, inputs=[repo, _type], outputs=model_result,
-                               show_progress=True)
+                download.click(lambda r: dl.hub_download(r, _type), inputs=[repo], outputs=[model_result, installed_models],
+                               show_progress=True, api_name=f'models/{_type}/download')
+                refresh.click(lambda: gradio.Dropdown.update(choices=dl.fill_models(_type)), outputs=repo)
