@@ -5,4 +5,3 @@ if %errorlevel%==0 (
 ) else (
     call run_python.bat
 )
-pause
