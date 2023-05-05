@@ -1,0 +1,5 @@
+;;; Do not run pip install -r on this file, let the installer handle it.
+;;; Every line will be executed like [package package package];[args];[condition];[comment].
+;;; If there's no condition, always install.
+torch torchvision torchaudio;--index-url https://download.pytorch.org/whl/cu117;windows
+torch torchvision torchaudio;;not windows
