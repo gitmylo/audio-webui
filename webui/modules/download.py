@@ -16,7 +16,7 @@ class AutoModel:
 
 def fill_models(model_type: str):
     if model_type == 'text-to-speech':
-        return mod.all_tts_models()
+        return [m for m in mod.all_tts() if not m.no_install]
     return [model.modelId for model in
             huggingface_hub.list_models(filter=huggingface_hub.ModelFilter(task=model_type), sort='downloads')]
 

@@ -1,23 +1,33 @@
 import gradio
 
 import webui.modules.models as mod
+import tts_monkeypatching as mp
+
+mp.patch()  # Monkey patch suno
 
 
 class BarkTTS(mod.TTSModelLoader):
+    no_install = True
+
     def _components(self, **quick_kwargs):
         textbox = gradio.Textbox(lines=7, label='Input', placeholder='Text to speak goes here', **quick_kwargs)
-        return [textbox]
+        speaker = gradio.Textbox(lines=1, label='Speaker', placeholder='Speaker goes here, or empty to let the AI guess', **quick_kwargs)
+        return [textbox, speaker]
 
-    from bark import SAMPLE_RATE, generate_audio, preload_models
+    from bark.api import generate_audio
+    from bark.generation import preload_models, clean_models, SAMPLE_RATE
     model = 'suno/bark'
 
     def get_response(self, *inputs):
-        pass
+        textbox, speaker = inputs
+        return BarkTTS.SAMPLE_RATE, BarkTTS.generate_audio(textbox, speaker if speaker else None)
 
     def unload_model(self):
-        pass
+        BarkTTS.clean_models()
+
 
     def load_model(self):
+        BarkTTS.preload_models()
         return self.gradio_components()
 
 

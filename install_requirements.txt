@@ -6,6 +6,6 @@ torch torchvision torchaudio;;not windows
 transformers
 diffusers
 gradio
-bark
+bark==0.0.1a0
 soundfile;;windows
 sox;;not windows

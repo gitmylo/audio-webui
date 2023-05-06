@@ -8,13 +8,14 @@ loader: mod.TTSModelLoader = mod.TTSModelLoader
 
 
 def get_models_installed():
-    return [model for model in mod.get_installed_models(mod_type) if model in [tts.replace('/', '--') for tts in mod.all_tts_models()]]
+    # return [model for model in mod.get_installed_models(mod_type) if model in [tts.replace('/', '--') for tts in mod.all_tts_models()]]
+    return [model for model in mod.get_installed_models(mod_type) if model in [tts.replace('/', '--') for tts in mod.all_tts_models()]] + \
+           [model.model for model in mod.all_tts() if model.no_install]
 
 
 def text_to_speech():
     with gradio.Row():
         with gradio.Column():
-            # input_box = gradio.Textbox(lines=7, label='Input', placeholder='Text to speak goes here')
             all_components_dict = tts_models.all_elements_dict()
             all_components = tts_models.all_elements(all_components_dict)
             with gradio.Row():
@@ -28,13 +29,14 @@ def text_to_speech():
                     global loader
                     if isinstance(loader, mod.TTSModelLoader):
                         loader.unload_model()
-                    return [gradio.update(value='')] + [gradio.update(visible=False) for e in all_components]
+                    return [gradio.update(value='')] + [gradio.update(visible=False) for _ in all_components]
                 unload.click(fn=unload_model, outputs=[selected] + all_components, show_progress=True)
 
                 def load_model(model):
                     unload_model()
                     global loader
                     loader = loader.from_model(model)
+                    loader.load_model()
                     inputs = all_components_dict[loader.model]
                     return_value = [gradio.update()] + [gradio.update(visible=element in inputs) for element in all_components]
                     return return_value
@@ -43,8 +45,8 @@ def text_to_speech():
             generate = gradio.Button('Generate')
             audio_out = gradio.Audio()
 
-    def _generate(*inputs):
+    def _generate(inputs, values):
         global loader
-        inputs = [inp for inp in inputs if inp in all_components_dict[loader.model]]  # Filter inputs
+        inputs = [values[i] for i in range(len(inputs)) if inputs[i] in all_components_dict[loader.model]]  # Filter and convert inputs
         return loader.get_response(*inputs)
-    generate.click(fn=_generate, inputs=all_components, outputs=audio_out, show_progress=True)
+    generate.click(fn=lambda *values: _generate(all_components, values), inputs=all_components, outputs=audio_out, show_progress=True)

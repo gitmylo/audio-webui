@@ -26,6 +26,8 @@ def get_installed_models(model_type):
 
 
 class ModelLoader:
+    no_install = False
+
     def __init__(self, model_type):
         self.type = model_type
         self.pipeline: Pipeline = None
@@ -79,6 +81,8 @@ class TTSModelLoader(ModelLoader):
     @staticmethod
     def from_model(model_path):
         for model in all_tts():
+            if model.no_install and model.trigger.lower() == model_path.lower().replace('/', '--'):
+                return model
             if model.trigger.lower() == model_path.lower().split('/')[-1]:
                 return model
         return None
