@@ -3,4 +3,9 @@ import webui.modules.models
 
 
 def text_to_speech():
-    pass
+    with gradio.Row():
+        with gradio.Column():
+            pass
+        with gradio.Column():
+            # gradio.Audio()
+            pass

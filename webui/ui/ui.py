@@ -36,7 +36,7 @@ def create_ui() -> gr.Blocks:
         ('extra', extra_tab)
     ]
     with gr.Blocks(theme='gradio/soft', title='Audio WebUI', css=css) as webui:
-        with gr.Tabs() as _tabs:
+        with gr.Tabs():
             for name, content in tabs:
                 with gr.Tab(name):
                     content()

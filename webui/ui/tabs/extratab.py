@@ -27,6 +27,19 @@ def delete_model(model):
     return refresh_choices()
 
 
+def create_download(_type, installed_models):
+    with gradio.Column():
+        with gradio.Row():
+            repo = gradio.Dropdown(label=f'{_type} models', allow_custom_value=True)
+            with gradio.Column(min_width=0, elem_classes='smallsplit'):
+                refresh = gradio.Button('🔃', variant='primary tool')
+                download = gradio.Button('👇', variant='secondary tool')
+        model_result = gradio.HTML()
+        download.click(lambda r: dl.hub_download(r, _type), inputs=[repo], outputs=[model_result, installed_models],
+                       show_progress=True, api_name=f'models/{_type}/download')
+        refresh.click(lambda: gradio.Dropdown.update(choices=dl.fill_models(_type)), outputs=repo)
+
+
 def extra_tab():
     gradio.HTML('<h1>Huggingface</h1>')
     with gradio.Row():
@@ -44,14 +57,5 @@ def extra_tab():
             refresh.click(fn=refresh_choices, outputs=installed_models, show_progress=True)
 
     with gradio.Row():
-        for _type in dl.model_types:
-            with gradio.Column():
-                with gradio.Row():
-                    repo = gradio.Dropdown(label=f'{_type} models', allow_custom_value=True)
-                    with gradio.Column(min_width=0, elem_classes='smallsplit'):
-                        refresh = gradio.Button('🔃', variant='primary tool')
-                        download = gradio.Button('👇', variant='secondary tool')
-                model_result = gradio.HTML()
-                download.click(lambda r: dl.hub_download(r, _type), inputs=[repo], outputs=[model_result, installed_models],
-                               show_progress=True, api_name=f'models/{_type}/download')
-                refresh.click(lambda: gradio.Dropdown.update(choices=dl.fill_models(_type)), outputs=repo)
+        for _type in dl.model_types:  # Issues in for loop when not using a function for it.
+            create_download(_type, installed_models)
