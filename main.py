@@ -6,7 +6,10 @@ print('Checking installs and venv')
 
 ensure_installed()  # Installs missing packages
 
+from webui.modules.implementations.tts_monkeypatching import patch as patch1
+patch1()
+
 print('Launching')
 
-from webui import launch_webui
+from webui.webui import launch_webui
 launch_webui()

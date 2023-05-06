@@ -1,4 +1,6 @@
 import gradio
+import numpy as np
+
 import webui.modules.models as mod
 import webui.modules.implementations.ttsmodels as tts_models
 
@@ -38,7 +40,7 @@ def text_to_speech():
                     loader = loader.from_model(model)
                     loader.load_model()
                     inputs = all_components_dict[loader.model]
-                    return_value = [gradio.update()] + [gradio.update(visible=element in inputs) for element in all_components]
+                    return_value = [gradio.update()] + [gradio.update(visible=element in inputs and not (hasattr(element, 'hide') and element.hide)) for element in all_components]
                     return return_value
                 selected.select(fn=load_model, inputs=selected, outputs=[selected] + all_components, show_progress=True)
         with gradio.Column():

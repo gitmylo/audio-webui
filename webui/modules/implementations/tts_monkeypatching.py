@@ -1,6 +1,5 @@
-import bark.generation
-from patches.bark_generation import *
-
-
 def patch():
-    bark.generation.generate_text_semantic = generate_text_semantic
+    print('Monkeypatching bark')
+    import bark
+    import webui.modules.implementations.patches.bark_api as new_bark_api
+    bark.api.generate_audio = new_bark_api.generate_audio_new

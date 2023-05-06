@@ -1,9 +1,34 @@
 import bark.generation as o
-import numpy as np
 from bark.generation import *
 
 
-def generate_text_semantic(
+SUPPORTED_LANGS = [
+    ("English", "en"),
+    ("German", "de"),
+    ("Spanish", "es"),
+    ("French", "fr"),
+    ("Hindi", "hi"),
+    ("Italian", "it"),
+    ("Japanese", "ja"),
+    ("Korean", "ko"),
+    ("Polish", "pl"),
+    ("Portuguese", "pt"),
+    ("Russian", "ru"),
+    ("Turkish", "tr"),
+    ("Chinese", "zh"),
+]
+
+ALLOWED_PROMPTS = {"announcer"}
+for _, lang in SUPPORTED_LANGS:
+    for n in range(10):
+        ALLOWED_PROMPTS.add(f"{lang}_speaker_{n}")
+for n in range(10):
+    ALLOWED_PROMPTS.add(f"speaker_{n}")
+
+# TODO: generate_course and generate_fine
+
+
+def generate_text_semantic_new(
     text,
     history_prompt=None,
     temp=0.7,
@@ -29,7 +54,13 @@ def generate_text_semantic(
                     os.path.join(CUR_PATH, "assets", "prompts", f"{history_prompt}.npz")
                 )["semantic_prompt"]
             else:
-                skip = True
+                filename = f'data/bark_custom_speakers/{history_prompt}.npz'
+                if os.path.isfile(filename):
+                    semantic_history = np.load(
+                        filename
+                    )["semantic_prompt"]
+                else:
+                    skip = True
         if not skip:
             assert (
                 isinstance(semantic_history, np.ndarray)
@@ -38,6 +69,8 @@ def generate_text_semantic(
                 and semantic_history.min() >= 0
                 and semantic_history.max() <= SEMANTIC_VOCAB_SIZE - 1
             )
+        else:
+            semantic_history = None
     else:
         semantic_history = None
     # load models if not yet exist

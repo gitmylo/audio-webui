@@ -1,34 +1,57 @@
 import gradio
 
 import webui.modules.models as mod
-import tts_monkeypatching as mp
-
-mp.patch()  # Monkey patch suno
 
 
 class BarkTTS(mod.TTSModelLoader):
     no_install = True
 
     def _components(self, **quick_kwargs):
-        textbox = gradio.Textbox(lines=7, label='Input', placeholder='Text to speak goes here', **quick_kwargs)
-        speaker = gradio.Textbox(lines=1, label='Speaker', placeholder='Speaker goes here, or empty to let the AI guess', **quick_kwargs)
-        return [textbox, speaker]
+        def update_speaker(option):
+            if option == 'Upload':
+                speaker.hide = True
+                speaker_file.hide = False
+                return [gradio.update(visible=True), gradio.update(visible=False)]
+            else:
+                speaker.hide = False
+                speaker_file.hide = True
+                return [gradio.update(visible=False), gradio.update(visible=True)]
 
-    from bark.api import generate_audio
-    from bark.generation import preload_models, clean_models, SAMPLE_RATE
+        textbox = gradio.Textbox(lines=7, label='Input', placeholder='Text to speak goes here', **quick_kwargs)
+        mode = gradio.Radio(['File', 'Upload'], value='File', **quick_kwargs)
+        with gradio.Row():
+            text_temp = gradio.Slider(0, 1, 0.7, step=0.05, label='Text temperature', **quick_kwargs)
+            waveform_temp = gradio.Slider(0, 1, 0.7, step=0.05, label='Waveform temperature', **quick_kwargs)
+
+        speaker = gradio.Textbox(lines=1, label='Speaker', placeholder='Speaker goes here, or empty to let the AI guess', **quick_kwargs)
+        speaker_file = gradio.File(label='Speaker', file_types=['audio'], **quick_kwargs)
+        speaker_file.hide = True  # Custom, auto hide speaker_file
+
+        mode.select(fn=update_speaker, inputs=mode, outputs=[speaker, speaker_file])
+        return [textbox, mode, text_temp, waveform_temp, speaker, speaker_file]
+
     model = 'suno/bark'
 
     def get_response(self, *inputs):
-        textbox, speaker = inputs
-        return BarkTTS.SAMPLE_RATE, BarkTTS.generate_audio(textbox, speaker if speaker else None)
+        textbox, mode, text_temp, waveform_temp, speaker, speaker_file = inputs
+        _speaker = None
+        if mode == 'File':
+            _speaker = speaker
+        else:
+            # _speaker = speaker_file
+            pass
+        from bark.api import generate_audio
+        from bark.generation import SAMPLE_RATE
+        return SAMPLE_RATE, generate_audio(textbox, speaker if speaker else None, text_temp, waveform_temp)
 
     def unload_model(self):
-        BarkTTS.clean_models()
+        from bark.generation import clean_models
+        clean_models()
 
 
     def load_model(self):
-        BarkTTS.preload_models()
-        return self.gradio_components()
+        from bark.generation import preload_models
+        preload_models()
 
 
 elements = []
