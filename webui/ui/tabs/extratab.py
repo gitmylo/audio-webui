@@ -45,12 +45,12 @@ def extra_tab():
 
     with gradio.Row():
         for _type in dl.model_types:
-            # models = dl.fill_models(_type)
             with gradio.Column():
-                repo = gradio.Dropdown(label=f'{_type} models', allow_custom_value=True)
                 with gradio.Row():
-                    download = gradio.Button('Download model')
-                    refresh = gradio.Button('Refresh models', variant='primary')
+                    repo = gradio.Dropdown(label=f'{_type} models', allow_custom_value=True)
+                    with gradio.Column(min_width=0, elem_classes='smallsplit'):
+                        refresh = gradio.Button('🔃', variant='primary tool')
+                        download = gradio.Button('👇', variant='secondary tool')
                 model_result = gradio.HTML()
                 download.click(lambda r: dl.hub_download(r, _type), inputs=[repo], outputs=[model_result, installed_models],
                                show_progress=True, api_name=f'models/{_type}/download')

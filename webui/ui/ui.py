@@ -13,6 +13,22 @@ def create_ui() -> gr.Blocks:
         height: calc(100vh - 100px) !important;
         overflow: auto;
     }
+    
+    .tool{
+        max-width: 2.2em;
+        min-width: 2.2em !important;
+        height: 2.4em;
+        align-self: end;
+        line-height: 1em;
+        border-radius: 0.5em;
+    }
+    
+    .smallsplit {
+        max-width: 2.2em;
+        min-width: 2.2em !important;
+        align-self: end;
+        border-radius: 0.5em;
+    }
     """
 
     tabs = [
