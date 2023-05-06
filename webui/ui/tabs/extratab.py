@@ -14,17 +14,9 @@ def login_hf(token):
     return True
 
 
-def choices():
-    return [_type + '/' + model for _type in dl.model_types for model in mod.get_installed_models(_type)]
-
-
-def refresh_choices():
-    return gradio.Dropdown.update('', choices())
-
-
 def delete_model(model):
     shutil.rmtree(f'data/models/{model}')
-    return refresh_choices()
+    return mod.refresh_choices()
 
 
 def create_download(_type, installed_models):
@@ -49,12 +41,12 @@ def extra_tab():
             login = gradio.Button('Log in with this token', variant='primary')
             login.click(fn=login_hf, inputs=textbox, api_name='login_hf', show_progress=True)
         with gradio.Column():
-            installed_models = gradio.Dropdown(choices(), label='Installed models')
+            installed_models = gradio.Dropdown(mod.choices(), label='Installed models')
             with gradio.Row():
                 delete = gradio.Button('Delete model', variant='stop')
                 refresh = gradio.Button('Refresh models', variant='primary')
             delete.click(fn=delete_model, inputs=installed_models, outputs=installed_models, show_progress=True, api_name='models/delete')
-            refresh.click(fn=refresh_choices, outputs=installed_models, show_progress=True)
+            refresh.click(fn=mod.refresh_choices, outputs=installed_models, show_progress=True)
 
     with gradio.Row():
         for _type in dl.model_types:  # Issues in for loop when not using a function for it.

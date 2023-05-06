@@ -2,7 +2,7 @@ import gradio as gr
 from .tabs import *
 
 
-def create_ui() -> gr.Blocks:
+def create_ui(theme) -> gr.Blocks:
 
     css = """
     .gradio-container {
@@ -35,7 +35,7 @@ def create_ui() -> gr.Blocks:
         ('Text to speech', text_to_speech),
         ('extra', extra_tab)
     ]
-    with gr.Blocks(theme='gradio/soft', title='Audio WebUI', css=css) as webui:
+    with gr.Blocks(theme=theme, title='Audio WebUI', css=css) as webui:
         with gr.Tabs():
             for name, content in tabs:
                 with gr.Tab(name):

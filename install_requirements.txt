@@ -6,3 +6,4 @@ torch torchvision torchaudio;;not windows
 transformers
 diffusers
 gradio
+bark
