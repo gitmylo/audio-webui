@@ -1,2 +1,2 @@
-data/models/*
-!data/models/.placeholder
+data/*
+!data/*/.placeholder
