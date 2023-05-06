@@ -33,7 +33,6 @@ def refresh_choices():
 
 
 def hub_download(repo_id: str, model_type: str):
-    return [f'data/models/{model_type}/{get_file_name(repo_id)}', gradio.Dropdown.update()]
     try:
         huggingface_hub.snapshot_download(repo_id, local_dir_use_symlinks=False,
                                           local_dir=f'data/models/{model_type}/{get_file_name(repo_id)}')
