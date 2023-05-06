@@ -5,8 +5,6 @@ import gradio
 import torch.cuda
 from transformers import Pipeline
 
-loaded_model = None
-
 
 def choices():
     from .download import model_types
@@ -39,7 +37,7 @@ class ModelLoader:
     def _load_internal(self, path):
         return Pipeline.from_pretrained(task=self.type, model=path)
 
-    def unload_model(self, name):
+    def unload_model(self):
         del self.pipeline
         if not self.pipeline.device == 'cpu':
             torch.cuda.empty_cache()
@@ -75,9 +73,20 @@ class TTSModelLoader(ModelLoader):
     def load_model(self):
         raise NotImplementedError('Not implemented, please implement this method.')
 
-    def unload_model(self, name):
+    def unload_model(self):
         raise NotImplementedError('Not implemented, please implement this method.')
 
     @staticmethod
     def from_model(model_path):
-        pass
+        for model in all_tts():
+            if model.trigger.lower() == model_path.lower().split('/')[-1]:
+                return model
+        return None
+
+    def _components(self, **quick_kwargs):
+        raise NotImplementedError('Not implemented, please implement this method')
+
+    def gradio_components(self):
+        # with gradio.Column():
+        components = self._components(interactive=True, visible=False)
+        return components if components else []

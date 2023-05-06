@@ -7,3 +7,5 @@ transformers
 diffusers
 gradio
 bark
+soundfile;;windows
+sox;;not windows
