@@ -1,5 +1,5 @@
 from bark.api import *
-from .bark_generation import generate_text_semantic_new
+from .bark_generation import generate_text_semantic_new, generate_coarse_new, generate_fine_new
 
 
 def text_to_semantic_new(
@@ -29,6 +29,48 @@ def text_to_semantic_new(
     return x_semantic
 
 
+def semantic_to_waveform_new(
+    semantic_tokens: np.ndarray,
+    history_prompt: Optional[str] = None,
+    temp: float = 0.7,
+    silent: bool = False,
+    output_full: bool = False,
+):
+    """Generate audio array from semantic input.
+
+    Args:
+        semantic_tokens: semantic token output from `text_to_semantic`
+        history_prompt: history choice for audio cloning
+        temp: generation temperature (1.0 more diverse, 0.0 more conservative)
+        silent: disable progress bar
+        output_full: return full generation to be used as a history prompt
+
+    Returns:
+        numpy audio array at sample frequency 24khz
+    """
+    coarse_tokens = generate_coarse_new(
+        semantic_tokens,
+        history_prompt=history_prompt,
+        temp=temp,
+        silent=silent,
+        use_kv_caching=True
+    )
+    fine_tokens = generate_fine_new(
+        coarse_tokens,
+        history_prompt=history_prompt,
+        temp=0.5,
+    )
+    audio_arr = codec_decode(fine_tokens)
+    if output_full:
+        full_generation = {
+            "semantic_prompt": semantic_tokens,
+            "coarse_prompt": coarse_tokens,
+            "fine_prompt": fine_tokens,
+        }
+        return full_generation, audio_arr
+    return audio_arr
+
+
 def generate_audio_new(
     text: str,
     history_prompt: Optional[str] = None,
@@ -56,7 +98,7 @@ def generate_audio_new(
         temp=text_temp,
         silent=silent,
     )
-    out = semantic_to_waveform(
+    out = semantic_to_waveform_new(
         semantic_tokens,
         history_prompt=history_prompt,
         temp=waveform_temp,

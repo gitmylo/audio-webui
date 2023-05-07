@@ -35,8 +35,9 @@ def text_to_speech():
                 unload.click(fn=unload_model, outputs=[selected] + all_components, show_progress=True)
 
                 def load_model(model):
-                    unload_model()
                     global loader
+                    if not (hasattr(loader, 'model') and model.lower().endswith(loader.model.lower())):
+                        unload_model()
                     loader = loader.from_model(model)
                     loader.load_model()
                     inputs = all_components_dict[loader.model]
@@ -46,9 +47,11 @@ def text_to_speech():
         with gradio.Column():
             generate = gradio.Button('Generate')
             audio_out = gradio.Audio()
+            video_out = gradio.Video()
 
     def _generate(inputs, values):
         global loader
         inputs = [values[i] for i in range(len(inputs)) if inputs[i] in all_components_dict[loader.model]]  # Filter and convert inputs
-        return loader.get_response(*inputs)
-    generate.click(fn=lambda *values: _generate(all_components, values), inputs=all_components, outputs=audio_out, show_progress=True)
+        response = loader.get_response(*inputs)
+        return [response, gradio.make_waveform(response)]
+    generate.click(fn=lambda *values: _generate(all_components, values), inputs=all_components, outputs=[audio_out, video_out], show_progress=True)
