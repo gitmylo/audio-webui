@@ -1,6 +1,7 @@
 import os.path
 
 import gradio
+import numpy as np
 
 import webui.modules.models as mod
 
@@ -20,8 +21,21 @@ class BarkTTS(mod.TTSModelLoader):
         return ['None'] + found_prompts + ALLOWED_PROMPTS
 
     @staticmethod
-    def create_voice(file):
-        pass
+    def create_voice(file, transcript):
+        from webui.modules.implementations.patches.bark_custom_voices import generate_semantic_history, generate_fine_history, generate_course_history
+        file_path = file.name
+        file_name = '.'.join(file_path.replace('\\', '/').split('/')[-1].split('.')[:-1])
+        out_file = f'data/bark_custom_speakers/{file_name}.npz'
+        codes, seconds = generate_fine_history(file_path)
+        semantic_his = generate_semantic_history(transcript, seconds)
+        course_his = generate_course_history(codes)
+        np.savez(out_file,
+                 semantic_prompt=semantic_his,
+                 coarse_prompt=course_his,
+                 fine_prompt=codes
+                 )
+        return file_name
+
 
     def _components(self, **quick_kwargs):
         def update_speaker(option):
@@ -29,12 +43,14 @@ class BarkTTS(mod.TTSModelLoader):
                 speaker.hide = True
                 refresh_speakers.hide = True
                 speaker_file.hide = False
-                return [gradio.update(visible=False), gradio.update(visible=False), gradio.update(visible=True)]
+                speaker_file_transcript.hide = False
+                return [gradio.update(visible=False), gradio.update(visible=False), gradio.update(visible=True), gradio.update(visible=True)]
             else:
                 speaker.hide = False
                 refresh_speakers.hide = False
                 speaker_file.hide = True
-                return [gradio.update(visible=True), gradio.update(visible=True), gradio.update(visible=False)]
+                speaker_file_transcript.hide = True
+                return [gradio.update(visible=True), gradio.update(visible=True), gradio.update(visible=False), gradio.update(visible=False)]
 
         def update_voices():
             return gradio.update(choices=self.get_voices())
@@ -49,20 +65,22 @@ class BarkTTS(mod.TTSModelLoader):
             refresh_speakers = gradio.Button('🔃', variant='tool secondary', **quick_kwargs)
         refresh_speakers.click(fn=update_voices, outputs=speaker)
         speaker_file = gradio.File(label='Speaker', file_types=['audio'], **quick_kwargs)
+        speaker_file_transcript = gradio.Textbox(lines=1, label='Transcript', **quick_kwargs)
         speaker_file.hide = True  # Custom, auto hide speaker_file
+        speaker_file_transcript.hide = True
 
-        mode.select(fn=update_speaker, inputs=mode, outputs=[speaker, refresh_speakers, speaker_file])
-        return [textbox, mode, text_temp, waveform_temp, speaker, speaker_file, refresh_speakers]
+        mode.select(fn=update_speaker, inputs=mode, outputs=[speaker, refresh_speakers, speaker_file, speaker_file_transcript])
+        return [textbox, mode, text_temp, waveform_temp, speaker, speaker_file, speaker_file_transcript, refresh_speakers]
 
     model = 'suno/bark'
 
     def get_response(self, *inputs):
-        textbox, mode, text_temp, waveform_temp, speaker, speaker_file, refresh_speakers = inputs
+        textbox, mode, text_temp, waveform_temp, speaker, speaker_file, speaker_file_transcript, refresh_speakers = inputs
         _speaker = None
         if mode == 'File':
             _speaker = speaker if speaker != 'None' else None
         else:
-            _speaker = self.create_voice(speaker_file)
+            _speaker = self.create_voice(speaker_file, speaker_file_transcript)
         from bark.api import generate_audio
         from bark.generation import SAMPLE_RATE
         return SAMPLE_RATE, generate_audio(textbox, _speaker, text_temp, waveform_temp)
