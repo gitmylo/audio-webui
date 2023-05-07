@@ -231,7 +231,6 @@ def generate_coarse_new(
         if not skip:
             x_semantic_history = x_history["semantic_prompt"]
             x_coarse_history = x_history["coarse_prompt"]
-            print((round(x_coarse_history.shape[-1] / len(x_semantic_history), 1) == round(semantic_to_coarse_ratio / N_COARSE_CODEBOOKS, 1)))
             assert (
                     isinstance(x_semantic_history, np.ndarray)
                     and len(x_semantic_history.shape) == 1
