@@ -35,6 +35,7 @@ def semantic_to_waveform_new(
     temp: float = 0.7,
     silent: bool = False,
     output_full: bool = False,
+    skip_fine: bool = False
 ):
     """Generate audio array from semantic input.
 
@@ -44,6 +45,7 @@ def semantic_to_waveform_new(
         temp: generation temperature (1.0 more diverse, 0.0 more conservative)
         silent: disable progress bar
         output_full: return full generation to be used as a history prompt
+        skip_fine: (Added in new) Skip converting coarse to fine
 
     Returns:
         numpy audio array at sample frequency 24khz
@@ -55,11 +57,14 @@ def semantic_to_waveform_new(
         silent=silent,
         use_kv_caching=True
     )
-    fine_tokens = generate_fine_new(
-        coarse_tokens,
-        history_prompt=history_prompt,
-        temp=0.5,
-    )
+    if not skip_fine:
+        fine_tokens = generate_fine_new(
+            coarse_tokens,
+            history_prompt=history_prompt,
+            temp=0.5,
+        )
+    else:
+        fine_tokens = coarse_tokens
     audio_arr = codec_decode(fine_tokens)
     if output_full:
         full_generation = {
@@ -78,6 +83,7 @@ def generate_audio_new(
     waveform_temp: float = 0.7,
     silent: bool = False,
     output_full: bool = False,
+    skip_fine: bool = False
 ):
     """Generate audio array from input text.
 
@@ -88,6 +94,7 @@ def generate_audio_new(
         waveform_temp: generation temperature (1.0 more diverse, 0.0 more conservative)
         silent: disable progress bar
         output_full: return full generation to be used as a history prompt
+        skip_fine: (Added in new) Skip converting from coarse to fine
 
     Returns:
         numpy audio array at sample frequency 24khz
@@ -104,6 +111,7 @@ def generate_audio_new(
         temp=waveform_temp,
         silent=silent,
         output_full=output_full,
+        skip_fine=skip_fine
     )
     if output_full:
         full_generation, audio_arr = out

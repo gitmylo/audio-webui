@@ -2,8 +2,18 @@ import os.path
 
 import gradio
 import numpy as np
+from bark import generation
 
 import webui.modules.models as mod
+
+
+def tolerant_mean(arrs):
+    lens = [len(i) for i in arrs]
+    arr = np.ma.empty((np.max(lens), len(arrs)))
+    arr.mask = True
+    for idx, l in enumerate(arrs):
+        arr[:len(l),idx] = l
+    return arr.mean(axis=-1), arr.std(axis=-1)
 
 
 class BarkTTS(mod.TTSModelLoader):
@@ -22,17 +32,45 @@ class BarkTTS(mod.TTSModelLoader):
 
     @staticmethod
     def create_voice(file, transcript):
-        from webui.modules.implementations.patches.bark_custom_voices import generate_semantic_history, generate_fine_history, generate_course_history
+        from encodec.utils import convert_audio
+        import torchaudio
+        import torch
+        import os
+        import gradio
+        import numpy as np
         file_path = file.name
         file_name = '.'.join(file_path.replace('\\', '/').split('/')[-1].split('.')[:-1])
         out_file = f'data/bark_custom_speakers/{file_name}.npz'
-        codes, seconds = generate_fine_history(file_path)
-        semantic_his = generate_semantic_history(transcript, seconds)
-        course_his = generate_course_history(codes)
+
+        use_gpu = not os.environ.get("BARK_FORCE_CPU", False)
+        model = generation.load_codec_model(use_gpu=use_gpu)
+
+        # Load and pre-process the audio waveform
+        model = generation.load_codec_model(use_gpu=use_gpu)
+        device = generation._grab_best_device(use_gpu)
+        wav, sr = torchaudio.load(file_path)
+        wav = convert_audio(wav, sr, model.sample_rate, model.channels)
+        wav = wav.unsqueeze(0).to(device)
+
+        # Extract discrete codes from EnCodec
+        with torch.no_grad():
+            encoded_frames = model.encode(wav)
+        codes = torch.cat([encoded[0] for encoded in encoded_frames], dim=-1).squeeze()  # [n_q, T]
+
+        # get seconds of audio
+        seconds = wav.shape[-1] / model.sample_rate
+        # generate semantic tokens
+
+        codes_copy = codes.cpu().numpy().copy()
+
+        semantic_tokens = generation.generate_text_semantic(transcript, max_gen_duration_s=seconds, top_k=50,
+                                                            min_eos_p=0.2, top_p=.95, temp=0.7)
+
+        # semantic_tokens = np.concatenate(all_semantic_tokens)
         np.savez(out_file,
-                 semantic_prompt=semantic_his,
-                 coarse_prompt=course_his,
-                 fine_prompt=codes
+                 semantic_prompt=semantic_tokens,
+                 coarse_prompt=codes_copy[:2, :],
+                 fine_prompt=codes_copy
                  )
         return file_name
 
@@ -56,7 +94,7 @@ class BarkTTS(mod.TTSModelLoader):
             return gradio.update(choices=self.get_voices())
 
         textbox = gradio.Textbox(lines=7, label='Input', placeholder='Text to speak goes here', **quick_kwargs)
-        mode = gradio.Radio(['File', 'Upload'], value='File', **quick_kwargs)
+        mode = gradio.Radio(['File', 'Upload'], label='Speaker from', value='File', **quick_kwargs)
         with gradio.Row():
             text_temp = gradio.Slider(0, 1, 0.7, step=0.05, label='Text temperature', **quick_kwargs)
             waveform_temp = gradio.Slider(0, 1, 0.7, step=0.05, label='Waveform temperature', **quick_kwargs)
