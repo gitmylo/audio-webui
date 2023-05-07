@@ -25,9 +25,6 @@ for n in range(10):
     ALLOWED_PROMPTS.append(f"speaker_{n}")
 
 
-# TODO: generate_course and generate_fine
-
-
 def generate_text_semantic_new(
         text,
         history_prompt=None,

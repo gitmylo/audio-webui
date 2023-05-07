@@ -68,9 +68,9 @@ class BarkTTS(mod.TTSModelLoader):
 
         # semantic_tokens = np.concatenate(all_semantic_tokens)
         np.savez(out_file,
-                 semantic_prompt=semantic_tokens,
                  coarse_prompt=codes_copy[:2, :],
-                 fine_prompt=codes_copy
+                 fine_prompt=codes_copy,
+                 semantic_prompt=semantic_tokens
                  )
         return file_name
 
