@@ -29,7 +29,7 @@ for n in range(10):
 
 def generate_text_semantic_new(
         text,
-        history_prompt=None,
+        history_prompt: Union[str, dict] = None,
         temp=0.7,
         top_k=None,
         top_p=None,
@@ -45,7 +45,9 @@ def generate_text_semantic_new(
     assert len(text.strip()) > 0
     if history_prompt is not None:
         skip = False
-        if history_prompt.endswith(".npz"):
+        if isinstance(history_prompt, dict):
+            semantic_history = history_prompt['semantic_prompt']
+        elif history_prompt.endswith(".npz"):
             semantic_history = np.load(history_prompt)["semantic_prompt"]
         else:
             if history_prompt in ALLOWED_PROMPTS:
@@ -189,7 +191,7 @@ def generate_text_semantic_new(
 
 def generate_coarse_new(
         x_semantic,
-        history_prompt=None,
+        history_prompt: Union[str, dict] = None,
         temp=0.7,
         top_k=None,
         top_p=None,
@@ -212,7 +214,9 @@ def generate_coarse_new(
     max_semantic_history = int(np.floor(max_coarse_history / semantic_to_coarse_ratio))
     if history_prompt is not None:
         skip = False
-        if history_prompt.endswith(".npz"):
+        if isinstance(history_prompt, dict):
+            x_history = history_prompt
+        elif history_prompt.endswith(".npz"):
             x_history = np.load(history_prompt)
         else:
             if history_prompt in ALLOWED_PROMPTS:
