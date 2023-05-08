@@ -1,12 +1,46 @@
+import tempfile
+
+import numpy
 import numpy as np
 import gradio
 import torch
 import torchaudio
-from bark.generation import SAMPLE_RATE, load_codec_model
+from bark.generation import SAMPLE_RATE, load_codec_model, preload_models
 from encodec import EncodecModel
 from encodec.utils import convert_audio
 
+from webui.modules.implementations.patches import bark_api, bark_custom_voices
+
 model: EncodecModel = load_codec_model()
+
+
+
+def semantics_to_audio(file):
+    f = file.name
+    if f.endswith('.npz'):
+        preload_models()
+        things = numpy.load(f)
+        output = bark_api.semantic_to_waveform_new(things['semantic_prompt'])
+        return SAMPLE_RATE, output
+    return None
+
+
+def audio_to_prompts(file):
+    f = file.name
+    if f.endswith('.wav'):
+        fine_history, time = bark_custom_voices.generate_fine_history(f)
+        coarse_history = bark_custom_voices.generate_course_history(fine_history)
+
+        fine_file = tempfile.NamedTemporaryFile(delete=False)
+        fine_file.name = fine_file.name.replace(fine_file.name.replace('\\', '/').split('/')[-1], 'fine_prompt.npy')
+        coarse_file = tempfile.NamedTemporaryFile(delete=False)
+        coarse_file.name = coarse_file.name.replace(coarse_file.name.replace('\\', '/').split('/')[-1], 'coarse_prompt.npy')
+
+        numpy.save(fine_file.name, fine_history)
+        numpy.save(coarse_file.name, coarse_history)
+
+        return fine_file.name, coarse_file.name
+    return None, None
 
 
 def codec_decode(fine_tokens):
@@ -30,7 +64,7 @@ def codec_decode(fine_tokens):
 
 def convert_to_16_bit_wav(data):
     # Based on: https://docs.scipy.org/doc/scipy/reference/generated/scipy.io.wavfile.write.html
-    # Modified to support in64
+    # Modified to support int64
     print('Converting', data.dtype)
     if data.dtype in [np.float64, np.float32, np.float16]:
         data = data / np.abs(data).max()
@@ -61,18 +95,18 @@ def convert_to_16_bit_wav(data):
 def file_to_audio(file):
     if file.name.endswith('.npz'):
         html = '<h1>Result</h1>'
-        # try:
-        data = np.load(file.name)
-        for dpart in data.keys():
-            data_content = data[dpart]
-            html += f'File name: "{dpart}"<br>' \
-                    f'Shape: {data_content.shape}<br>' \
-                    f'Dtype: {data_content.dtype}'
-            html += '<br><br>'
-        audio_arr = codec_decode(data['fine_prompt'])
-        audio_arr = audio_arr
-        # except Exception as e:
-        #     return None, f'<h1 style="color: red;">Error</h1>{str(e)}'
+        try:
+            data = np.load(file.name)
+            for dpart in data.keys():
+                data_content = data[dpart]
+                html += f'File name: "{dpart}"<br>' \
+                        f'Shape: {data_content.shape}<br>' \
+                        f'Dtype: {data_content.dtype}'
+                html += '<br><br>'
+            audio_arr = codec_decode(data['fine_prompt'])
+            audio_arr = audio_arr
+        except Exception as e:
+            return None, f'<h1 style="color: red;">Error</h1>{str(e)}'
         return (SAMPLE_RATE, audio_arr), html
     elif file.name.endswith('.wav'):
         wav, sr = torchaudio.load(file.name)
@@ -96,4 +130,8 @@ def file_to_audio(file):
                                                            f'Codes shape: {codes_shape}<br>'
 
 
-gradio.interface.Interface(fn=file_to_audio, inputs='file', outputs=['audio', 'html']).launch()
+ex = gradio.interface.Interface(fn=file_to_audio, inputs='file', outputs=['audio', 'html'])
+sg = gradio.interface.Interface(fn=semantics_to_audio, inputs='file', outputs='audio')
+atp = gradio.interface.Interface(fn=audio_to_prompts, inputs='file', outputs=['file', 'file'])
+
+gradio.TabbedInterface([ex, sg, atp], ["Extraction", "Generation from semantics", "Audio to prompts"]).launch()

@@ -1,10 +1,12 @@
+from typing import Union
+
 from bark.api import *
 from .bark_generation import generate_text_semantic_new, generate_coarse_new, generate_fine_new
 
 
 def text_to_semantic_new(
     text: str,
-    history_prompt: Optional[str] = None,
+    history_prompt: Union[str, dict] = None,
     temp: float = 0.7,
     silent: bool = False,
 ):
@@ -31,7 +33,7 @@ def text_to_semantic_new(
 
 def semantic_to_waveform_new(
     semantic_tokens: np.ndarray,
-    history_prompt: Optional[str] = None,
+    history_prompt: Union[str, dict] = None,
     temp: float = 0.7,
     silent: bool = False,
     output_full: bool = False,
