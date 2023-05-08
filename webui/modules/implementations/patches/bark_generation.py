@@ -1,3 +1,5 @@
+from typing import Union
+
 import bark.generation as o
 from bark.generation import *
 
@@ -370,7 +372,7 @@ def generate_coarse_new(
 
 def generate_fine_new(
         x_coarse_gen,
-        history_prompt=None,
+        history_prompt: Union[str, dict] = None,
         temp=0.5,
         silent=True,
 ):
@@ -385,7 +387,9 @@ def generate_fine_new(
     )
     if history_prompt is not None:
         skip = False
-        if history_prompt.endswith(".npz"):
+        if isinstance(history_prompt, dict):
+            x_fine_history = history_prompt['fine_prompt']
+        elif history_prompt.endswith(".npz"):
             x_fine_history = np.load(history_prompt)["fine_prompt"]
         else:
             if history_prompt in ALLOWED_PROMPTS:
