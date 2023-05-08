@@ -1,5 +1,10 @@
 import numpy as np
 import gradio
+import torch
+from bark.generation import SAMPLE_RATE, load_codec_model
+from encodec import EncodecModel
+
+model: EncodecModel = load_codec_model(use_gpu=True)
 
 
 def convert_to_16_bit_wav(data):
@@ -35,17 +40,19 @@ def convert_to_16_bit_wav(data):
 
 def file_to_audio(file):
     html = '<h1>Result</h1>'
-    try:
-        data = np.load(file.name)
-        for dpart in data.keys():
-            data_content = data[dpart]
-            html += f'File name: "{dpart}"<br>' \
-                    f'Shape: {data_content.shape}<br>' \
-                    f'Dtype: {data_content.dtype}'
-            html += '<br><br>'
-    except Exception as e:
-        return f'<h1 style="color: red;">Error</h1>{e}'
-    return html
+    #try:
+    data = np.load(file.name)
+    for dpart in data.keys():
+        data_content = data[dpart]
+        html += f'File name: "{dpart}"<br>' \
+                f'Shape: {data_content.shape}<br>' \
+                f'Dtype: {data_content.dtype}'
+        html += '<br><br>'
+    squeezed = torch.tensor(data['fine_prompt']).unsqueeze(0)
+    audio = model.decode(squeezed)
+    #except Exception as e:
+    #    return gradio.update(), f'<h1 style="color: red;">Error</h1>{e}'
+    return [SAMPLE_RATE, audio], html
 
 
-gradio.interface.Interface(fn=file_to_audio, inputs='file', outputs='html').launch()
+gradio.interface.Interface(fn=file_to_audio, inputs='file', outputs=['audio', 'html']).launch()
