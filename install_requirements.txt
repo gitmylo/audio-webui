@@ -11,3 +11,4 @@ bark==0.0.1a0
 soundfile;;windows
 sox;;not windows
 TTS
+denoiser
