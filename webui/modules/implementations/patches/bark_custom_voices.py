@@ -7,6 +7,7 @@ import torch
 import torchaudio
 from TTS.utils.manage import ModelManager
 from TTS.utils.synthesizer import Synthesizer
+from TTS.api import TTS
 from bark.generation import SAMPLE_RATE, load_codec_model
 from scipy.io.wavfile import write as write_wav
 
@@ -71,11 +72,16 @@ def patch_speaker_npz(voice_to_clone: str, npz_file: str):
     wav = synthesizer.tts(  # Why does it use TTS for voice conversion on vits?
         language_name=language_idx,
         speaker_wav=speaker_wav,
-        reference_wav=reference_wav,
-
+        reference_wav=reference_wav
     )
 
     synthesizer.save_wav(wav, output.name)
+    # tts = TTS('voice_conversion_models/multilingual/vctk/freevc24', gpu=not args.tts_use_cpu)
+    # tts.voice_conversion_to_file(
+    #     source_wav=voice_to_clone,
+    #     target_wav=fine_file.name,
+    #     file_path=output.name
+    # )
 
     class Args:
         pass
