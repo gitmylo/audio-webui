@@ -130,8 +130,9 @@ def file_to_audio(file):
                                                            f'Codes shape: {codes_shape}<br>'
 
 
-ex = gradio.interface.Interface(fn=file_to_audio, inputs='file', outputs=['audio', 'html'])
-sg = gradio.interface.Interface(fn=semantics_to_audio, inputs='file', outputs='audio')
-atp = gradio.interface.Interface(fn=audio_to_prompts, inputs='file', outputs=['file', 'file'])
+if __name__ == '__main__':
+    ex = gradio.interface.Interface(fn=file_to_audio, inputs='file', outputs=['audio', 'html'])
+    sg = gradio.interface.Interface(fn=semantics_to_audio, inputs='file', outputs='audio')
+    atp = gradio.interface.Interface(fn=audio_to_prompts, inputs='file', outputs=['file', 'file'])
 
-gradio.TabbedInterface([ex, sg, atp], ["Extraction", "Generation from semantics", "Audio to prompts"]).launch()
+    gradio.TabbedInterface([ex, sg, atp], ["Extraction", "Generation from semantics", "Audio to prompts"]).launch()

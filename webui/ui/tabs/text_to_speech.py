@@ -48,10 +48,11 @@ def text_to_speech():
             generate = gradio.Button('Generate')
             audio_out = gradio.Audio()
             video_out = gradio.Video()
+            file_out = gradio.File()
 
     def _generate(inputs, values):
         global loader
         inputs = [values[i] for i in range(len(inputs)) if inputs[i] in all_components_dict[loader.model]]  # Filter and convert inputs
-        response = loader.get_response(*inputs)
-        return [response, gradio.make_waveform(response)]
-    generate.click(fn=lambda *values: _generate(all_components, values), inputs=all_components, outputs=[audio_out, video_out], show_progress=True)
+        response, file = loader.get_response(*inputs)
+        return response, gradio.make_waveform(response), file
+    generate.click(fn=lambda *values: _generate(all_components, values), inputs=all_components, outputs=[audio_out, video_out, file_out], show_progress=True)
