@@ -75,7 +75,7 @@ My current guess for fixing it has a few method proposals:
 ### Method 3:
 I have created an implementation of method 3 using coqui-ai/TTS. With the `your_tts` model.
 
-![bark voice cloning through method 3](A:\pycharmprojects\audio-webui\readme\bark\method_3.png)
+<img src="A:\pycharmprojects\audio-webui\readme\bark\method_3.png"/>
 
 **Explanation**: Input goes to semantic, which creates a coarse and fine with the model. Then I extract the fine audio and transfer the voice from the target audio onto the words extracted from the fine audio. Then I create a coarse audio from the fine audio using the method mentioned before. And last i store the created fine and coarse prompt with the semantic prompt in an npz file.
 
