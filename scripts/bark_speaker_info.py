@@ -20,6 +20,7 @@ def audio_to_semantics(file):
     tensor = bark_custom_voices.wav_to_semantics(f)
     temp = tempfile.NamedTemporaryFile(delete=False)
     temp.name = temp.name.replace(temp.name.replace('\\', '/').split('/')[-1], 'semantic_prompt.npy')
+    print('Semantics tensor: ', tensor)
     numpy.save(temp.name, tensor.cpu().numpy())
     return temp.name
 
@@ -40,10 +41,14 @@ def semantics_to_audio(file):
     )
     if f.endswith('.npz'):
         things = numpy.load(f)
-        output = bark_api.semantic_to_waveform_new(things['semantic_prompt'])
+        arr = things['semantic_prompt']
+        print('Semantics tensor: ', arr)
+        output = bark_api.semantic_to_waveform_new(arr)
         return SAMPLE_RATE, output
     if f.endswith('.npy'):
-        output = bark_api.semantic_to_waveform_new(numpy.load(f))
+        arr = numpy.load(f)
+        print('Semantics tensor: ', arr)
+        output = bark_api.semantic_to_waveform_new(arr)
         return SAMPLE_RATE, output
     return None
 

@@ -9,6 +9,7 @@ from TTS.utils.manage import ModelManager
 from TTS.utils.synthesizer import Synthesizer
 from bark.generation import SAMPLE_RATE, load_codec_model
 from scipy.io.wavfile import write as write_wav
+from transformers import Wav2Vec2FeatureExtractor, Wav2Vec2Processor
 
 from scripts.bark_speaker_info import codec_decode
 from webui.modules.implementations.patches.bark_generation import generate_text_semantic_new, generate_coarse_new, generate_fine_new
@@ -124,13 +125,18 @@ def generate_semantic_fine(transcript='There actually isn\'t a way to do that. I
     return semantic, fine
 
 
-def wav_to_semantics(file) -> torch.Tensor:  #TODO: find right model
-    wav2vec = HubertWithKmeans(
-        checkpoint_path='../data/models/hubert/hubert_base_ls960.pt',
-        kmeans_path='../data/models/hubert/hubert_base_ls960_L9_km500.bin'
-    )
-    wav, sr = torchaudio.load(file)
-    return wav2vec.forward(wav, True, sr)
+def wav_to_semantics(file) -> torch.Tensor:  # TODO: find or train the right model. Possibly hubert
+    # wav2vec = HubertWithKmeans(
+    #     checkpoint_path='../data/models/hubert/hubert_base_ls960.pt',
+    #     kmeans_path='../data/models/hubert/hubert_base_ls960_L9_km500.bin'
+    # )
+    # wav, sr = torchaudio.load(file)
+    # return wav2vec.forward(wav, True, sr)
+
+    # Wav2Vec2Processor
+    processor = Wav2Vec2FeatureExtractor.from_pretrained("facebook/hubert-large-ls960-ft")
+
+    input_values = processor(raw_speech=None, return_tensors="pt").input_values
 
 
 def generate_course_history(fine_history):
