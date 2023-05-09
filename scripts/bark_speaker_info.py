@@ -28,7 +28,7 @@ def semantics_to_audio(file):
 def audio_to_prompts(file):
     f = file.name
     if f.endswith('.wav'):
-        fine_history, time = bark_custom_voices.generate_fine_history(f)
+        fine_history, time = bark_custom_voices.generate_fine_from_wav(f)
         coarse_history = bark_custom_voices.generate_course_history(fine_history)
 
         fine_file = tempfile.NamedTemporaryFile(delete=False)
