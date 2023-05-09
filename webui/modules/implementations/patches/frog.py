@@ -198,7 +198,14 @@ class Synthesizer_new(object):
         save_wav(wav=wav, path=path, sample_rate=self.output_sample_rate)
 
     def voice_conversion(self, source_wav: str, target_wav: str) -> List[int]:
-        output_wav = self.vc_model.voice_conversion(source_wav, target_wav)
+        if self.vc_config.base_model.lower() == 'vits':
+            target_audio = self.vc_model.wav_to_spec(target_wav,
+                                                     self.vc_model.config.audio.fft_size,
+                                                     self.vc_model.config.audio.hop_length,
+                                                     self.vc_model.config.audio.win_length)
+            output_wav, _, _ = self.vc_model.inference_voice_conversion(reference_wav=source_wav, speaker_id=, )
+        else:
+            output_wav = self.vc_model.voice_conversion(source_wav, target_wav)
         return output_wav
 
     def tts(
