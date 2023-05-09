@@ -1,4 +1,4 @@
-import logging
+import os
 import tempfile
 from pathlib import Path
 
@@ -7,7 +7,6 @@ import torch
 import torchaudio
 from TTS.utils.manage import ModelManager
 from TTS.utils.synthesizer import Synthesizer
-from TTS.api import TTS
 from bark.generation import SAMPLE_RATE, load_codec_model
 from scipy.io.wavfile import write as write_wav
 
@@ -16,6 +15,7 @@ from webui.modules.implementations.patches.bark_generation import generate_text_
 from encodec.utils import convert_audio
 from webui.args import args
 from webui.modules.implementations.patches.denoise import enhance_new
+from audiolm_pytorch import HubertWithKmeans
 
 
 def patch_speaker_npz(voice_to_clone: str, npz_file: str):
@@ -122,6 +122,15 @@ def generate_semantic_fine(transcript='There actually isn\'t a way to do that. I
     coarse = generate_coarse_new(semantic)  # Voice doesn't matter
     fine = generate_fine_new(coarse)  # Good audio, ready for what comes next
     return semantic, fine
+
+
+def wav_to_semantics(file) -> torch.Tensor:  #TODO: find right model
+    wav2vec = HubertWithKmeans(
+        checkpoint_path='../data/models/hubert/hubert_base_ls960.pt',
+        kmeans_path='../data/models/hubert/hubert_base_ls960_L9_km500.bin'
+    )
+    wav, sr = torchaudio.load(file)
+    return wav2vec.forward(wav, True, sr)
 
 
 def generate_course_history(fine_history):

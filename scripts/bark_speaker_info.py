@@ -15,6 +15,15 @@ from webui.args import args
 model: EncodecModel = load_codec_model(use_gpu=not args.bark_use_cpu)
 
 
+def audio_to_semantics(file):
+    f = file.name
+    tensor = bark_custom_voices.wav_to_semantics(f)
+    temp = tempfile.NamedTemporaryFile(delete=False)
+    temp.name = temp.name.replace(temp.name.replace('\\', '/').split('/')[-1], 'semantic_prompt.npy')
+    numpy.save(temp.name, tensor.cpu().numpy())
+    return temp.name
+
+
 def semantics_to_audio(file):
     f = file.name
     cpu = args.bark_use_cpu
@@ -147,6 +156,7 @@ def file_to_audio(file):
 if __name__ == '__main__':
     ex = gradio.interface.Interface(fn=file_to_audio, inputs='file', outputs=['audio', 'html'])
     sg = gradio.interface.Interface(fn=semantics_to_audio, inputs='file', outputs='audio')
+    ats = gradio.interface.Interface(fn=audio_to_semantics, inputs='file', outputs='file')
     atp = gradio.interface.Interface(fn=audio_to_prompts, inputs='file', outputs=['file', 'file'])
 
-    gradio.TabbedInterface([ex, sg, atp], ["Extraction", "Generation from semantics", "Audio to prompts"]).launch()
+    gradio.TabbedInterface([ex, sg, ats, atp], ["Extraction", "Generation from semantics", "Audio to semantics", "Audio to prompts"]).launch()

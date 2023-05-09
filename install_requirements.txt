@@ -12,3 +12,4 @@ soundfile;;windows
 sox;;not windows
 TTS
 denoiser
+audiolm-pytorch
