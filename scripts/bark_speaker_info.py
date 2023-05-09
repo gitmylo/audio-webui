@@ -17,10 +17,24 @@ model: EncodecModel = load_codec_model(use_gpu=not args.bark_use_cpu)
 
 def semantics_to_audio(file):
     f = file.name
+    cpu = args.bark_use_cpu
+    gpu = not cpu
+    low_vram = args.bark_low_vram
+    preload_models(
+        text_use_gpu=gpu,
+        fine_use_gpu=gpu,
+        coarse_use_gpu=gpu,
+        codec_use_gpu=gpu,
+        fine_use_small=low_vram,
+        coarse_use_small=low_vram,
+        text_use_small=low_vram
+    )
     if f.endswith('.npz'):
-        preload_models()
         things = numpy.load(f)
         output = bark_api.semantic_to_waveform_new(things['semantic_prompt'])
+        return SAMPLE_RATE, output
+    if f.endswith('.npy'):
+        output = bark_api.semantic_to_waveform_new(numpy.load(f))
         return SAMPLE_RATE, output
     return None
 
