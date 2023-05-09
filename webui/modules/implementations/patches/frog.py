@@ -203,7 +203,9 @@ class Synthesizer_new(object):
                                                      self.vc_model.config.audio.fft_size,
                                                      self.vc_model.config.audio.hop_length,
                                                      self.vc_model.config.audio.win_length)
-            output_wav, _, _ = self.vc_model.inference_voice_conversion(reference_wav=source_wav, speaker_id=, )
+            output_wav, _, _ = self.vc_model.inference_voice_conversion(reference_wav=source_wav,
+                                                                        speaker_id=target_audio,
+                                                                        reference_speaker_id=target_audio)
         else:
             output_wav = self.vc_model.voice_conversion(source_wav, target_wav)
         return output_wav
