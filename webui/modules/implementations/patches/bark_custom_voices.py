@@ -11,6 +11,7 @@ from webui.modules.implementations.patches.bark_api import semantic_to_waveform_
 from webui.modules.implementations.patches.bark_generation import generate_text_semantic_new, generate_coarse_new, generate_fine_new
 from encodec.utils import convert_audio
 from TTS.api import TTS
+from webui.args import args
 
 
 def patch_speaker_npz(voice_to_clone: str, npz_file: str):
@@ -25,7 +26,7 @@ def patch_speaker_npz(voice_to_clone: str, npz_file: str):
     output.name += '.wav'
 
     # Convert speaker
-    tts = TTS(model_name="tts_models/multilingual/multi-dataset/your_tts", progress_bar=True, gpu=True,
+    tts = TTS(model_name="tts_models/multilingual/multi-dataset/your_tts", progress_bar=True, gpu=args.tts_use_cpu,
               force_voice_convert=True)  # Monkeypatched flag to allow voice convert on your_tts
     tts.manager.output_prefix = 'data/models/coqui-tts/'  # TODO: force downloading into this dir
     tts.voice_conversion_to_file(source_wav=voice_to_clone, target_wav=fine_file.name, file_path=output.name)
@@ -57,7 +58,7 @@ def generate_course_history(fine_history):
 
 
 def generate_fine_from_wav(file):
-    model = load_codec_model()  # Don't worry about reimporting, it stores the loaded model in a dict
+    model = load_codec_model(use_gpu=not args.bark_use_cpu)  # Don't worry about reimporting, it stores the loaded model in a dict
     wav, sr = torchaudio.load(file)
     wav = convert_audio(wav, sr, SAMPLE_RATE, model.channels)
     wav = wav.unsqueeze(0).to('cuda')

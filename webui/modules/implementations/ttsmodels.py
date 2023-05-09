@@ -9,15 +9,6 @@ from bark import generation
 import webui.modules.models as mod
 
 
-def tolerant_mean(arrs):
-    lens = [len(i) for i in arrs]
-    arr = np.ma.empty((np.max(lens), len(arrs)))
-    arr.mask = True
-    for idx, l in enumerate(arrs):
-        arr[:len(l),idx] = l
-    return arr.mean(axis=-1), arr.std(axis=-1)
-
-
 class BarkTTS(mod.TTSModelLoader):
     no_install = True
 
@@ -45,7 +36,6 @@ class BarkTTS(mod.TTSModelLoader):
 
         np.savez(out_file, **new_npz)
         return file_name
-
 
     def _components(self, **quick_kwargs):
         def update_speaker(option):
@@ -107,10 +97,21 @@ class BarkTTS(mod.TTSModelLoader):
         from bark.generation import clean_models
         clean_models()
 
-
     def load_model(self):
         from bark.generation import preload_models
-        preload_models()
+        from webui.args import args
+        cpu = args.bark_use_cpu
+        gpu = not cpu
+        low_vram = args.bark_low_vram
+        preload_models(
+            text_use_gpu=gpu,
+            fine_use_gpu=gpu,
+            coarse_use_gpu=gpu,
+            codec_use_gpu=gpu,
+            fine_use_small=low_vram,
+            coarse_use_small=low_vram,
+            text_use_small=low_vram
+        )
 
 
 elements = []

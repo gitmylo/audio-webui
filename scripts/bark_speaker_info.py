@@ -10,9 +10,9 @@ from encodec import EncodecModel
 from encodec.utils import convert_audio
 
 from webui.modules.implementations.patches import bark_api, bark_custom_voices
+from webui.args import args
 
-model: EncodecModel = load_codec_model()
-
+model: EncodecModel = load_codec_model(use_gpu=not args.bark_use_cpu)
 
 
 def semantics_to_audio(file):
