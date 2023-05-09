@@ -1,3 +1,4 @@
+import logging
 import tempfile
 from pathlib import Path
 
@@ -12,8 +13,8 @@ from scipy.io.wavfile import write as write_wav
 from scripts.bark_speaker_info import codec_decode
 from webui.modules.implementations.patches.bark_generation import generate_text_semantic_new, generate_coarse_new, generate_fine_new
 from encodec.utils import convert_audio
-from TTS.api import TTS
 from webui.args import args
+from webui.modules.implementations.patches.denoise import enhance_new
 
 
 def patch_speaker_npz(voice_to_clone: str, npz_file: str):
@@ -76,8 +77,27 @@ def patch_speaker_npz(voice_to_clone: str, npz_file: str):
 
     synthesizer.save_wav(wav, output.name)
 
+    class Args:
+        pass
+
+    # Denoise
+    enhance_args = Args  # Not even instantiating because it really doesn't matter here
+
+    enhance_args.streaming = False  # No streaming
+    enhance_args.dry = 1  # Full denoising
+
+    enhance_args.dns64 = False
+    enhance_args.master64 = True  # Model
+    enhance_args.valentini_nc = False
+    enhance_args.model_path = ''  # Don't load model
+    enhance_args.device = 'cuda' if not args.tts_use_cpu else 'cpu'
+
+    enhance_args.out_file = output.name[:-4] + '_enhanced' + '.wav'
+
+    enhance_new(enhance_args, output.name, enhance_args.out_file)
+
     # Convert the new fine and new coarse prompts
-    new_fine, _ = generate_fine_from_wav(output.name)
+    new_fine, _ = generate_fine_from_wav(enhance_args.out_file)
     new_coarse = generate_course_history(new_fine)
     return {
         'semantic_prompt': data['semantic_prompt'],
