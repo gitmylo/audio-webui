@@ -142,11 +142,12 @@ def wav_to_semantics(file) -> torch.Tensor:  # TODO: find or train the right mod
 def eval_semantics(code):
     """
     BE CAREFUL, this will execute :code:
-    :param code: The code to evaluate, out will be used for the output.
+    :param code: The code to evaluate, out local will be used for the output.
     :return: The created numpy array.
     """
-    pass
-
+    _locals = locals()
+    exec(code, globals(), _locals)
+    return _locals['out']
 
 
 def generate_course_history(fine_history):

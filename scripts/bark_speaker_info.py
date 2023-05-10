@@ -19,7 +19,11 @@ model: EncodecModel = load_codec_model(use_gpu=not args.bark_use_cpu)
 
 
 def create_custom_semantics(code):
-    return bark_custom_voices.eval_semantics(code)
+    data = bark_custom_voices.eval_semantics(code)
+    temp = tempfile.NamedTemporaryFile(delete=False)
+    temp.name = temp.name.replace(temp.name.replace('\\', '/').split('/')[-1], 'semantic_prompt.npy')
+    numpy.save(temp.name, data)
+    return temp.name
 
 
 
@@ -171,5 +175,6 @@ if __name__ == '__main__':
     sg = gradio.interface.Interface(fn=semantics_to_audio, inputs='file', outputs='audio')
     ats = gradio.interface.Interface(fn=audio_to_semantics, inputs='file', outputs='file')
     atp = gradio.interface.Interface(fn=audio_to_prompts, inputs='file', outputs=['file', 'file'])
+    ccs = gradio.interface.Interface(fn=create_custom_semantics, inputs=gradio.TextArea(label='code', value='out = [1, 2, 3]'), outputs='file')
 
-    gradio.TabbedInterface([ex, sg, ats, atp], ["Extraction", "Generation from semantics", "Audio to semantics", "Audio to prompts"]).launch()
+    gradio.TabbedInterface([ex, sg, ats, atp, ccs], ["Extraction", "Generation from semantics", "Audio to semantics", "Audio to prompts", "Semantics from code"]).launch()
