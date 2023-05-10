@@ -1,7 +1,7 @@
 from typing import Union
 
 from bark.api import *
-from .bark_generation import generate_text_semantic_new, generate_coarse_new, generate_fine_new
+from .bark_generation import generate_text_semantic_new, generate_coarse_new, generate_fine_new, codec_decode_new
 
 
 def text_to_semantic_new(
@@ -37,8 +37,8 @@ def semantic_to_waveform_new(
     temp: float = 0.7,
     silent: bool = False,
     output_full: bool = False,
-    skip_fine: bool = False
-):
+    skip_fine: bool = False,
+    decode_on_cpu: bool = False):
     """Generate audio array from semantic input.
 
     Args:
@@ -48,6 +48,7 @@ def semantic_to_waveform_new(
         silent: disable progress bar
         output_full: return full generation to be used as a history prompt
         skip_fine: (Added in new) Skip converting coarse to fine
+        decode_on_cpu: (Added in new) Move everything to cpu when decoding, useful for decoding huge audio files on medium vram
 
     Returns:
         numpy audio array at sample frequency 24khz
@@ -67,7 +68,7 @@ def semantic_to_waveform_new(
         )
     else:
         fine_tokens = coarse_tokens
-    audio_arr = codec_decode(fine_tokens)
+    audio_arr = codec_decode_new(fine_tokens, decode_on_cpu)
     if output_full:
         full_generation = {
             "semantic_prompt": semantic_tokens,

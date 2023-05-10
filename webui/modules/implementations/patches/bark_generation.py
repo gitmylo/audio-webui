@@ -504,3 +504,32 @@ def generate_fine_new(
     assert gen_fine_arr.shape[-1] == x_coarse_gen.shape[-1]
     o._clear_cuda_cache()
     return gen_fine_arr
+
+
+def codec_decode_new(fine_tokens, decode_on_cpu=False):
+    """Turn quantized audio codes into audio array using encodec."""
+    # load models if not yet exist
+    global models
+    global models_devices
+    if "codec" not in models:
+        preload_models()
+    model = models["codec"]
+    if OFFLOAD_CPU and not decode_on_cpu:
+        model.to(models_devices["codec"])
+    elif decode_on_cpu:
+        model.to('cpu')
+    device = next(model.parameters()).device
+    arr = torch.from_numpy(fine_tokens)[None]
+    arr = arr.to(device)
+    arr = arr.transpose(0, 1)
+    emb = model.quantizer.decode(arr)
+    out = model.decoder(emb)
+    audio_arr = out.detach().cpu().numpy().squeeze()
+    del arr, emb, out
+    if OFFLOAD_CPU and not decode_on_cpu:
+        model.to("cpu")
+    elif decode_on_cpu:
+        from webui.args import args
+        model.to('cpu' if args.bark_use_cpu else 'cuda')
+    return audio_arr
+

@@ -145,6 +145,8 @@ def eval_semantics(code):
     :param code: The code to evaluate, out local will be used for the output.
     :return: The created numpy array.
     """
+    from scripts.example_semantic_gens import split, linear_full, linear_split, shuffle_full, shuffle_split, random, \
+        random_chunks
     _locals = locals()
     exec(code, globals(), _locals)
     return _locals['out']
