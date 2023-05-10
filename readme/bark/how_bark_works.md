@@ -83,3 +83,8 @@ I have created an implementation of method 3 using coqui-ai/TTS. With the `your_
 
 ### Method 1:
 **Pre**: It looks like bark uses [AudioLM](https://github.com/lucidrains/audiolm-pytorch) for the semantic tokens! I'm not sure if they use a different model though. I'll have to test that. But if they don't use a pre-trained model. I can do step 2.
+
+No, it doesn't look like i can find a model, i did succeed in creating same-size vector embeddings, but the vectors use the wrong tokens.
+
+### Method 2:
+**Pre**: What if instead of training a whole model, i only create a quantizer based on a bunch of data?

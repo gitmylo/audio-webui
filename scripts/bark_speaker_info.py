@@ -1,3 +1,5 @@
+import gzip
+import pickle
 import tempfile
 
 import numpy
@@ -15,13 +17,19 @@ from webui.args import args
 model: EncodecModel = load_codec_model(use_gpu=not args.bark_use_cpu)
 
 
+
+def create_custom_semantics(code):
+    return bark_custom_voices.eval_semantics(code)
+
+
+
 def audio_to_semantics(file):
     f = file.name
     tensor = bark_custom_voices.wav_to_semantics(f)
     temp = tempfile.NamedTemporaryFile(delete=False)
     temp.name = temp.name.replace(temp.name.replace('\\', '/').split('/')[-1], 'semantic_prompt.npy')
     print('Semantics tensor: ', tensor)
-    numpy.save(temp.name, tensor.cpu().numpy())
+    numpy.save(temp.name, tensor)
     return temp.name
 
 
