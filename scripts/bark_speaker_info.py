@@ -1,4 +1,7 @@
+import io
+import os
 import tempfile
+import zipfile
 
 import numpy
 import numpy as np
@@ -8,6 +11,7 @@ import torchaudio
 from bark.generation import SAMPLE_RATE, load_codec_model, preload_models
 from encodec import EncodecModel
 from encodec.utils import convert_audio
+from scipy.io.wavfile import write as write_wav
 
 from webui.modules.implementations.patches import bark_api, bark_custom_voices
 from webui.args import args
@@ -15,14 +19,80 @@ from webui.args import args
 model: EncodecModel = load_codec_model(use_gpu=not args.bark_use_cpu)
 
 
+
+def create_custom_semantics(code):
+    files = []
+    data = bark_custom_voices.eval_semantics(code)
+    i = 0
+    for file in data:
+        temp = tempfile.NamedTemporaryFile(delete=False)
+        temp.name = temp.name.replace(temp.name.replace('\\', '/').split('/')[-1], f'semantic_prompt_{i}.npy')
+        numpy.save(temp.name, file)
+        files.append(temp.name)
+        i += 1
+    temp = tempfile.NamedTemporaryFile(delete=False)
+    temp.name = temp.name.replace(temp.name.replace('\\', '/').split('/')[-1], f'semantic_prompts.zip')
+    with zipfile.ZipFile(temp.name, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        for file in files:
+            base_name = os.path.basename(file)
+            zipf.write(file, base_name)
+    return [temp.name] + files
+
+
+
+def audio_to_semantics(file):
+    f = file.name
+    tensor = bark_custom_voices.wav_to_semantics(f)
+    temp = tempfile.NamedTemporaryFile(delete=False)
+    temp.name = temp.name.replace(temp.name.replace('\\', '/').split('/')[-1], 'semantic_prompt.npy')
+    print('Semantics tensor: ', tensor)
+    numpy.save(temp.name, tensor)
+    return temp.name
+
+
 def semantics_to_audio(file):
     f = file.name
+    cpu = args.bark_use_cpu
+    gpu = not cpu
+    low_vram = args.bark_low_vram
+    preload_models(
+        text_use_gpu=gpu,
+        fine_use_gpu=gpu,
+        coarse_use_gpu=gpu,
+        codec_use_gpu=gpu,
+        fine_use_small=low_vram,
+        coarse_use_small=low_vram,
+        text_use_small=low_vram
+    )
     if f.endswith('.npz'):
-        preload_models()
         things = numpy.load(f)
-        output = bark_api.semantic_to_waveform_new(things['semantic_prompt'])
-        return SAMPLE_RATE, output
-    return None
+        arr = things['semantic_prompt']
+        print('Semantics tensor: ', arr)
+        output = bark_api.semantic_to_waveform_new(arr, decode_on_cpu=True)
+        return [(SAMPLE_RATE, output), None]
+    if f.endswith('.npy'):
+        arr = numpy.load(f)
+        print('Semantics tensor: ', arr)
+        output = bark_api.semantic_to_waveform_new(arr, decode_on_cpu=True)
+        return [(SAMPLE_RATE, output), None]
+    if f.endswith('.zip'):
+        wavs = []
+        with zipfile.ZipFile(f, 'r') as zip_file:
+            for file_info in zip_file.infolist():
+                with zip_file.open(file_info, mode='r') as file:
+                    data = numpy.load(io.BytesIO(file.read()))
+                    out = bark_api.semantic_to_waveform_new(data, decode_on_cpu=True)
+                    temp = tempfile.NamedTemporaryFile(delete=False)
+                    temp.name = temp.name.replace(temp.name.replace('\\', '/').split('/')[-1], file_info.filename.replace('.npy', '.wav'))
+                    write_wav(temp.name, SAMPLE_RATE, out)
+                    wavs.append(temp.name)
+        temp.name = temp.name.replace(temp.name.replace('\\', '/').split('/')[-1], 'generations.zip')
+        with zipfile.ZipFile(temp.name, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for file in wavs:
+                base_name = os.path.basename(file)
+                zipf.write(file, base_name)
+        return [(SAMPLE_RATE, out), [temp.name] + wavs]  # Last as audio, rest in zip and as wavs
+    return None, None
 
 
 def audio_to_prompts(file):
@@ -132,7 +202,9 @@ def file_to_audio(file):
 
 if __name__ == '__main__':
     ex = gradio.interface.Interface(fn=file_to_audio, inputs='file', outputs=['audio', 'html'])
-    sg = gradio.interface.Interface(fn=semantics_to_audio, inputs='file', outputs='audio')
+    sg = gradio.interface.Interface(fn=semantics_to_audio, inputs='file', outputs=[gradio.Audio(), gradio.Files()])
+    ats = gradio.interface.Interface(fn=audio_to_semantics, inputs='file', outputs='file')
     atp = gradio.interface.Interface(fn=audio_to_prompts, inputs='file', outputs=['file', 'file'])
+    ccs = gradio.interface.Interface(fn=create_custom_semantics, inputs=gradio.TextArea(label='code', value='out = [[1, 2, 3], [4, 5, 6]]'), outputs=gradio.Files())
 
-    gradio.TabbedInterface([ex, sg, atp], ["Extraction", "Generation from semantics", "Audio to prompts"]).launch()
+    gradio.TabbedInterface([ex, sg, ats, atp, ccs], ["Extraction", "Generation from semantics", "Audio to semantics", "Audio to prompts", "Semantics from code"]).launch()
