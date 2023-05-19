@@ -1,4 +1,4 @@
-import os
+import os.path
 import tempfile
 from pathlib import Path
 
@@ -10,14 +10,15 @@ from TTS.utils.synthesizer import Synthesizer
 from bark.generation import SAMPLE_RATE, load_codec_model
 from scipy.io.wavfile import write as write_wav
 from torchaudio.functional import resample
-from transformers import Wav2Vec2FeatureExtractor, Wav2Vec2Processor, AutoTokenizer, Wav2Vec2Tokenizer, Wav2Vec2CTCTokenizer, HubertForCTC
 
-from scripts.bark_speaker_info import codec_decode
+from hubert.customtokenizer import CustomTokenizer
+from hubert.hubert_manager import HuBERTManager
+from hubert.pre_kmeans_hubert import CustomHubert
+from bark_speaker_info import codec_decode
 from webui.modules.implementations.patches.bark_generation import generate_text_semantic_new, generate_coarse_new, generate_fine_new
 from encodec.utils import convert_audio
 from webui.args import args
 from webui.modules.implementations.patches.denoise import enhance_new
-from audiolm_pytorch import HubertWithKmeans
 
 
 def patch_speaker_npz(voice_to_clone: str, npz_file: str):
@@ -126,17 +127,36 @@ def generate_semantic_fine(transcript='There actually isn\'t a way to do that. I
     return semantic, fine
 
 
-def wav_to_semantics(file) -> torch.Tensor:  # TODO: find or train the right model. Possibly hubert
+huberts = {}
+
+
+def load_hubert():
+    HuBERTManager.make_sure_hubert_installed()
+    HuBERTManager.make_sure_tokenizer_installed()
+    install_dir = os.path.join('data', 'models', 'hubert')
+    if 'hubert' not in huberts:
+        hubert_path = os.path.join(install_dir, 'hubert.pt')
+        print('Loading HuBERT')
+        huberts['hubert'] = CustomHubert(hubert_path)
+    if 'tokenizer' not in huberts:
+        tokenizer_path = os.path.join(install_dir, 'tokenizer.pth')
+        print('Loading Custom Tokenizer')
+        tokenizer = CustomTokenizer()
+        tokenizer.load_state_dict(torch.load(tokenizer_path))  # Load the model
+        huberts['tokenizer'] = tokenizer
+
+
+def wav_to_semantics(file) -> torch.Tensor:
     # Vocab size is 10,000.
 
-    # wav2vec = HubertWithKmeans(
-    #     checkpoint_path='../data/models/hubert/hubert_base_ls960.pt',
-    #     kmeans_path='../data/models/hubert/hubert_base_ls960_L9_km500.bin'
-    # )
-    # print('codebook size:', wav2vec.codebook_size)
-    # wav, sr = torchaudio.load(file)
-    # return wav2vec.forward(wav, True, sr)
-    pass
+    load_hubert()
+
+    wav, sr = torchaudio.load(file)
+    # Extract semantics in HuBERT style
+    print('Extracting semantics')
+    semantics = huberts['hubert'].forward(wav, input_sample_hz=sr)
+    print('Tokenizing semantics')
+    return huberts['tokenizer'].get_token(semantics)
 
 
 def eval_semantics(code):
@@ -145,8 +165,6 @@ def eval_semantics(code):
     :param code: The code to evaluate, out local will be used for the output.
     :return: The created numpy array.
     """
-    from scripts.example_semantic_gens import split, linear_full, linear_split, shuffle_full, shuffle_split, random, \
-        random_chunks
     _locals = locals()
     exec(code, globals(), _locals)
     return _locals['out']

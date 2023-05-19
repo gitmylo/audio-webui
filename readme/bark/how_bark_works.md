@@ -88,3 +88,5 @@ No, it doesn't look like i can find a model, i did succeed in creating same-size
 
 ### Method 2:
 **Pre**: What if instead of training a whole model, i only create a quantizer based on a bunch of data?
+
+Successful
