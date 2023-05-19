@@ -86,7 +86,8 @@ def generate_audio_new(
     waveform_temp: float = 0.7,
     silent: bool = False,
     output_full: bool = False,
-    skip_fine: bool = False
+    skip_fine: bool = False,
+    decode_on_cpu: bool = False
 ):
     """Generate audio array from input text.
 
@@ -98,6 +99,7 @@ def generate_audio_new(
         silent: disable progress bar
         output_full: return full generation to be used as a history prompt
         skip_fine: (Added in new) Skip converting from coarse to fine
+        decode_on_cpu: (Added in new) Decode on cpu
 
     Returns:
         numpy audio array at sample frequency 24khz
@@ -114,7 +116,8 @@ def generate_audio_new(
         temp=waveform_temp,
         silent=silent,
         output_full=output_full,
-        skip_fine=skip_fine
+        skip_fine=skip_fine,
+        decode_on_cpu=decode_on_cpu
     )
     if output_full:
         full_generation, audio_arr = out
