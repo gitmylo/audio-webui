@@ -26,7 +26,7 @@ class HuBERTManager:
             os.mkdir(install_dir)
         install_file = os.path.join(install_dir, 'tokenizer.pth')
         repo = 'GitMylo/bark-voice-cloning'
-        file = 'quantifier_hubert_base_ls960.pth'
+        file = 'quantifier_hubert_base_ls960_14.pth'
         if not os.path.isfile(install_file):
             print('Downloading HuBERT custom tokenizer')
             huggingface_hub.hf_hub_download(repo, file, local_dir=install_dir, local_dir_use_symlinks=False)
