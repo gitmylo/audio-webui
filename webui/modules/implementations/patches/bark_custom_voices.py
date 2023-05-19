@@ -3,11 +3,13 @@ import tempfile
 from pathlib import Path
 
 import numpy
+import soundfile
 import torch
 import torchaudio
 from TTS.utils.manage import ModelManager
 from TTS.utils.synthesizer import Synthesizer
 from bark.generation import SAMPLE_RATE, load_codec_model
+from scipy.io import wavfile
 from scipy.io.wavfile import write as write_wav
 from torchaudio.functional import resample
 
@@ -152,11 +154,17 @@ def wav_to_semantics(file) -> torch.Tensor:
     load_hubert()
 
     wav, sr = torchaudio.load(file)
+    # sr, wav = wavfile.read(file)
+    # wav = torch.tensor(wav, dtype=torch.float32)
+
+    wav = wav.mean(0, keepdim=True)  # Stereo to mono if needed
+
     # Extract semantics in HuBERT style
     print('Extracting semantics')
     semantics = huberts['hubert'].forward(wav, input_sample_hz=sr)
     print('Tokenizing semantics')
-    return huberts['tokenizer'].get_token(semantics)
+    tokens = huberts['tokenizer'].get_token(semantics)
+    return tokens
 
 
 def eval_semantics(code):
@@ -183,11 +191,9 @@ def generate_fine_from_wav(file):
         encoded_frames = model.encode(wav)
     codes = torch.cat([encoded[0] for encoded in encoded_frames], dim=-1).squeeze()
 
-    seconds = wav.shape[-1] / model.sample_rate
-
     codes = codes.cpu().numpy()
 
-    return codes, seconds
+    return codes
 
 
 def transfer_speech(voice, sentence):
