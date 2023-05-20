@@ -1,5 +1,3 @@
-from typing import Union
-
 from bark.api import *
 from .bark_generation import generate_text_semantic_new, generate_coarse_new, generate_fine_new, codec_decode_new
 

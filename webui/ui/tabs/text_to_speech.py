@@ -1,5 +1,4 @@
 import gradio
-import numpy as np
 
 import webui.modules.models as mod
 import webui.modules.implementations.ttsmodels as tts_models

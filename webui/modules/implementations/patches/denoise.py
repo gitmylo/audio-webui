@@ -1,5 +1,4 @@
 from denoiser.enhance import *
-from denoiser.enhance import _estimate_and_save
 
 
 def enhance_new(args, in_file, out_file, model=None, local_out_dir=None):
