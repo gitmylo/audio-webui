@@ -1,4 +1,4 @@
-# Readme
+# Readme 💀x7
 
 ## Running
 Running should be as simple as running `run.bat` or `run.sh` depending on your OS.
