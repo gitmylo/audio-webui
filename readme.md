@@ -1,5 +1,12 @@
 # Readme
 
+## Running
+Running should be as simple as running `run.bat` or `run.sh` depending on your OS.
+Everything should get installed automatically.
+
+This has not been tested beyond 2 of my pcs.
+If there's an issue with running, please create an [issue](https://github.com/gitmylo/audio-webui/issues)
+
 ## Command line flags
 
 | Name            | Args     | Short      | Usage                 | Description                                    |
