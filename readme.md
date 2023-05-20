@@ -15,7 +15,6 @@ If there's an issue with running, please create an [issue](https://github.com/gi
 | --bark-low-vram    | [None]   | [None]     | --bark-low-vram       | Use low vram for bark                                      |
 | --bark-cpu-offload | [None]   | [None]     | --bark-cpu-offload    | Use cpu offloading to save vram while still running on gpu |
 | --bark-use-cpu     | [None]   | [None]     | --bark-use-cpu        | Use cpu for bark                                           |
-| --tts-cpu          | [None]   | [None]     | --tts-use-cpu         | [Currently deprecated] Use cpu for tts library             |
 | --share            | [None]   | -s         | -s                    | Share the gradio instance publicly                         |
 | --username         | username | -u, --user | -u username           | Set the username for gradio                                |
 | --password         | password | -p, --pass | -p password           | Set the password for gradio                                |

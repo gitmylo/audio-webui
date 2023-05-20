@@ -10,6 +10,4 @@ audio2numpy
 bark==0.1.5
 soundfile;;windows
 sox;;not windows
-TTS
-denoiser
 audiolm-pytorch
