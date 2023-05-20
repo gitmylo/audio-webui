@@ -26,7 +26,7 @@ def parse_requirements(req_file='install_requirements.txt'):
     return requirements_parsed
 
 
-large_packages = ['torch', 'TTS']
+large_packages = ['torch==2.0.0', 'TTS']
 
 
 def install_requirements(req_file='install_requirements.txt'):
