@@ -9,6 +9,7 @@ def text_to_semantic_new(
     history_prompt: Union[str, dict] = None,
     temp: float = 0.7,
     silent: bool = False,
+    allow_early_stop: bool = True
 ):
     """Generate semantic array from text.
 
@@ -17,6 +18,7 @@ def text_to_semantic_new(
         history_prompt: history choice for audio cloning
         temp: generation temperature (1.0 more diverse, 0.0 more conservative)
         silent: disable progress bar
+        allow_early_stop: (Added in new) set to False to generate until the limit
 
     Returns:
         numpy semantic array to be fed into `semantic_to_waveform`
@@ -26,7 +28,8 @@ def text_to_semantic_new(
         history_prompt=history_prompt,
         temp=temp,
         silent=silent,
-        use_kv_caching=True
+        use_kv_caching=True,
+        allow_early_stop=allow_early_stop
     )
     return x_semantic
 
@@ -87,7 +90,8 @@ def generate_audio_new(
     silent: bool = False,
     output_full: bool = False,
     skip_fine: bool = False,
-    decode_on_cpu: bool = False
+    decode_on_cpu: bool = False,
+    allow_early_stop: bool = True
 ):
     """Generate audio array from input text.
 
@@ -100,6 +104,7 @@ def generate_audio_new(
         output_full: return full generation to be used as a history prompt
         skip_fine: (Added in new) Skip converting from coarse to fine
         decode_on_cpu: (Added in new) Decode on cpu
+        allow_early_stop: (Added in new) Set to false to continue until the limit is reached
 
     Returns:
         numpy audio array at sample frequency 24khz
@@ -109,6 +114,7 @@ def generate_audio_new(
         history_prompt=history_prompt,
         temp=text_temp,
         silent=silent,
+        allow_early_stop=allow_early_stop
     )
     out = semantic_to_waveform_new(
         semantic_tokens,

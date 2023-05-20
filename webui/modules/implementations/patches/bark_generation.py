@@ -43,7 +43,7 @@ def generate_text_semantic_new(
     """Generate semantic tokens from text."""
     assert isinstance(text, str)
     text = o._normalize_whitespace(text)
-    assert len(text.strip()) > 0
+    # assert len(text.strip()) > 0
     if history_prompt is not None:
         skip = False
         if isinstance(history_prompt, dict):

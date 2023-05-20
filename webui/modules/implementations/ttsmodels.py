@@ -85,14 +85,16 @@ class BarkTTS(mod.TTSModelLoader):
         speaker_file.hide = True  # Custom, auto hide speaker_file
         # speaker_file_transcript.hide = True
 
+        keep_generating = gradio.Checkbox(label='Keep it up (keep generating)', value=False, **quick_kwargs)
+
         mode.select(fn=update_speaker, inputs=mode, outputs=[speaker, refresh_speakers, speaker_file])
         input_type.select(fn=update_input, inputs=input_type, outputs=[textbox, audio_upload])
-        return [textbox, audio_upload, input_type, mode, text_temp, waveform_temp, speaker, speaker_file, refresh_speakers]
+        return [textbox, audio_upload, input_type, mode, text_temp, waveform_temp, speaker, speaker_file, refresh_speakers, keep_generating]
 
     model = 'suno/bark'
 
     def get_response(self, *inputs):
-        textbox, audio_upload, input_type, mode, text_temp, waveform_temp, speaker, speaker_file, refresh_speakers = inputs
+        textbox, audio_upload, input_type, mode, text_temp, waveform_temp, speaker, speaker_file, refresh_speakers, keep_generating = inputs
         _speaker = None
         if mode == 'File':
             _speaker = speaker if speaker != 'None' else None
@@ -101,7 +103,8 @@ class BarkTTS(mod.TTSModelLoader):
         from webui.modules.implementations.patches.bark_api import generate_audio_new, semantic_to_waveform_new
         from bark.generation import SAMPLE_RATE
         if input_type == 'Text':
-            history_prompt, audio = generate_audio_new(textbox, _speaker, text_temp, waveform_temp, output_full=True)
+            history_prompt, audio = generate_audio_new(textbox, _speaker, text_temp, waveform_temp, output_full=True,
+                                                       allow_early_stop=not keep_generating)
         else:
             semantics = wav_to_semantics(audio_upload.name).numpy()
             history_prompt, audio = semantic_to_waveform_new(semantics, _speaker, waveform_temp, output_full=True)
