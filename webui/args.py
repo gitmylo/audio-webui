@@ -1,4 +1,5 @@
 import argparse
+import os
 
 parser = argparse.ArgumentParser()
 
@@ -8,6 +9,7 @@ parser.add_argument('-si', '--skip-install', action='store_true', help='Skip ins
 # Models
 # Bark
 parser.add_argument('--bark-low-vram', action='store_true', help='Use low vram mode on bark')
+parser.add_argument('--bark-cpu-offload', action='store_true', help='Use cpu offloading for lower vram usage on bark')
 parser.add_argument('--bark-use-cpu', action='store_true', help='Use cpu on bark')
 
 # TTS
@@ -20,3 +22,6 @@ parser.add_argument('-p', '--password', '--pass', type=str, help='Gradio passwor
 parser.add_argument('--theme', type=str, help='Gradio theme', default='gradio/soft')
 
 args = parser.parse_args()
+
+if args.bark_cpu_offload:
+    os.environ['SUNO_OFFLOAD_CPU'] = True

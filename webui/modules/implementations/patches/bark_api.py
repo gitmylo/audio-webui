@@ -41,7 +41,8 @@ def semantic_to_waveform_new(
     silent: bool = False,
     output_full: bool = False,
     skip_fine: bool = False,
-    decode_on_cpu: bool = False):
+    decode_on_cpu: bool = False
+):
     """Generate audio array from semantic input.
 
     Args:
