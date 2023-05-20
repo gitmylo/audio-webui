@@ -24,4 +24,4 @@ parser.add_argument('--theme', type=str, help='Gradio theme', default='gradio/so
 args = parser.parse_args()
 
 if args.bark_cpu_offload:
-    os.environ['SUNO_OFFLOAD_CPU'] = True
+    os.environ['SUNO_OFFLOAD_CPU'] = "True"
