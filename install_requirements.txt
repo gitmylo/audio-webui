@@ -12,3 +12,4 @@ soundfile;;windows
 sox;;not windows
 audiolm-pytorch
 joblib
+fairseq
