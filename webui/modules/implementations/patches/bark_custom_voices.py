@@ -81,7 +81,9 @@ def generate_fine_from_wav(file):
     model = load_codec_model(use_gpu=not args.bark_use_cpu)  # Don't worry about reimporting, it stores the loaded model in a dict
     wav, sr = torchaudio.load(file)
     wav = convert_audio(wav, sr, SAMPLE_RATE, model.channels)
-    wav = wav.unsqueeze(0).to('cuda')
+    wav = wav.unsqueeze(0)
+    if not (args.bark_cpu_offload or args.bark_use_cpu):
+        wav = wav.to('cuda')
     with torch.no_grad():
         encoded_frames = model.encode(wav)
     codes = torch.cat([encoded[0] for encoded in encoded_frames], dim=-1).squeeze()
