@@ -27,18 +27,14 @@ huberts = {}
 
 
 def load_hubert():
-    HuBERTManager.make_sure_hubert_installed()
-    HuBERTManager.make_sure_tokenizer_installed()
-    install_dir = os.path.join('data', 'models', 'hubert')
+    hubert_path = HuBERTManager.make_sure_hubert_installed()
+    tokenizer_path = HuBERTManager.make_sure_tokenizer_installed()
     if 'hubert' not in huberts:
-        hubert_path = os.path.join(install_dir, 'hubert.pt')
         print('Loading HuBERT')
         huberts['hubert'] = CustomHubert(hubert_path)
     if 'tokenizer' not in huberts:
-        tokenizer_path = os.path.join(install_dir, 'tokenizer.pth')
         print('Loading Custom Tokenizer')
-        tokenizer = CustomTokenizer()
-        tokenizer.load_state_dict(torch.load(tokenizer_path))  # Load the model
+        tokenizer = CustomTokenizer.load_from_checkpoint(tokenizer_path)
         huberts['tokenizer'] = tokenizer
 
 
