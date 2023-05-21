@@ -9,31 +9,33 @@ from torch.serialization import MAP_LOCATION
 
 
 class CustomTokenizer(nn.Module):
-    def __init__(self, hidden_size=1024, hidden_size_2=None, input_size=768, output_size=10000):
+    def __init__(self, hidden_size=1024, input_size=768, output_size=10000, version=0):
         super(CustomTokenizer, self).__init__()
-        old = hidden_size_2 is None
-        if old:
+        next_size = input_size
+        if version == 0:
             self.lstm = nn.LSTM(input_size, hidden_size, 2, batch_first=True)
-        else:
-            self.lstm = nn.LSTM(input_size, hidden_size, 1, batch_first=True)
-            self.lstm2 = nn.LSTM(hidden_size, hidden_size_2, 1, batch_first=True)
-        self.fc = nn.Linear(hidden_size if old else hidden_size_2, output_size)
+            next_size = hidden_size
+        if version == 1:
+            self.lstm = nn.LSTM(input_size, hidden_size, 2, batch_first=True)
+            self.intermediate = nn.Linear(hidden_size, 4096)
+            next_size = 4096
+
+        self.fc = nn.Linear(next_size, output_size)
         self.softmax = nn.LogSoftmax(dim=1)
         self.optimizer: optim.Optimizer = None
         self.lossfunc = nn.CrossEntropyLoss()
         self.input_size = input_size
         self.hidden_size = hidden_size
-        self.hidden_size_2 = hidden_size_2
         self.output_size = output_size
-        self.is_old = old
+        self.version = version
 
     def forward(self, x):
-        out, _ = self.lstm(x)
-        if not self.is_old:
-            out, _ = self.lstm2(out)
-        out = self.fc(out)
-        out = self.softmax(out)
-        return out
+        x, _ = self.lstm(x)
+        if self.version == 1:
+            x = self.intermediate(x)
+        x = self.fc(x)
+        x = self.softmax(x)
+        return x
 
     @torch.no_grad()
     def get_token(self, x):
@@ -88,26 +90,23 @@ class CustomTokenizer(nn.Module):
 
     def save(self, path):
         torch.save(self.state_dict(), path)
-        data_from_model = Data(self.input_size, self.hidden_size, self.hidden_size_2, self.output_size, 0 if self.is_old else 1)
-        with ZipFile(path, 'w') as model_zip:
-            model_zip.writestr('model/.info', data_from_model)
+        data_from_model = Data(self.input_size, self.hidden_size, self.output_size, self.version)
+        with ZipFile(path, 'a') as model_zip:
+            model_zip.writestr('model/.info', data_from_model.save())
             model_zip.close()
 
     @staticmethod
     def load_from_checkpoint(path, map_location: MAP_LOCATION = None):
         old = True
         with ZipFile(path) as model_zip:
-            print('Opened zip')
-            print(model_zip.namelist())
             if 'model/.info' in model_zip.namelist():
-                print('New model type')
                 old = False
                 data_from_model = Data.load(model_zip.read('model/.info').decode('utf-8'))
             model_zip.close()
         if old:
             model = CustomTokenizer()
         else:
-            model = CustomTokenizer(data_from_model.hidden_size, data_from_model.hidden_size_2, data_from_model.input_size, data_from_model.output_size)
+            model = CustomTokenizer(data_from_model.hidden_size, data_from_model.input_size, data_from_model.output_size, data_from_model.version)
         model.load_state_dict(torch.load(path, map_location))
         return model
 
@@ -116,29 +115,26 @@ class CustomTokenizer(nn.Module):
 class Data:
     input_size: int
     hidden_size: int
-    hidden_size_2: int
     output_size: int
     version: int
 
-    def __init__(self, input_size=768, hidden_size=1024, hidden_size_2=None, output_size=10000, version=0):
+    def __init__(self, input_size=768, hidden_size=1024, output_size=10000, version=0):
         self.input_size = input_size
         self.hidden_size = hidden_size
-        self.hidden_size_2 = hidden_size_2
         self.output_size = output_size
         self.version = version
 
     @staticmethod
     def load(string):
         data = json.loads(string)
-        return Data(data['input_size'], data['hidden_size'], data['hidden_size2'], data['output_size'], data['version'])
+        return Data(data['input_size'], data['hidden_size'], data['output_size'], data['version'])
 
     def save(self):
         data = {
             'input_size': self.input_size,
-            'hidden_size': self.input_size,
-            'hidden_size2': self.input_size,
-            'output_size': self.input_size,
-            'version': self.input_size,
+            'hidden_size': self.hidden_size,
+            'output_size': self.output_size,
+            'version': self.version,
         }
         return json.dumps(data)
 
@@ -151,7 +147,7 @@ def auto_train(data_path, save_path='model.pth', load_model: str | None = None, 
         model_training = CustomTokenizer.load_from_checkpoint(load_model, 'cuda')
     else:
         print('Creating new model.')
-        model_training = CustomTokenizer(hidden_size_2=8192).to('cuda')  # Settings for the model
+        model_training = CustomTokenizer(version=1).to('cuda')  # Settings for the model to run without lstm
     save_path = os.path.join(data_path, save_path)
     base_save_path = '.'.join(save_path.split('.')[:-1])
 
