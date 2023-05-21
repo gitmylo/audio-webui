@@ -1,3 +1,3 @@
 @echo off
-py main.py %*
+py -3.10 main.py %*
 pause
