@@ -89,19 +89,21 @@ class CustomTokenizer(nn.Module):
         optimizer.step()
 
     def save(self, path):
+        info_path = os.path.basename(path) + '/.info'
         torch.save(self.state_dict(), path)
         data_from_model = Data(self.input_size, self.hidden_size, self.output_size, self.version)
         with ZipFile(path, 'a') as model_zip:
-            model_zip.writestr('model/.info', data_from_model.save())
+            model_zip.writestr(info_path, data_from_model.save())
             model_zip.close()
 
     @staticmethod
     def load_from_checkpoint(path, map_location: MAP_LOCATION = None):
+        info_path = os.path.basename(path) + '/.info'
         old = True
         with ZipFile(path) as model_zip:
-            if 'model/.info' in model_zip.namelist():
+            if info_path in model_zip.namelist():
                 old = False
-                data_from_model = Data.load(model_zip.read('model/.info').decode('utf-8'))
+                data_from_model = Data.load(model_zip.read(info_path).decode('utf-8'))
             model_zip.close()
         if old:
             model = CustomTokenizer()
