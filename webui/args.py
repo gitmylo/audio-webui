@@ -11,6 +11,7 @@ parser.add_argument('-si', '--skip-install', action='store_true', help='Skip ins
 parser.add_argument('--bark-low-vram', action='store_true', help='Use low vram mode on bark')
 parser.add_argument('--bark-cpu-offload', action='store_true', help='Use cpu offloading for lower vram usage on bark')
 parser.add_argument('--bark-use-cpu', action='store_true', help='Use cpu on bark')
+parser.add_argument('--bark-cloning-large-model', action='store_true', help='Use the larger voice cloning model for bark')
 
 # TTS
 parser.add_argument('--tts-use-cpu', action='store_true', help='Use cpu for tts instead of gpu')

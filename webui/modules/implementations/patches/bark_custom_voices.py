@@ -28,7 +28,8 @@ huberts = {}
 
 def load_hubert():
     hubert_path = HuBERTManager.make_sure_hubert_installed()
-    tokenizer_path = HuBERTManager.make_sure_tokenizer_installed()
+    model = ('quantifier_V1_hubert_base_ls960_23.pth', 'tokenizer_large.pth') if args.bark_cloning_large_model else ('quantifier_hubert_base_ls960_14.pth', 'tokenizer.pth')
+    tokenizer_path = HuBERTManager.make_sure_tokenizer_installed(model=model[0], local_file=model[1])
     if 'hubert' not in huberts:
         print('Loading HuBERT')
         huberts['hubert'] = CustomHubert(hubert_path)

@@ -98,12 +98,13 @@ class CustomTokenizer(nn.Module):
 
     @staticmethod
     def load_from_checkpoint(path, map_location: MAP_LOCATION = None):
-        info_path = os.path.basename(path) + '/.info'
         old = True
         with ZipFile(path) as model_zip:
-            if info_path in model_zip.namelist():
+            filesMatch = [file for file in model_zip.namelist() if file.endswith('/.info')]
+            file = filesMatch[0] if filesMatch else None
+            if file:
                 old = False
-                data_from_model = Data.load(model_zip.read(info_path).decode('utf-8'))
+                data_from_model = Data.load(model_zip.read(file).decode('utf-8'))
             model_zip.close()
         if old:
             model = CustomTokenizer()

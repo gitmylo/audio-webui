@@ -9,16 +9,17 @@ If there's an issue with running, please create an [issue](https://github.com/gi
 
 ## Command line flags
 
-| Name               | Args     | Short      | Usage                 | Description                                                |
-|--------------------|----------|------------|-----------------------|------------------------------------------------------------|
-| --skip-install     | [None]   | -si        | -si                   | Skip installing packages                                   |
-| --bark-low-vram    | [None]   | [None]     | --bark-low-vram       | Use low vram for bark                                      |
-| --bark-cpu-offload | [None]   | [None]     | --bark-cpu-offload    | Use cpu offloading to save vram while still running on gpu |
-| --bark-use-cpu     | [None]   | [None]     | --bark-use-cpu        | Use cpu for bark                                           |
-| --share            | [None]   | -s         | -s                    | Share the gradio instance publicly                         |
-| --username         | username | -u, --user | -u username           | Set the username for gradio                                |
-| --password         | password | -p, --pass | -p password           | Set the password for gradio                                |
-| --theme            | theme    | [None]     | --theme "gradio/soft" | Set the theme for gradio                                   |
+| Name                       | Args     | Short      | Usage                      | Description                                                             |
+|----------------------------|----------|------------|----------------------------|-------------------------------------------------------------------------|
+| --skip-install             | [None]   | -si        | -si                        | Skip installing packages                                                |
+| --bark-low-vram            | [None]   | [None]     | --bark-low-vram            | Use low vram for bark                                                   |
+| --bark-cpu-offload         | [None]   | [None]     | --bark-cpu-offload         | Use cpu offloading to save vram while still running on gpu              |
+| --bark-use-cpu             | [None]   | [None]     | --bark-use-cpu             | Use cpu for bark                                                        |
+| --bark-cloning-large-model | [None]   | [None]     | --bark-cloning-large-model | Use the larger voice cloning model. (It hasn't been tested as much yet) |
+| --share                    | [None]   | -s         | -s                         | Share the gradio instance publicly                                      |
+| --username                 | username | -u, --user | -u username                | Set the username for gradio                                             |
+| --password                 | password | -p, --pass | -p password                | Set the password for gradio                                             |
+| --theme                    | theme    | [None]     | --theme "gradio/soft"      | Set the theme for gradio                                                |
 
 
 ## Current goals
