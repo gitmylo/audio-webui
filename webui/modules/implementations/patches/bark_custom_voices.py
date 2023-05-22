@@ -35,7 +35,7 @@ def load_hubert():
         huberts['hubert'] = CustomHubert(hubert_path)
     if 'tokenizer' not in huberts:
         print('Loading Custom Tokenizer')
-        tokenizer = CustomTokenizer.load_from_checkpoint(tokenizer_path)
+        tokenizer = CustomTokenizer.load_from_checkpoint(tokenizer_path, map_location=torch.device('cpu'))
         huberts['tokenizer'] = tokenizer
 
 
