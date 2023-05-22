@@ -1,5 +1,8 @@
 # Readme 💀x7
 
+## Please read
+This code works on python 3.10, i have not tested it on other versions. Some older versions will have issues.
+
 ## Running
 Running should be as simple as running `run.bat` or `run.sh` depending on your OS.
 Everything should get installed automatically.
