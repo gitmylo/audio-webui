@@ -5,6 +5,7 @@ This code works on python 3.10, i have not tested it on other versions. Some old
 
 ## Running
 Running should be as simple as running `run.bat` or `run.sh` depending on your OS.
+If you want to run with custom command line flags, copy `run_user_example.(bat/sh)` and put whatever flags you want on every run in there. recommended flags are already in the example. (skip install and cpu offload)
 Everything should get installed automatically.
 
 This has not been tested beyond 2 of my pcs.
