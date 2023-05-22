@@ -5,7 +5,7 @@ from .os import is_windows
 import os
 
 venv_name = 'venv'
-venv_activate_path = f'{venv_name}/' + 'Scripts/activate.bat' if is_windows() else 'bin/activate'
+venv_activate_path = f'{venv_name}/' + ('Scripts/activate.bat' if is_windows() else 'bin/activate')
 
 
 def get_base_prefix_compat():
