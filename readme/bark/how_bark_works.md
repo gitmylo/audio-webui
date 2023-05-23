@@ -89,4 +89,4 @@ No, it doesn't look like i can find a model, i did succeed in creating same-size
 ### Method 2:
 **Pre**: What if instead of training a whole model, i only create a quantizer based on a bunch of data?
 
-Successful
+Successful voice cloning, can be very convincing. Still some limitations. But better than anything I've seen done with bark before.
