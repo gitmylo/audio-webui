@@ -4,9 +4,10 @@ from webui.args import args
 
 
 def ensure_installed():
-    ensure_venv()
-    if not args.skip_install:
-        install_requirements()
+    if not args.skip_venv:
+        ensure_venv()
+        if not args.skip_install:
+            install_requirements()
 
 
 if __name__ == '__main__':

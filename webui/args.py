@@ -5,6 +5,7 @@ parser = argparse.ArgumentParser()
 
 # Install
 parser.add_argument('-si', '--skip-install', action='store_true', help='Skip installing packages')
+parser.add_argument('-sv', '--skip-venv', action='store_true', help='Skip creating/activating venv, also skips install (for advanced users)')
 
 # Models
 # Bark
