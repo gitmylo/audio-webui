@@ -1,4 +1,5 @@
 import gradio
+from gradio.components import IOComponent
 
 import webui.modules.models as mod
 import webui.modules.implementations.ttsmodels as tts_models
@@ -13,6 +14,8 @@ def get_models_installed():
     return [model for model in mod.get_installed_models(mod_type) if model in [tts.replace('/', '--') for tts in mod.all_tts_models()]] + \
            [model.model for model in mod.all_tts() if model.no_install]
 
+def filter_components(components):
+    return [component for component in components if isinstance(component, IOComponent)]
 
 def text_to_speech():
     with gradio.Row():
@@ -54,4 +57,5 @@ def text_to_speech():
         inputs = [values[i] for i in range(len(inputs)) if inputs[i] in all_components_dict[loader.model]]  # Filter and convert inputs
         response, file = loader.get_response(*inputs)
         return response, gradio.make_waveform(response), file
-    generate.click(fn=lambda *values: _generate(all_components, values), inputs=all_components, outputs=[audio_out, video_out, file_out], show_progress=True)
+    filtered_components = filter_components(all_components)
+    generate.click(fn=lambda *values: _generate(filtered_components, values), inputs=filtered_components, outputs=[audio_out, video_out, file_out], show_progress=True)

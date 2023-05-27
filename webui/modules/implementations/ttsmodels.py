@@ -106,11 +106,12 @@ class BarkTTS(mod.TTSModelLoader):
 
     def get_response(self, *inputs):
         textbox, audio_upload, input_type, mode, text_temp, waveform_temp, speaker,\
-            (speaker_sr, speaker_wav), refresh_speakers, keep_generating, clone_guide, temps, speakers = inputs
+            speaker_file, refresh_speakers, keep_generating, clone_guide = inputs
         _speaker = None
         if mode == 'File':
             _speaker = speaker if speaker != 'None' else None
         else:
+            speaker_sr, speaker_wav = speaker_file
             temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.wav')
             scipy.io.wavfile.write(temp_file, speaker_sr, speaker_wav)
             _speaker = self.create_voice(temp_file)
