@@ -4,6 +4,7 @@ import tempfile
 import gradio
 import numpy
 import numpy as np
+import scipy.io.wavfile
 
 import webui.modules.models as mod
 from webui.modules.implementations.patches.bark_custom_voices import wav_to_semantics, generate_fine_from_wav, \
@@ -80,7 +81,7 @@ class BarkTTS(mod.TTSModelLoader):
             speaker = gradio.Dropdown(self.get_voices(), value='None', show_label=False, **quick_kwargs)
             refresh_speakers = gradio.Button('🔃', variant='tool secondary', **quick_kwargs)
         refresh_speakers.click(fn=update_voices, outputs=speaker)
-        speaker_file = gradio.File(label='Speaker', file_types=['audio'], **quick_kwargs)
+        speaker_file = gradio.Audio(label='Speaker', **quick_kwargs)
         # speaker_file_transcript = gradio.Textbox(lines=1, label='Transcript', **quick_kwargs)
         speaker_file.hide = True  # Custom, auto hide speaker_file
         # speaker_file_transcript.hide = True
@@ -94,12 +95,14 @@ class BarkTTS(mod.TTSModelLoader):
     model = 'suno/bark'
 
     def get_response(self, *inputs):
-        textbox, audio_upload, input_type, mode, text_temp, waveform_temp, speaker, speaker_file, refresh_speakers, keep_generating = inputs
+        textbox, audio_upload, input_type, mode, text_temp, waveform_temp, speaker, (speaker_sr, speaker_wav), refresh_speakers, keep_generating = inputs
         _speaker = None
         if mode == 'File':
             _speaker = speaker if speaker != 'None' else None
         else:
-            _speaker = self.create_voice(speaker_file)
+            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.wav')
+            scipy.io.wavfile.write(temp_file, speaker_sr, speaker_wav)
+            _speaker = self.create_voice(temp_file)
         from webui.modules.implementations.patches.bark_api import generate_audio_new, semantic_to_waveform_new
         from bark.generation import SAMPLE_RATE
         if input_type == 'Text':
