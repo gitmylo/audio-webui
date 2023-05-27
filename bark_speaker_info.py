@@ -127,6 +127,7 @@ def codec_decode(fine_tokens):
     arr = arr.transpose(0, 1)
     emb = model.quantizer.decode(arr)
     out = model.decoder(emb)
+    print(out.shape)
     audio_arr = out.detach().cpu().numpy().squeeze()
     del arr, emb, out
     return audio_arr
