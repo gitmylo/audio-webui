@@ -89,6 +89,3 @@ def generate_fine_from_wav(file):
 
     return codes
 
-
-def transfer_speech(voice, sentence):
-    pass
