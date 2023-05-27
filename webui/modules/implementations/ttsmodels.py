@@ -77,6 +77,15 @@ class BarkTTS(mod.TTSModelLoader):
             text_temp = gradio.Slider(0, 1, 0.7, step=0.05, label='Text temperature', **quick_kwargs)
             waveform_temp = gradio.Slider(0, 1, 0.7, step=0.05, label='Waveform temperature', **quick_kwargs)
         mode = gradio.Radio(['File', 'Upload'], label='Speaker from', value='File', **quick_kwargs)
+        clone_guide = gradio.Markdown('''
+## When cloning a voice:
+* The speaker will be saved in the data/bark_custom_speakers directory.
+* The "file" output contains a different speaker. This is for saving speakers created through random generation. Or continued cloning.
+
+## Cloning guide (short edition)
+* Clear spoken, no noise, no music.
+* Ends after a short pause for best results.
+        ''', visible=False)
         with gradio.Row():
             speaker = gradio.Dropdown(self.get_voices(), value='None', show_label=False, **quick_kwargs)
             refresh_speakers = gradio.Button('🔃', variant='tool secondary', **quick_kwargs)
@@ -90,12 +99,12 @@ class BarkTTS(mod.TTSModelLoader):
 
         mode.select(fn=update_speaker, inputs=mode, outputs=[speaker, refresh_speakers, speaker_file])
         input_type.select(fn=update_input, inputs=input_type, outputs=[textbox, audio_upload])
-        return [textbox, audio_upload, input_type, mode, text_temp, waveform_temp, speaker, speaker_file, refresh_speakers, keep_generating]
+        return [textbox, audio_upload, input_type, mode, text_temp, waveform_temp, speaker, speaker_file, refresh_speakers, keep_generating, clone_guide]
 
     model = 'suno/bark'
 
     def get_response(self, *inputs):
-        textbox, audio_upload, input_type, mode, text_temp, waveform_temp, speaker, (speaker_sr, speaker_wav), refresh_speakers, keep_generating = inputs
+        textbox, audio_upload, input_type, mode, text_temp, waveform_temp, speaker, (speaker_sr, speaker_wav), refresh_speakers, keep_generating, clone_guide = inputs
         _speaker = None
         if mode == 'File':
             _speaker = speaker if speaker != 'None' else None
