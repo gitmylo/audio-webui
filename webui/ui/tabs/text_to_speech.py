@@ -11,11 +11,14 @@ loader: mod.TTSModelLoader = mod.TTSModelLoader
 
 def get_models_installed():
     # return [model for model in mod.get_installed_models(mod_type) if model in [tts.replace('/', '--') for tts in mod.all_tts_models()]]
-    return [model for model in mod.get_installed_models(mod_type) if model in [tts.replace('/', '--') for tts in mod.all_tts_models()]] + \
+    return [model for model in mod.get_installed_models(mod_type) if
+            model in [tts.replace('/', '--') for tts in mod.all_tts_models()]] + \
            [model.model for model in mod.all_tts() if model.no_install]
+
 
 def filter_components(components):
     return [component for component in components if isinstance(component, IOComponent)]
+
 
 def text_to_speech():
     with gradio.Row():
@@ -34,6 +37,7 @@ def text_to_speech():
                     if isinstance(loader, mod.TTSModelLoader):
                         loader.unload_model()
                     return [gradio.update(value='')] + [gradio.update(visible=False) for _ in all_components]
+
                 unload.click(fn=unload_model, outputs=[selected] + all_components, show_progress=True)
 
                 def load_model(model):
@@ -43,8 +47,11 @@ def text_to_speech():
                     loader = loader.from_model(model)
                     loader.load_model()
                     inputs = all_components_dict[loader.model]
-                    return_value = [gradio.update()] + [gradio.update(visible=element in inputs and not (hasattr(element, 'hide') and element.hide)) for element in all_components]
+                    return_value = [gradio.update()] + [
+                        gradio.update(visible=element in inputs and not (hasattr(element, 'hide') and element.hide)) for
+                        element in all_components]
                     return return_value
+
                 selected.select(fn=load_model, inputs=selected, outputs=[selected] + all_components, show_progress=True)
         with gradio.Column():
             generate = gradio.Button('Generate')
@@ -54,8 +61,11 @@ def text_to_speech():
 
     def _generate(inputs, values):
         global loader
-        inputs = [values[i] for i in range(len(inputs)) if inputs[i] in all_components_dict[loader.model]]  # Filter and convert inputs
+        inputs = [values[i] for i in range(len(inputs)) if
+                  inputs[i] in all_components_dict[loader.model]]  # Filter and convert inputs
         response, file = loader.get_response(*inputs)
         return response, gradio.make_waveform(response), file
+
     filtered_components = filter_components(all_components)
-    generate.click(fn=lambda *values: _generate(filtered_components, values), inputs=filtered_components, outputs=[audio_out, video_out, file_out], show_progress=True)
+    generate.click(fn=lambda *values: _generate(filtered_components, values), inputs=filtered_components,
+                   outputs=[audio_out, video_out, file_out], show_progress=True)

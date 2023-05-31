@@ -1,8 +1,10 @@
+import os.path
+
 import gradio
 import huggingface_hub
 import webui.modules.models as mod
 
-model_types = ['text-to-speech', 'automatic-speech-recognition', 'audio-to-audio']
+model_types = ['text-to-speech', 'automatic-speech-recognition', 'audio-to-audio', 'rvc']
 
 
 class AutoModel:
@@ -17,6 +19,8 @@ class AutoModel:
 def fill_models(model_type: str):
     if model_type == 'text-to-speech':
         return [m for m in mod.all_tts() if not m.no_install]
+    if model_type == 'rvc':
+        return [os.path.join('data/models/rvc', m) for m in os.listdir('data/models/rvc')]
     return [model.modelId for model in
             huggingface_hub.list_models(filter=huggingface_hub.ModelFilter(task=model_type), sort='downloads')]
 

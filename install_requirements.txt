@@ -13,3 +13,4 @@ sox;;not windows
 audiolm-pytorch
 joblib
 fairseq
+TTS
