@@ -1,6 +1,7 @@
 import gc
 
 import numpy as np
+import scipy.io.wavfile
 import torch.cuda
 import torchaudio
 from TTS.api import TTS
@@ -51,7 +52,6 @@ def gen(rvc_model_selected, pitch_extract, tts, text_in, audio_in, flag):
     audio_tuple = (sr, audio_in)
 
     if len(audio_tuple[1].shape) == 2:
-        print(audio_tuple[1])
         audio_tuple = (audio_tuple[0], audio_tuple[1][:, 1].squeeze().unsqueeze(0))
     else:
         audio_tuple = (audio_tuple[0], audio_tuple[1].unsqueeze(0))
@@ -59,7 +59,10 @@ def gen(rvc_model_selected, pitch_extract, tts, text_in, audio_in, flag):
     if 'separate music' in flag:
         pass
     if 'denoise' in flag:
-        pass
+        torchaudio.save('speakeraudio.wav', audio_tuple[1], audio_tuple[0])  # Workaround
+        audio_tuple = (audio_tuple[0], scipy.io.wavfile.read('speakeraudio.wav')[1])
+        import noisereduce.noisereduce as noisereduce
+        audio_tuple = (audio_tuple[0], noisereduce.reduce_noise(y=audio_tuple[1], sr=audio_tuple[0]))
 
     if rvc_model_selected:
         torchaudio.save('speakeraudio.wav', audio_tuple[1], audio_tuple[0])
