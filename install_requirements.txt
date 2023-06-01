@@ -14,3 +14,9 @@ audiolm-pytorch
 joblib
 fairseq
 TTS
+
+praat-parselmouth>=0.4.2
+pyworld>=0.3.2
+faiss-cpu==1.7.3
+torchcrepe==0.0.18
+ffmpeg-python>=0.2.0

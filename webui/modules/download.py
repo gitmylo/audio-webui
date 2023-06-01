@@ -16,11 +16,23 @@ class AutoModel:
         return self.repo_id
 
 
+def get_rvc_models():
+    path = os.path.join('data', 'models', 'rvc')
+    output = []
+    for f in os.listdir(path):
+        f_path = os.path.join(path, f)
+        if os.path.isdir(f_path):
+            for f2 in os.listdir(f_path):
+                if f2.endswith('.pth'):
+                    output.append(os.path.join(f, f2))
+    return output
+
+
 def fill_models(model_type: str):
     if model_type == 'text-to-speech':
         return [m for m in mod.all_tts() if not m.no_install]
     if model_type == 'rvc':
-        return [os.path.join('data/models/rvc', m) for m in os.listdir('data/models/rvc')]
+        return get_rvc_models()
     return [model.modelId for model in
             huggingface_hub.list_models(filter=huggingface_hub.ModelFilter(task=model_type), sort='downloads')]
 
