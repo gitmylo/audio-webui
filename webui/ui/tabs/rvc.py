@@ -22,7 +22,7 @@ def get_models_installed():
 def unload_rvc():
     import webui.modules.implementations.rvc.rvc as rvc
     rvc.unload_rvc()
-    return gradio.update()
+    return gradio.update(selected='')
 
 
 def load_rvc(model):
@@ -59,18 +59,25 @@ def gen(rvc_model_selected, pitch_extract, tts, text_in, audio_in, flag):
     if 'separate music' in flag:
         pass
     if 'denoise' in flag:
+        if len(audio_tuple[1].shape) == 1:
+            audio_tuple = (audio_tuple[0], audio_tuple[1].unsqueeze(0))
         torchaudio.save('speakeraudio.wav', audio_tuple[1], audio_tuple[0])  # Workaround
         audio_tuple = (audio_tuple[0], scipy.io.wavfile.read('speakeraudio.wav')[1])
         import noisereduce.noisereduce as noisereduce
-        audio_tuple = (audio_tuple[0], noisereduce.reduce_noise(y=audio_tuple[1], sr=audio_tuple[0]))
+        audio_tuple = (audio_tuple[0], torch.tensor(noisereduce.reduce_noise(y=audio_tuple[1], sr=audio_tuple[0])))
 
     if rvc_model_selected:
+        if len(audio_tuple[1].shape) == 1:
+            audio_tuple = (audio_tuple[0], audio_tuple[1].unsqueeze(0))
         torchaudio.save('speakeraudio.wav', audio_tuple[1], audio_tuple[0])
 
         import webui.modules.implementations.rvc.rvc as rvc
         out1, out2 = rvc.vc_single(0, 'speakeraudio.wav', 0, None, pitch_extract, rvc_model_selected, None, 0.88, 3, 0, 1, 0.33)
 
         audio_tuple = out2
+
+    if torch.is_tensor(audio_tuple[1]):
+        audio_tuple = (audio_tuple[0], audio_tuple[1].flatten().detach().cpu().numpy())
 
     return [audio_tuple, gradio.make_waveform(audio_tuple)]
 
