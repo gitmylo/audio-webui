@@ -72,6 +72,70 @@ class VC(object):
         self.t_max = self.sr * self.x_max  # 免查询时长阈值
         self.device = config.device
 
+    # From https://github.com/Tiger14n/RVC-GUI/blob/main/vc_infer_pipeline.py. Get the f0 via the pyworld computation.
+    def get_f0_pyworld_computation(self, x, f0_min, f0_max, f0_type):
+        if f0_type == "pyworld harvest":
+            f0, t = pyworld.harvest(
+                x.astype(np.double),
+                fs=self.sr,
+                f0_ceil=f0_max,
+                f0_floor=f0_min,
+                frame_period=10,
+            )
+        elif f0_type == "dio":
+            f0, t = pyworld.dio(
+                x.astype(np.double),
+                fs=self.sr,
+                f0_ceil=f0_max,
+                f0_floor=f0_min,
+                frame_period=10,
+            )
+        f0 = pyworld.stonemask(x.astype(np.double), f0, t, self.sr)
+        f0 = signal.medfilt(f0, 3)
+        return f0
+
+    # From https://github.com/Tiger14n/RVC-GUI/blob/main/vc_infer_pipeline.py: Get the f0 via the crepe algorithm from torchcrepe
+    def get_f0_crepe_computation(
+            self,
+            x,
+            f0_min,
+            f0_max,
+            p_len,
+            hop_length=128,  # 512 before. Hop length changes the speed that the voice jumps to a different dramatic pitch. Lower hop lengths means more pitch accuracy but longer inference time.
+            model="full",  # Either use crepe-tiny "tiny" or crepe "full". Default is full
+    ):
+        x = x.astype(np.float32)  # fixes the F.conv2D exception. We needed to convert double to float.
+        x /= np.quantile(np.abs(x), 0.999)
+        torch_device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        audio = torch.from_numpy(x).to(torch_device, copy=True)
+        audio = torch.unsqueeze(audio, dim=0)
+        if audio.ndim == 2 and audio.shape[0] > 1:
+            audio = torch.mean(audio, dim=0, keepdim=True).detach()
+        audio = audio.detach()
+        print("Initiating prediction with a crepe_hop_length of: " + str(hop_length))
+        pitch: torch.Tensor = torchcrepe.predict(
+            audio,
+            self.sr,
+            hop_length,
+            f0_min,
+            f0_max,
+            model,
+            batch_size=hop_length * 2,
+            device=torch_device,
+            pad=True
+        )
+        p_len = p_len or x.shape[0] // hop_length
+        # Resize the pitch for final f0
+        source = np.array(pitch.squeeze(0).cpu().float().numpy())
+        source[source < 0.001] = np.nan
+        target = np.interp(
+            np.arange(0, len(source) * p_len, len(source)) / p_len,
+            np.arange(0, len(source)),
+            source
+        )
+        f0 = np.nan_to_num(target)
+        return f0 # Resized f0
+
     def get_f0(
         self,
         input_audio_path,
@@ -81,6 +145,7 @@ class VC(object):
         f0_method,
         filter_radius,
         inp_f0=None,
+        crepe_hop_length=128
     ):
         global input_audio_path2wav
         time_step = self.window / self.sr * 1000
@@ -130,6 +195,12 @@ class VC(object):
             f0 = torchcrepe.filter.mean(f0, 3)
             f0[pd < 0.1] = 0
             f0 = f0[0].cpu().numpy()
+        elif f0_method == "pyworld harvest" or f0_method == "dio":
+            f0 = self.get_f0_pyworld_computation(x, f0_min, f0_max, f0_method)
+        elif f0_method == "torchcrepe":
+            f0 = self.get_f0_crepe_computation(x, f0_min, f0_max, p_len, crepe_hop_length)
+        elif f0_method == "torchcrepe tiny":
+            f0 = self.get_f0_crepe_computation(x, f0_min, f0_max, p_len, crepe_hop_length, "tiny")
         f0 *= pow(2, f0_up_key / 12)
         # with open("test.txt","w")as f:f.write("\n".join([str(i)for i in f0.tolist()]))
         tf0 = self.sr // self.window  # 每秒f0点数
@@ -278,6 +349,7 @@ class VC(object):
         version,
         protect,
         f0_file=None,
+        crepe_hop_length=128
     ):
         if (
             file_index != ""
@@ -339,6 +411,7 @@ class VC(object):
                 f0_method,
                 filter_radius,
                 inp_f0,
+                crepe_hop_length=crepe_hop_length
             )
             pitch = pitch[:p_len]
             pitchf = pitchf[:p_len]

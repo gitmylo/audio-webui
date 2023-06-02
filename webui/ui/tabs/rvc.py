@@ -72,7 +72,7 @@ def denoise(sr, audio):
     return sr, audio
 
 
-def gen(rvc_model_selected, speaker_id, pitch_extract, tts, text_in, audio_in, up_key, index_rate, filter_radius, protect, flag):
+def gen(rvc_model_selected, speaker_id, pitch_extract, tts, text_in, audio_in, up_key, index_rate, filter_radius, protect, crepe_hop_length, flag):
     background = None
     if not audio_in:
         global tts_model, tts_model_name
@@ -111,7 +111,7 @@ def gen(rvc_model_selected, speaker_id, pitch_extract, tts, text_in, audio_in, u
         torchaudio.save('speakeraudio.wav', audio_tuple[1], audio_tuple[0])
 
         import webui.modules.implementations.rvc.rvc as rvc
-        out1, out2 = rvc.vc_single(speaker_id, 'speakeraudio.wav', up_key, None, pitch_extract, rvc_model_selected, None, index_rate, filter_radius, 0, 1, protect)
+        out1, out2 = rvc.vc_single(speaker_id, 'speakeraudio.wav', up_key, None, pitch_extract, rvc_model_selected, None, index_rate, filter_radius, 0, 1, protect, crepe_hop_length)
         audio_tuple = out2
 
     if background is not None and 'recombine background' in flag:
@@ -149,7 +149,13 @@ def rvc():
                         refresh = gradio.Button('🔃', variant='tool secondary')
                         unload = gradio.Button('💣', variant='tool primary')
                 speaker_id = gradio.Slider(value=0, step=1, maximum=0, visible=False, label='Speaker id', info='For multi speaker models, the speaker to use.')
-                pitch_extract = gradio.Radio(choices=["pm", "harvest", "crepe"], label='Pitch extraction', value='pm', interactive=True, info='Default: pm. pm is faster, harvest is slow but good. Crepe is good but uses GPU.')
+                pitch_extract = gradio.Radio(choices=["dio", "pm", "harvest", "pyworld harvest", "crepe", "torchcrepe", "torchcrepe tiny"], label='Pitch extraction', value='dio', interactive=True, info='Default: dio. dio and pm are faster, harvest is slower but good. Crepe is good but uses GPU.')
+                crepe_hop_length = gradio.Slider(visible=False, minimum=64, maximum=512, step=64, value=128, label='torchcrepe hop length', info='The length of the hops used for torchcrepe\'s crepe implementation')
+
+                def update_crepe_hop_length_visible(pitch_mode: str):
+                    return gradio.update(visible=pitch_mode.startswith('torchcrepe'))
+                pitch_extract.change(fn=update_crepe_hop_length_visible, inputs=pitch_extract, outputs=crepe_hop_length)
+
                 refresh.click(fn=get_models_installed, outputs=[selected, speaker_id], show_progress=True)
                 unload.click(fn=unload_rvc, outputs=[selected, speaker_id], show_progress=True)
                 selected.select(fn=load_rvc, inputs=selected, outputs=[selected, speaker_id], show_progress=True)
@@ -164,4 +170,4 @@ def rvc():
             video_out = gradio.Video()
 
         generate.click(fn=gen, inputs=[selected, speaker_id, pitch_extract, selected_tts, text_input, audio_input,
-                                       up_key, index_rate, filter_radius, protect, flags], outputs=[audio_out, video_out])
+                                       up_key, index_rate, filter_radius, protect, crepe_hop_length, flags], outputs=[audio_out, video_out])

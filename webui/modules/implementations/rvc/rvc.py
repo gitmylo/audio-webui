@@ -190,6 +190,7 @@ def vc_single(
     resample_sr,
     rms_mix_rate,
     protect,
+    crepe_hop_length=128
 ):  # spk_item, input_audio0, vc_transform0,f0_file,f0method0
     global tgt_sr, net_g, vc, hubert_model, version
     if input_audio_path is None:
@@ -239,6 +240,7 @@ def vc_single(
             version,
             protect,
             f0_file=f0_file,
+            crepe_hop_length=crepe_hop_length
         )
         if resample_sr >= 16000 and tgt_sr != resample_sr:
             tgt_sr = resample_sr
