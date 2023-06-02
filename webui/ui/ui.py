@@ -9,7 +9,7 @@ def create_ui(theme) -> gr.Blocks:
         max-width: calc(100% - 100px) !important;
     }
     
-    .tabitem {
+    .tabitem:not(.tabitem>.gap>.tabs>.tabitem) {
         height: calc(100vh - 100px) !important;
         overflow: auto;
     }
@@ -34,6 +34,7 @@ def create_ui(theme) -> gr.Blocks:
     tabs = [
         ('Text to speech', text_to_speech),
         ('rvc', rvc),
+        ('utils', utils_tab),
         ('extra', extra_tab)
     ]
     with gr.Blocks(theme=theme, title='Audio WebUI', css=css) as webui:
