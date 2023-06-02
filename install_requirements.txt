@@ -21,3 +21,5 @@ faiss-cpu==1.7.3
 torchcrepe==0.0.18
 ffmpeg-python>=0.2.0
 noisereduce
+librosa
+git+https://github.com/facebookresearch/demucs#egg=demucs

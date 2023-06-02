@@ -9,10 +9,27 @@ import gradio
 
 from webui.modules.download import fill_models
 
-flag_strings = ['denoise', 'separate music']
+flag_strings = ['denoise', 'denoise output', 'separate background', 'recombine background']
 
 tts_model = None
 tts_model_name = None
+
+
+def flatten_audio(audio_tensor: torch.Tensor | tuple[torch.Tensor, int] | tuple[int, torch.Tensor], add_batch=True):
+    if isinstance(audio_tensor, tuple):
+        if isinstance(audio_tensor[0], int):
+            return audio_tensor[0], flatten_audio(audio_tensor[1])
+        elif torch.is_tensor(audio_tensor[0]):
+            return flatten_audio(audio_tensor[0]), audio_tensor[1]
+    if len(audio_tensor.shape) == 2:
+        if audio_tensor.shape[0] == 2:
+            audio_tensor = audio_tensor[0, :].add(audio_tensor[1, :]).div(2)
+        elif audio_tensor.shape[1] == 2:
+            audio_tensor = audio_tensor[:, 0].add(audio_tensor[:, 1]).div(2)
+        audio_tensor = audio_tensor.flatten()
+    if add_batch:
+        audio_tensor = audio_tensor.unsqueeze(0)
+    return audio_tensor
 
 
 def get_models_installed():
@@ -22,7 +39,7 @@ def get_models_installed():
 def unload_rvc():
     import webui.modules.implementations.rvc.rvc as rvc
     rvc.unload_rvc()
-    return gradio.update(selected='')
+    return gradio.update(value='')
 
 
 def load_rvc(model):
@@ -33,7 +50,19 @@ def load_rvc(model):
     return gradio.update()
 
 
+def denoise(sr, audio):
+    if not torch.is_tensor(audio):
+        audio = torch.tensor(audio)
+    if len(audio.shape) == 1:
+        audio = audio.unsqueeze(0)
+    audio = audio.detach().cpu().numpy()
+    import noisereduce.noisereduce as noisereduce
+    audio = torch.tensor(noisereduce.reduce_noise(y=audio, sr=sr))
+    return sr, audio
+
+
 def gen(rvc_model_selected, pitch_extract, tts, text_in, audio_in, flag):
+    background = None
     if not audio_in:
         global tts_model, tts_model_name
         if tts_model_name != tts:
@@ -51,20 +80,19 @@ def gen(rvc_model_selected, pitch_extract, tts, text_in, audio_in, flag):
         audio_in = torch.tensor(audio_in)
     audio_tuple = (sr, audio_in)
 
-    if len(audio_tuple[1].shape) == 2:
-        audio_tuple = (audio_tuple[0], audio_tuple[1][:, 1].squeeze().unsqueeze(0))
-    else:
-        audio_tuple = (audio_tuple[0], audio_tuple[1].unsqueeze(0))
+    audio_tuple = flatten_audio(audio_tuple)
 
-    if 'separate music' in flag:
-        pass
+    if 'separate background' in flag:
+        if not torch.is_tensor(audio_tuple[1]):
+            audio_tuple = (audio_tuple[0], torch.tensor(audio_tuple[1]).to(torch.float32))
+        if len(audio_tuple[1].shape) != 1:
+            audio_tuple = (audio_tuple[0], audio_tuple[1].flatten())
+        import webui.modules.implementations.rvc.split_audio as split_audio
+        foreground, background, sr = split_audio.split(*audio_tuple)
+        audio_tuple = flatten_audio((sr, foreground))
+        background = flatten_audio(background)
     if 'denoise' in flag:
-        if len(audio_tuple[1].shape) == 1:
-            audio_tuple = (audio_tuple[0], audio_tuple[1].unsqueeze(0))
-        torchaudio.save('speakeraudio.wav', audio_tuple[1], audio_tuple[0])  # Workaround
-        audio_tuple = (audio_tuple[0], scipy.io.wavfile.read('speakeraudio.wav')[1])
-        import noisereduce.noisereduce as noisereduce
-        audio_tuple = (audio_tuple[0], torch.tensor(noisereduce.reduce_noise(y=audio_tuple[1], sr=audio_tuple[0])))
+        audio_tuple = denoise(*audio_tuple)
 
     if rvc_model_selected:
         if len(audio_tuple[1].shape) == 1:
@@ -73,15 +101,29 @@ def gen(rvc_model_selected, pitch_extract, tts, text_in, audio_in, flag):
 
         import webui.modules.implementations.rvc.rvc as rvc
         out1, out2 = rvc.vc_single(0, 'speakeraudio.wav', 0, None, pitch_extract, rvc_model_selected, None, 0.88, 3, 0, 1, 0.33)
-
         audio_tuple = out2
+
+    if background is not None and 'recombine background' in flag:
+        audio = audio_tuple[1] if torch.is_tensor(audio_tuple[1]) else torch.tensor(audio_tuple[1])
+        audio_tuple = (audio_tuple[0], flatten_audio(audio, False))
+        background = flatten_audio(background if torch.is_tensor(background) else torch.tensor(background), False)
+        if audio_tuple[1].shape[0] > background.shape[0]:
+            audio_tuple = (audio_tuple[0], audio_tuple[1][-background.shape[0]:])
+        else:
+            background = background[-audio_tuple[1].shape[0]:]
+        if audio_tuple[1].dtype == torch.int16:
+            audio = audio_tuple[1]
+            audio = audio.to(torch.float32).div(32767/2)
+            audio_tuple = (audio_tuple[0], audio)
+        audio_tuple = (audio_tuple[0], audio_tuple[1].add(background))
+
+    if 'denoise output' in flag:
+        audio_tuple = denoise(*audio_tuple)
 
     if torch.is_tensor(audio_tuple[1]):
         audio_tuple = (audio_tuple[0], audio_tuple[1].flatten().detach().cpu().numpy())
 
     return [audio_tuple, gradio.make_waveform(audio_tuple)]
-
-
 
 
 def rvc():
@@ -102,7 +144,7 @@ def rvc():
                     refresh.click(fn=get_models_installed, outputs=selected, show_progress=True)
                     unload.click(fn=unload_rvc, outputs=selected, show_progress=True)
                     selected.select(fn=load_rvc, inputs=selected, outputs=selected, show_progress=True)
-            pitch_extract = gradio.Radio(choices=["pm", "harvest", "crepe"], label='Pitch extraction', value='pm', interactive=True)
+                pitch_extract = gradio.Radio(choices=["pm", "harvest", "crepe"], label='Pitch extraction', value='pm', interactive=True)
             flags = gradio.Dropdown(flag_strings, label='Flags', info='Things to apply on the audio input/output', multiselect=True)
         with gradio.Column():
             generate = gradio.Button('Generate')

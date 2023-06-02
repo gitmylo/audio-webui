@@ -49,39 +49,7 @@ class Config:
         self.n_cpu = 0
         self.gpu_name = None
         self.gpu_mem = None
-        (
-            self.python_cmd,
-            self.listen_port,
-            self.iscolab,
-            self.noparallel,
-            self.noautoopen,
-        ) = self.arg_parse()
         self.x_pad, self.x_query, self.x_center, self.x_max = self.device_config()
-
-    @staticmethod
-    def arg_parse() -> tuple:
-        parser = argparse.ArgumentParser()
-        parser.add_argument("--port", type=int, default=7865, help="Listen port")
-        parser.add_argument(
-            "--pycmd", type=str, default="python", help="Python command"
-        )
-        parser.add_argument("--colab", action="store_true", help="Launch in colab")
-        parser.add_argument(
-            "--noparallel", action="store_true", help="Disable parallel processing"
-        )
-        parser.add_argument(
-            "--noautoopen",
-            action="store_true",
-            help="Do not open in browser automatically",
-        )
-
-        return (
-            'python',
-            7865,
-            False,
-            False,
-            False,
-        )
 
     def device_config(self) -> tuple:
         if torch.cuda.is_available():
