@@ -155,6 +155,7 @@ def load_audio(file, sr):
 
 vc = None
 rvc_model_name = None
+maximum = 0
 
 
 def unload_rvc():
@@ -166,12 +167,13 @@ def unload_rvc():
 
 
 def load_rvc(model):
-    global vc, rvc_model_name
+    global vc, rvc_model_name, maximum
     if model != rvc_model_name:
         rvc_model_name = model
         unload_rvc()
         # Load rvc
-        get_vc(model)
+        maximum = get_vc(model)['maximum']
+    return maximum
 
 
 def vc_single(

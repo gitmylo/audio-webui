@@ -44,21 +44,21 @@ def merge_and_match(x, y, sr):
 
 
 def get_models_installed():
-    return fill_models('rvc')
+    return [gradio.update(choices=fill_models('rvc')), gradio.update()]
 
 
 def unload_rvc():
     import webui.modules.implementations.rvc.rvc as rvc
     rvc.unload_rvc()
-    return gradio.update(value='')
+    return [gradio.update(value=''), gradio.update(maximum=0, value=0, visible=False)]
 
 
 def load_rvc(model):
     if not model:
         return unload_rvc()
     import webui.modules.implementations.rvc.rvc as rvc
-    rvc.load_rvc(model)
-    return gradio.update()
+    maximum = rvc.load_rvc(model)
+    return [gradio.update(), gradio.update(maximum=maximum, value=0, visible=maximum > 0)]
 
 
 def denoise(sr, audio):
@@ -72,7 +72,7 @@ def denoise(sr, audio):
     return sr, audio
 
 
-def gen(rvc_model_selected, pitch_extract, tts, text_in, audio_in, flag):
+def gen(rvc_model_selected, speaker_id, pitch_extract, tts, text_in, audio_in, up_key, index_rate, filter_radius, protect, flag):
     background = None
     if not audio_in:
         global tts_model, tts_model_name
@@ -111,23 +111,18 @@ def gen(rvc_model_selected, pitch_extract, tts, text_in, audio_in, flag):
         torchaudio.save('speakeraudio.wav', audio_tuple[1], audio_tuple[0])
 
         import webui.modules.implementations.rvc.rvc as rvc
-        out1, out2 = rvc.vc_single(0, 'speakeraudio.wav', 0, None, pitch_extract, rvc_model_selected, None, 0.88, 3, 0, 1, 0.33)
+        out1, out2 = rvc.vc_single(speaker_id, 'speakeraudio.wav', up_key, None, pitch_extract, rvc_model_selected, None, index_rate, filter_radius, 0, 1, protect)
         audio_tuple = out2
 
     if background is not None and 'recombine background' in flag:
         audio = audio_tuple[1] if torch.is_tensor(audio_tuple[1]) else torch.tensor(audio_tuple[1])
         audio_tuple = (audio_tuple[0], flatten_audio(audio, False))
         background = flatten_audio(background if torch.is_tensor(background) else torch.tensor(background), False)
-        # if audio_tuple[1].shape[0] > background.shape[0]:
-        #     audio_tuple = (audio_tuple[0], audio_tuple[1][-background.shape[0]:])
-        # else:
-        #     background = background[-audio_tuple[1].shape[0]:]
         if audio_tuple[1].dtype == torch.int16:
             audio = audio_tuple[1]
             audio = audio.to(torch.float32).div(32767/2)
             audio_tuple = (audio_tuple[0], audio)
         audio_tuple = (audio_tuple[0], merge_and_match(audio_tuple[1], background, audio_tuple[0]))
-        # audio_tuple = (audio_tuple[0], audio_tuple[1].add(background))
 
     if 'denoise output' in flag:
         audio_tuple = denoise(*audio_tuple)
@@ -149,18 +144,24 @@ def rvc():
                 audio_input = gradio.Audio(label='Audio input')
             with gradio.Accordion('RVC'):
                 with gradio.Row():
-                    selected = gradio.Dropdown(get_models_installed(), label='RVC Model')
+                    selected = gradio.Dropdown(get_models_installed()[0]['choices'], label='RVC Model')
                     with gradio.Column(elem_classes='smallsplit'):
                         refresh = gradio.Button('🔃', variant='tool secondary')
                         unload = gradio.Button('💣', variant='tool primary')
-                    refresh.click(fn=get_models_installed, outputs=selected, show_progress=True)
-                    unload.click(fn=unload_rvc, outputs=selected, show_progress=True)
-                    selected.select(fn=load_rvc, inputs=selected, outputs=selected, show_progress=True)
-                pitch_extract = gradio.Radio(choices=["pm", "harvest", "crepe"], label='Pitch extraction', value='pm', interactive=True)
+                speaker_id = gradio.Slider(value=0, step=1, maximum=0, visible=False, label='Speaker id', info='For multi speaker models, the speaker to use.')
+                pitch_extract = gradio.Radio(choices=["pm", "harvest", "crepe"], label='Pitch extraction', value='pm', interactive=True, info='Default: pm. pm is faster, harvest is slow but good. Crepe is good but uses GPU.')
+                refresh.click(fn=get_models_installed, outputs=[selected, speaker_id], show_progress=True)
+                unload.click(fn=unload_rvc, outputs=[selected, speaker_id], show_progress=True)
+                selected.select(fn=load_rvc, inputs=selected, outputs=[selected, speaker_id], show_progress=True)
+                index_rate = gradio.Slider(0, 1, 0.88, step=0.01, label='Index rate for feature retrieval', info='Default: 0.88. Higher is more indexing, takes longer but could be better')
+                filter_radius = gradio.Slider(0, 7, 3, step=1, label='Filter radius', info='Default: 3')
+                up_key = gradio.Number(value=0, label='Pitch offset', info='Default: 0. Shift the pitch up or down')
+                protect = gradio.Slider(0, 0.5, 0.33, step=0.01, label='Protect amount', info='Default: 0.33. Avoid non voice sounds. Lower is more being ignored.')
             flags = gradio.Dropdown(flag_strings, label='Flags', info='Things to apply on the audio input/output', multiselect=True)
         with gradio.Column():
             generate = gradio.Button('Generate')
             audio_out = gradio.Audio()
             video_out = gradio.Video()
 
-        generate.click(fn=gen, inputs=[selected, pitch_extract, selected_tts, text_input, audio_input, flags], outputs=[audio_out, video_out])
+        generate.click(fn=gen, inputs=[selected, speaker_id, pitch_extract, selected_tts, text_input, audio_input,
+                                       up_key, index_rate, filter_radius, protect, flags], outputs=[audio_out, video_out])
