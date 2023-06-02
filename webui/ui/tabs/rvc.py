@@ -32,6 +32,17 @@ def flatten_audio(audio_tensor: torch.Tensor | tuple[torch.Tensor, int] | tuple[
     return audio_tensor
 
 
+def merge_and_match(x, y, sr):
+    # import scipy.signal
+    import torchaudio.functional as F
+    y = F.resample(y, sr, int(sr * (x.shape[-1] / y.shape[-1])))
+    if x.shape[0] > y.shape[0]:
+        x = x[-y.shape[0]:]
+    else:
+        y = y[-x.shape[0]:]
+    return x.add(y)
+
+
 def get_models_installed():
     return fill_models('rvc')
 
@@ -107,15 +118,16 @@ def gen(rvc_model_selected, pitch_extract, tts, text_in, audio_in, flag):
         audio = audio_tuple[1] if torch.is_tensor(audio_tuple[1]) else torch.tensor(audio_tuple[1])
         audio_tuple = (audio_tuple[0], flatten_audio(audio, False))
         background = flatten_audio(background if torch.is_tensor(background) else torch.tensor(background), False)
-        if audio_tuple[1].shape[0] > background.shape[0]:
-            audio_tuple = (audio_tuple[0], audio_tuple[1][-background.shape[0]:])
-        else:
-            background = background[-audio_tuple[1].shape[0]:]
+        # if audio_tuple[1].shape[0] > background.shape[0]:
+        #     audio_tuple = (audio_tuple[0], audio_tuple[1][-background.shape[0]:])
+        # else:
+        #     background = background[-audio_tuple[1].shape[0]:]
         if audio_tuple[1].dtype == torch.int16:
             audio = audio_tuple[1]
             audio = audio.to(torch.float32).div(32767/2)
             audio_tuple = (audio_tuple[0], audio)
-        audio_tuple = (audio_tuple[0], audio_tuple[1].add(background))
+        audio_tuple = (audio_tuple[0], merge_and_match(audio_tuple[1], background, audio_tuple[0]))
+        # audio_tuple = (audio_tuple[0], audio_tuple[1].add(background))
 
     if 'denoise output' in flag:
         audio_tuple = denoise(*audio_tuple)
