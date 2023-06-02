@@ -1,5 +1,7 @@
 import os.path
 
+import torch
+
 
 def _split(sr, audio):
     import scipy.io.wavfile
@@ -69,22 +71,28 @@ def _split(sr, audio):
 def split(sr, audio):
     import scipy.io.wavfile
     scipy.io.wavfile.write('speakeraudio.wav', sr, audio.detach().cpu().numpy())
+    # import torchaudio
+    # torchaudio.save('speakeraudio.wav', audio.abs().unsqueeze(0), sr)
 
     import demucs.separate
     import shlex
-    args = shlex.split('speakeraudio.wav -n htdemucs --filename {stem}.{ext}')
+    model_name = 'htdemucs'
+    # model_name = 'mdx_extra_q'
+    args = shlex.split(f'speakeraudio.wav -n {model_name} --two-stems vocals --filename {{stem}}.{{ext}} --float32')
     demucs.separate.main(args)
 
-    audio_other_files = [os.path.join('separated', 'htdemucs', f+'.wav') for f in ['bass', 'drums', 'other']]
-    audio_vocals_file = os.path.join('separated', 'htdemucs', 'vocals.wav')
+    # audio_other_files = [os.path.join('separated', model_name, f+'.wav') for f in ['bass', 'drums', 'other', 'piano', 'guitar'] if os.path.isfile(os.path.join('separated', model_name, f+'.wav'))]
+    # audio_other_files = [os.path.join('separated', model_name, f+'.wav') for f in ['bass', 'other', 'piano', 'guitar'] if os.path.isfile(os.path.join('separated', model_name, f+'.wav'))]
+    audio_vocals_file = os.path.join('separated', model_name, 'vocals.wav')
+    other_file = os.path.join('separated', model_name, 'no_vocals.wav')
 
     import torchaudio
 
     vocals, sr = torchaudio.load(audio_vocals_file)
-
-    additional, _ = torchaudio.load(audio_other_files[0])
-    for f in audio_other_files[1:]:
-        _additional, _ = torchaudio.load(f)
-        additional = additional.add(_additional)
+    additional, _ = torchaudio.load(other_file)
 
     return vocals, additional, sr
+
+
+# def split(sr, audio):
+#     return audio, audio, sr

@@ -21,11 +21,15 @@ def flatten_audio(audio_tensor: torch.Tensor | tuple[torch.Tensor, int] | tuple[
             return audio_tensor[0], flatten_audio(audio_tensor[1])
         elif torch.is_tensor(audio_tensor[0]):
             return flatten_audio(audio_tensor[0]), audio_tensor[1]
+    if audio_tensor.dtype == torch.int16:
+        audio_tensor = audio_tensor.float() / 32767.0
     if len(audio_tensor.shape) == 2:
         if audio_tensor.shape[0] == 2:
-            audio_tensor = audio_tensor[0, :].add(audio_tensor[1, :]).div(2)
+            # audio_tensor = audio_tensor[0, :].div(2).add(audio_tensor[1, :].div(2))
+            audio_tensor = audio_tensor.mean(0)
         elif audio_tensor.shape[1] == 2:
-            audio_tensor = audio_tensor[:, 0].add(audio_tensor[:, 1]).div(2)
+            # audio_tensor = audio_tensor[:, 0].div(2).add(audio_tensor[:, 1].div(2))
+            audio_tensor = audio_tensor.mean(1)
         audio_tensor = audio_tensor.flatten()
     if add_batch:
         audio_tensor = audio_tensor.unsqueeze(0)
@@ -34,6 +38,8 @@ def flatten_audio(audio_tensor: torch.Tensor | tuple[torch.Tensor, int] | tuple[
 
 def merge_and_match(x, y, sr):
     # import scipy.signal
+    x = x / 2
+    y = y / 2
     import torchaudio.functional as F
     y = F.resample(y, sr, int(sr * (x.shape[-1] / y.shape[-1])))
     if x.shape[0] > y.shape[0]:
@@ -74,6 +80,7 @@ def denoise(sr, audio):
 
 def gen(rvc_model_selected, speaker_id, pitch_extract, tts, text_in, audio_in, up_key, index_rate, filter_radius, protect, crepe_hop_length, flag):
     background = None
+    audio = None
     if not audio_in:
         global tts_model, tts_model_name
         if tts_model_name != tts:
@@ -111,6 +118,7 @@ def gen(rvc_model_selected, speaker_id, pitch_extract, tts, text_in, audio_in, u
         torchaudio.save('speakeraudio.wav', audio_tuple[1], audio_tuple[0])
 
         import webui.modules.implementations.rvc.rvc as rvc
+        rvc.load_rvc(rvc_model_selected)
         out1, out2 = rvc.vc_single(speaker_id, 'speakeraudio.wav', up_key, None, pitch_extract, rvc_model_selected, None, index_rate, filter_radius, 0, 1, protect, crepe_hop_length)
         audio_tuple = out2
 
@@ -122,6 +130,7 @@ def gen(rvc_model_selected, speaker_id, pitch_extract, tts, text_in, audio_in, u
             audio = audio_tuple[1]
             audio = audio.to(torch.float32).div(32767/2)
             audio_tuple = (audio_tuple[0], audio)
+        audio = audio_tuple[1]
         audio_tuple = (audio_tuple[0], merge_and_match(audio_tuple[1], background, audio_tuple[0]))
 
     if 'denoise output' in flag:
@@ -130,7 +139,12 @@ def gen(rvc_model_selected, speaker_id, pitch_extract, tts, text_in, audio_in, u
     if torch.is_tensor(audio_tuple[1]):
         audio_tuple = (audio_tuple[0], audio_tuple[1].flatten().detach().cpu().numpy())
 
-    return [audio_tuple, gradio.make_waveform(audio_tuple)]
+    sr = audio_tuple[0]
+
+    audio = (sr, audio.detach().cpu().numpy()) if audio is not None else None
+    background = (sr, background.detach().cpu().numpy()) if background is not None else None
+
+    return [audio_tuple, gradio.make_waveform(audio_tuple), background, audio]
 
 
 def rvc():
@@ -166,8 +180,10 @@ def rvc():
             flags = gradio.Dropdown(flag_strings, label='Flags', info='Things to apply on the audio input/output', multiselect=True)
         with gradio.Column():
             generate = gradio.Button('Generate')
-            audio_out = gradio.Audio()
-            video_out = gradio.Video()
+            audio_out = gradio.Audio(label='output audio')
+            video_out = gradio.Video(label='output spectrogram video')
+            audio_bg = gradio.Audio(label='background')
+            audio_vocal = gradio.Audio(label='vocals')
 
         generate.click(fn=gen, inputs=[selected, speaker_id, pitch_extract, selected_tts, text_input, audio_input,
-                                       up_key, index_rate, filter_radius, protect, crepe_hop_length, flags], outputs=[audio_out, video_out])
+                                       up_key, index_rate, filter_radius, protect, crepe_hop_length, flags], outputs=[audio_out, video_out, audio_bg, audio_vocal])
