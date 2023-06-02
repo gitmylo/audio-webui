@@ -76,7 +76,8 @@ def split(sr, audio):
 
     import demucs.separate
     import shlex
-    model_name = 'htdemucs'
+    # model_name = 'htdemucs'
+    model_name = 'htdemucs_6s'
     # model_name = 'mdx_extra_q'
     args = shlex.split(f'speakeraudio.wav -n {model_name} --two-stems vocals --filename {{stem}}.{{ext}} --float32')
     demucs.separate.main(args)
