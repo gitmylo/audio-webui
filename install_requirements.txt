@@ -1,8 +1,8 @@
 ;;; Do not run pip install -r on this file, let the installer handle it.
 ;;; Every line will be executed like [package package package];[args];[condition];[comment].
 ;;; If there's no condition, always install.
-torch==2.0.0 torchvision torchaudio;--index-url https://download.pytorch.org/whl/cu117;windows
-torch==2.0.0 torchvision torchaudio;;not windows
+torch==2.0.1 torchvision torchaudio;--index-url https://download.pytorch.org/whl/cu117;windows
+torch==2.0.1 torchvision torchaudio;;not windows
 transformers
 diffusers
 gradio
@@ -13,7 +13,6 @@ sox;;not windows
 audiolm-pytorch
 joblib
 fairseq
-TTS
 
 praat-parselmouth>=0.4.2
 pyworld>=0.3.2
@@ -23,3 +22,5 @@ ffmpeg-python>=0.2.0
 noisereduce
 librosa
 git+https://github.com/facebookresearch/demucs#egg=demucs
+
+TTS

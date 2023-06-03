@@ -174,33 +174,15 @@ class VC(object):
             f0 = cache_harvest_f0(input_audio_path, self.sr, f0_max, f0_min, 10)
             if filter_radius > 2:
                 f0 = signal.medfilt(f0, 3)
-        elif f0_method == "crepe":
-            model = "full"
-            # Pick a batch size that doesn't cause memory errors on your gpu
-            batch_size = 512
-            # Compute pitch using first gpu
-            audio = torch.tensor(np.copy(x))[None].float()
-            f0, pd = torchcrepe.predict(
-                audio,
-                self.sr,
-                self.window,
-                f0_min,
-                f0_max,
-                model,
-                batch_size=batch_size,
-                device=self.device,
-                return_periodicity=True,
-            )
-            pd = torchcrepe.filter.median(pd, 3)
-            f0 = torchcrepe.filter.mean(f0, 3)
-            f0[pd < 0.1] = 0
-            f0 = f0[0].cpu().numpy()
         elif f0_method == "pyworld harvest" or f0_method == "dio":
             f0 = self.get_f0_pyworld_computation(x, f0_min, f0_max, f0_method)
         elif f0_method == "torchcrepe":
             f0 = self.get_f0_crepe_computation(x, f0_min, f0_max, p_len, crepe_hop_length)
         elif f0_method == "torchcrepe tiny":
             f0 = self.get_f0_crepe_computation(x, f0_min, f0_max, p_len, crepe_hop_length, "tiny")
+        else:
+            import webui.modules.implementations.rvc.custom_pitch_extraction as cpe
+            f0 = cpe.pitch_extract(f0_method, x, f0_min, f0_max, p_len, time_step, self.sr, self.window)
         f0 *= pow(2, f0_up_key / 12)
         # with open("test.txt","w")as f:f.write("\n".join([str(i)for i in f0.tolist()]))
         tf0 = self.sr // self.window  # 每秒f0点数
