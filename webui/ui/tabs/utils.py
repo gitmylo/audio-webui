@@ -41,6 +41,37 @@ def music_split_tab():
     split_button = gradio.Button('Split')
     split_button.click(fn=music_split_func, inputs=audio_in, outputs=[audio_vocal, audio_background])
 
+    with gradio.Row():
+        with gradio.Column():
+            # audio_combine_1 = gradio.Audio(label='Input audio 1', type='filepath')
+            audio_combine_1 = gradio.File(label='Input audio 1')
+            # audio_combine_2 = gradio.Audio(label='Input audio 2', type='filepath')
+            audio_combine_2 = gradio.File(label='Input audio 2')
+        audio_out = gradio.Audio(label='Combined audio')
+
+    def music_merge_func(audio1, audio2):
+        import torchaudio
+        x, sr = torchaudio.load(audio1.name)
+        y, _ = torchaudio.load(audio2.name)
+
+        print(x.shape)
+
+        if x.shape[0] == 2:
+            x = x.mean(0)
+        if y.shape[0] == 2:
+            y = y.mean(0)
+
+        import torchaudio.functional as F
+        y = F.resample(y, sr, int(sr * (x.shape[-1] / y.shape[-1])))
+        if x.shape[1] > y.shape[1]:
+            x = x[:, -y.shape[1]:]
+        else:
+            y = y[:, -x.shape[1]:]
+        return sr, x.add(y).flatten().cpu().detach().numpy()
+
+    split_button = gradio.Button('Merge')
+    split_button.click(fn=music_merge_func, inputs=[audio_combine_1, audio_combine_2], outputs=audio_out)
+
 
 def utils_tab():
     with gradio.Tabs():
