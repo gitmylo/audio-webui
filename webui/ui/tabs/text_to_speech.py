@@ -54,7 +54,7 @@ def text_to_speech():
 
                 selected.select(fn=load_model, inputs=selected, outputs=[selected] + all_components, show_progress=True)
         with gradio.Column():
-            generate = gradio.Button('Generate')
+            generate = gradio.Button('Generate', variant='primary')
             audio_out = gradio.Audio()
             video_out = gradio.Video()
             file_out = gradio.File()
