@@ -23,6 +23,8 @@ def flatten_audio(audio_tensor: torch.Tensor | tuple[torch.Tensor, int] | tuple[
             return flatten_audio(audio_tensor[0]), audio_tensor[1]
     if audio_tensor.dtype == torch.int16:
         audio_tensor = audio_tensor.float() / 32767.0
+    if audio_tensor.dtype == torch.int32:
+        audio_tensor = audio_tensor.float() / 2147483647.0
     if len(audio_tensor.shape) == 2:
         if audio_tensor.shape[0] == 2:
             # audio_tensor = audio_tensor[0, :].div(2).add(audio_tensor[1, :].div(2))
@@ -79,6 +81,7 @@ def denoise(sr, audio):
 
 
 def gen(rvc_model_selected, speaker_id, pitch_extract, tts, text_in, audio_in, up_key, index_rate, filter_radius, protect, crepe_hop_length, flag):
+    print(audio_in)
     background = None
     audio = None
     if not audio_in:
@@ -155,7 +158,13 @@ def rvc():
                 selected_tts = gradio.Dropdown(all_tts, label='TTS model', info='The TTS model to use for text-to-speech')
                 text_input = gradio.TextArea(label='Text to speech text', info='Text to speech text if no audio file is used as input.')
             with gradio.Accordion('Audio input', open=False):
+                use_microphone = gradio.Checkbox(label='Use microphone')
                 audio_input = gradio.Audio(label='Audio input')
+
+                def update_audio_input(use_mic):
+                    return gradio.update(source='microphone' if use_mic else 'upload')
+                use_microphone.change(fn=update_audio_input, inputs=use_microphone, outputs=audio_input)
+
             with gradio.Accordion('RVC'):
                 with gradio.Row():
                     selected = gradio.Dropdown(get_models_installed()[0]['choices'], label='RVC Model')
