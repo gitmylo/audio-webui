@@ -74,8 +74,8 @@ class BarkTTS(mod.TTSModelLoader):
         audio_upload = gradio.File(label='Words to speak', file_types=['audio'], **quick_kwargs)
         audio_upload.hide = True
         with gradio.Row(visible=False) as temps:
-            text_temp = gradio.Slider(0, 1, 0.7, step=0.05, label='Text temperature', **quick_kwargs)
-            waveform_temp = gradio.Slider(0, 1, 0.7, step=0.05, label='Waveform temperature', **quick_kwargs)
+            text_temp = gradio.Slider(0.05, 1, 0.7, step=0.05, label='Text temperature', **quick_kwargs)
+            waveform_temp = gradio.Slider(0.05, 1, 0.7, step=0.05, label='Waveform temperature', **quick_kwargs)
         mode = gradio.Radio(['File', 'Upload'], label='Speaker from', value='File', **quick_kwargs)
         clone_guide = gradio.Markdown('''
 ## When cloning a voice:
