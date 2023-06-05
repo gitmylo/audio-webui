@@ -33,9 +33,10 @@ def create_ui(theme) -> gr.Blocks:
 
     tabs = [
         ('Text to speech', text_to_speech),
-        ('rvc', rvc),
-        ('utils', utils_tab),
-        ('extra', extra_tab)
+        ('Rvc', rvc),
+        ('AudioLDM', audioldm_tab),
+        ('Utils', utils_tab),
+        ('Extra', extra_tab)
     ]
     with gr.Blocks(theme=theme, title='Audio WebUI', css=css) as webui:
         with gr.Tabs():
