@@ -37,7 +37,7 @@ def is_loaded():
 def generate(prompt='', negative_prompt='', steps=10, duration=5.0, cfg=2.5):
     if is_loaded():
         try:
-            return 16000, model(prompt if prompt else None, negative_prompt=negative_prompt if negative_prompt else None,
+            return 16000, model(prompt, negative_prompt=negative_prompt if negative_prompt else None,
                                 audio_length_in_s=duration, num_inference_steps=steps, guidance_scale=cfg).audios[0]
         except Exception as e:
             return f'An exception occurred: {str(e)}'
