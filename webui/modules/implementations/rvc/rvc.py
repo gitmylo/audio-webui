@@ -77,11 +77,11 @@ class Config:
                 / 1024
                 + 0.4
             )
-            if self.gpu_mem <= 4:
-                with open("trainset_preprocess_pipeline_print.py", "r") as f:
-                    strr = f.read().replace("3.7", "3.0")
-                with open("trainset_preprocess_pipeline_print.py", "w") as f:
-                    f.write(strr)
+            # if self.gpu_mem <= 4:
+            #     with open("trainset_preprocess_pipeline_print.py", "r") as f:
+            #         strr = f.read().replace("3.7", "3.0")
+            #     with open("trainset_preprocess_pipeline_print.py", "w") as f:
+            #         f.write(strr)
         elif torch.backends.mps.is_available():
             print("没有发现支持的N卡, 使用MPS进行推理")
             self.device = "mps"
