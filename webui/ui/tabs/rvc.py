@@ -131,7 +131,7 @@ def gen(rvc_model_selected, speaker_id, pitch_extract, tts, text_in, audio_in, u
         background = flatten_audio(background if torch.is_tensor(background) else torch.tensor(background), False)
         if audio_tuple[1].dtype == torch.int16:
             audio = audio_tuple[1]
-            audio = audio.to(torch.float32).div(32767/2)
+            audio = audio.float() / 32767.0
             audio_tuple = (audio_tuple[0], audio)
         audio = audio_tuple[1]
         audio_tuple = (audio_tuple[0], merge_and_match(audio_tuple[1], background, audio_tuple[0]))

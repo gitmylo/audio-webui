@@ -35,6 +35,7 @@ def create_ui(theme) -> gr.Blocks:
         ('Text to speech', text_to_speech),
         ('Rvc', rvc),
         ('AudioLDM', audioldm_tab),
+        ('Whisper', whisper),
         ('Utils', utils_tab),
         ('Extra', extra_tab)
     ]

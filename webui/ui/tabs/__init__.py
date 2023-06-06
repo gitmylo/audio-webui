@@ -4,3 +4,4 @@ from .audio_to_text import speech_to_text
 from .rvc import rvc
 from .utils import utils_tab
 from .audioldm import audioldm_tab
+from .whisper import whisper
