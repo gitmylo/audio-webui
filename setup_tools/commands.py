@@ -14,6 +14,11 @@ def run_command(command: list[tuple[str, str]] | str, args='', show_output=True)
         commandstr = '&&'.join([' '.join(cmd) + extra for cmd in command])
     else:
         commandstr = f'{command} {args}' + extra
+    
+    # Ensure bin/bash shell
+    if not is_windows():
+        commandstr = '/bin/bash -c "' + commandstr + '"'
+        
     system(commandstr)
 
 
