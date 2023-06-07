@@ -2,6 +2,12 @@
 
 ## Please read
 This code works on python 3.10, i have not tested it on other versions. Some older versions will have issues.
+[Common issues](readme/common_issues.md)
+
+## Installing
+Installation is done automatically in a venv when `run.bat` or `run.sh` is ran without the `--skip-install` flag.
+
+Alternatively, run `install.bat` or `install.sh` to just install, and nothing else. To install with install.bat in a custom environment which is currently active. Do `install.bat --skip-venv` or `install.sh --skip-venv`.
 
 ## Running
 Running should be as simple as running `run.bat` or `run.sh` depending on your OS.
