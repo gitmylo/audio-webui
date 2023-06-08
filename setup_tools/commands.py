@@ -22,5 +22,5 @@ def run_command(command: list[tuple[str, str]] | str, args='', show_output=True)
     system(commandstr)
 
 
-def run_pip(package):
-    run_command('pip', f'install {package}', False)
+def run_pip(package, show_output=False):
+    run_command('pip', f'install {package}', show_output)

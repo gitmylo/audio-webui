@@ -33,6 +33,7 @@ If there's an issue with running, please create an [issue](https://github.com/gi
 | --theme                    | theme (str)    | [None]     | --theme "gradio/soft"      | Set the theme for gradio                                                                                               |
 | --listen                   | [None]         | -l         | -l                         | Listen a server, allowing other devices within your local network to access the server. (or outside if port forwarded) |
 | --port                     | port (int)     | [None]     | --port 12345               | Set a custom port to listen on, by default a port is picked automatically                                              |
+| --hide-pip-log             | [None]         | [None]     | --hide-pip-log             | Hide pip install logs, only show warnings and errors.                                                                  |
 
 
 ## Current goals and features

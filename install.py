@@ -7,7 +7,7 @@ def ensure_installed():
     if not args.skip_venv:
         ensure_venv()
     if not args.skip_install:
-        install_requirements()
+        install_requirements(show_output=not args.hide_pip_log)
 
 
 if __name__ == '__main__':

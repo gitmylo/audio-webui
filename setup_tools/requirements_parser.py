@@ -29,8 +29,8 @@ def parse_requirements(req_file='install_requirements.txt'):
 large_packages = ['torch==2.0.1']
 
 
-def install_requirements(req_file='install_requirements.txt'):
+def install_requirements(req_file='install_requirements.txt', show_output=True):
     for requirement in parse_requirements(req_file):
         name = requirement.split(" ")[0]
         print(f'Installing requirement {name}...' + (' This could take a while' if name in large_packages else ''))
-        run_pip(requirement)
+        run_pip(requirement, show_output)
