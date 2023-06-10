@@ -50,8 +50,11 @@ If there's an issue with running, please create an [issue](https://github.com/gi
 * [x] Audio-to-audio
   * [x] Bark audio-to-audio
   * [x] RVC (retrieval based voice conversion)
-* [ ] Automatic-speech-recognition
-  * [ ] Whisper speech recognition
+    * [ ] RVC training
+* [x] Automatic-speech-recognition
+  * [x] Whisper speech recognition
 
 ## More readme
+* Bark info
+* RVC info
 [Link](readme/readme.md)
