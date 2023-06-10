@@ -1,4 +1,7 @@
 from webui import args  # Will show help message if needed
+import os
+# Set custom default huggingface download path
+os.environ['HF_HOME'] = os.getenv('HF_HOME', os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'models', 'unclassified'))
 
 from install import ensure_installed
 
