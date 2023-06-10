@@ -69,6 +69,21 @@ class BarkTTS(mod.TTSModelLoader):
         def update_voices():
             return gradio.update(choices=self.get_voices())
 
+        clone_guide = gradio.Markdown('''
+        ## Long form generations
+        Split your long form generations with newlines (enter), every line will be generated individually, but as a continuation of the last.
+
+        Empty lines at the start and end will be skipped.
+
+        ## When cloning a voice:
+        * The speaker will be saved in the data/bark_custom_speakers directory.
+        * The "file" output contains a different speaker. This is for saving speakers created through random generation. Or continued cloning.
+
+        ## Cloning guide (short edition)
+        * Clear spoken, no noise, no music.
+        * Ends after a short pause for best results.
+                ''', visible=False)
+
         input_type = gradio.Radio(['Text', 'File'], label='Input type', value='Text', **quick_kwargs)
         textbox = gradio.Textbox(lines=7, label='Input', placeholder='Text to speak goes here', **quick_kwargs)
         audio_upload = gradio.File(label='Words to speak', file_types=['audio'], **quick_kwargs)
@@ -77,15 +92,6 @@ class BarkTTS(mod.TTSModelLoader):
             text_temp = gradio.Slider(0.05, 1, 0.7, step=0.05, label='Text temperature', **quick_kwargs)
             waveform_temp = gradio.Slider(0.05, 1, 0.7, step=0.05, label='Waveform temperature', **quick_kwargs)
         mode = gradio.Radio(['File', 'Upload'], label='Speaker from', value='File', **quick_kwargs)
-        clone_guide = gradio.Markdown('''
-## When cloning a voice:
-* The speaker will be saved in the data/bark_custom_speakers directory.
-* The "file" output contains a different speaker. This is for saving speakers created through random generation. Or continued cloning.
-
-## Cloning guide (short edition)
-* Clear spoken, no noise, no music.
-* Ends after a short pause for best results.
-        ''', visible=False)
         with gradio.Row(visible=False) as speakers:
             speaker = gradio.Dropdown(self.get_voices(), value='None', show_label=False, **quick_kwargs)
             refresh_speakers = gradio.Button('🔃', variant='tool secondary', **quick_kwargs)
@@ -96,17 +102,18 @@ class BarkTTS(mod.TTSModelLoader):
         # speaker_file_transcript.hide = True
 
         keep_generating = gradio.Checkbox(label='Keep it up (keep generating)', value=False, **quick_kwargs)
+        min_eos_p = gradio.Slider(0.05, 1, 0.2, step=0.05, label='min end of audio probability', info='Lower values cause the generation to stop sooner, higher values make it do more, 1 is about the same as keep generating being on.', **quick_kwargs)
 
         mode.select(fn=update_speaker, inputs=mode, outputs=[speaker, refresh_speakers, speaker_file])
         input_type.select(fn=update_input, inputs=input_type, outputs=[textbox, audio_upload])
         return [textbox, audio_upload, input_type, mode, text_temp, waveform_temp,
-                speaker, speaker_file, refresh_speakers, keep_generating, clone_guide, temps, speakers]
+                speaker, speaker_file, refresh_speakers, keep_generating, clone_guide, temps, speakers, min_eos_p]
 
     model = 'suno/bark'
 
     def get_response(self, *inputs):
         textbox, audio_upload, input_type, mode, text_temp, waveform_temp, speaker,\
-            speaker_file, refresh_speakers, keep_generating, clone_guide = inputs
+            speaker_file, refresh_speakers, keep_generating, clone_guide, min_eos_p = inputs
         _speaker = None
         if mode == 'File':
             _speaker = speaker if speaker != 'None' else None
@@ -119,7 +126,7 @@ class BarkTTS(mod.TTSModelLoader):
         from bark.generation import SAMPLE_RATE
         if input_type == 'Text':
             history_prompt, audio = generate_audio_new(textbox, _speaker, text_temp, waveform_temp, output_full=True,
-                                                       allow_early_stop=not keep_generating)
+                                                       allow_early_stop=not keep_generating, min_eos_p=min_eos_p)
         else:
             semantics = wav_to_semantics(audio_upload.name).numpy()
             history_prompt, audio = semantic_to_waveform_new(semantics, _speaker, waveform_temp, output_full=True)

@@ -1,13 +1,15 @@
+import numpy as np
 from bark.api import *
-from .bark_generation import generate_text_semantic_new, generate_coarse_new, generate_fine_new, codec_decode_new
+from .bark_generation import generate_text_semantic_new, generate_coarse_new, generate_fine_new, codec_decode_new, SAMPLE_RATE
 
 
 def text_to_semantic_new(
     text: str,
-    history_prompt: Union[str, dict] = None,
+    history_prompt: Optional[Union[str, dict]] = None,
     temp: float = 0.7,
     silent: bool = False,
-    allow_early_stop: bool = True
+    allow_early_stop: bool = True,
+    min_eos_p: float = 0.2
 ):
     """Generate semantic array from text.
 
@@ -17,6 +19,7 @@ def text_to_semantic_new(
         temp: generation temperature (1.0 more diverse, 0.0 more conservative)
         silent: disable progress bar
         allow_early_stop: (Added in new) set to False to generate until the limit
+        min_eos_p: (Added in new) Generation stopping likelyness, Lower means more likely to stop.
 
     Returns:
         numpy semantic array to be fed into `semantic_to_waveform`
@@ -27,14 +30,15 @@ def text_to_semantic_new(
         temp=temp,
         silent=silent,
         use_kv_caching=True,
-        allow_early_stop=allow_early_stop
+        allow_early_stop=allow_early_stop,
+        min_eos_p=min_eos_p
     )
     return x_semantic
 
 
 def semantic_to_waveform_new(
     semantic_tokens: np.ndarray,
-    history_prompt: Union[str, dict] = None,
+    history_prompt: Optional[Union[str, dict]] = None,
     temp: float = 0.7,
     silent: bool = False,
     output_full: bool = False,
@@ -83,14 +87,17 @@ def semantic_to_waveform_new(
 
 def generate_audio_new(
     text: str,
-    history_prompt: Optional[str] = None,
+    history_prompt: Optional[Union[str, dict]] = None,
     text_temp: float = 0.7,
     waveform_temp: float = 0.7,
     silent: bool = False,
     output_full: bool = False,
     skip_fine: bool = False,
     decode_on_cpu: bool = False,
-    allow_early_stop: bool = True
+    allow_early_stop: bool = True,
+    min_eos_p: float = 0.2,
+    long_gen_silence_secs: float = 0,
+    long_gen_re_feed: bool = True,
 ):
     """Generate audio array from input text.
 
@@ -104,29 +111,43 @@ def generate_audio_new(
         skip_fine: (Added in new) Skip converting from coarse to fine
         decode_on_cpu: (Added in new) Decode on cpu
         allow_early_stop: (Added in new) Set to false to continue until the limit is reached
+        min_eos_p: (Added in new) Lower values stop the generation earlier.
+        long_gen_silence_secs: (Added in new) The amount of silence between clips for long form generations.
+        long_gen_re_feed: (Added in new) For longer generations (\n) use the last generated chunk as the prompt for the next. Better continuation at risk of changing voice.
 
     Returns:
         numpy audio array at sample frequency 24khz
     """
-    semantic_tokens = text_to_semantic_new(
-        text,
-        history_prompt=history_prompt,
-        temp=text_temp,
-        silent=silent,
-        allow_early_stop=allow_early_stop
-    )
-    out = semantic_to_waveform_new(
-        semantic_tokens,
-        history_prompt=history_prompt,
-        temp=waveform_temp,
-        silent=silent,
-        output_full=output_full,
-        skip_fine=skip_fine,
-        decode_on_cpu=decode_on_cpu
-    )
+
+    silence = np.zeros(int(long_gen_silence_secs * SAMPLE_RATE))
+    gen_audio = []
+    gen_sections = text.strip().split('\n')
+    print('Generation split into sections:', gen_sections)
+    for input_text in gen_sections:
+        semantic_tokens = text_to_semantic_new(
+            input_text,
+            history_prompt=history_prompt,
+            temp=text_temp,
+            silent=silent,
+            allow_early_stop=allow_early_stop,
+            min_eos_p=min_eos_p
+        )
+        out = semantic_to_waveform_new(
+            semantic_tokens,
+            history_prompt=history_prompt,
+            temp=waveform_temp,
+            silent=silent,
+            output_full=True,
+            skip_fine=skip_fine,
+            decode_on_cpu=decode_on_cpu
+        )
+        full_generation, gen_audio_new = out
+        if long_gen_re_feed:
+            history_prompt = full_generation
+        gen_audio += [gen_audio_new, silence.copy()]
+
+    gen_audio = np.concatenate(gen_audio)
+
     if output_full:
-        full_generation, audio_arr = out
-        return full_generation, audio_arr
-    else:
-        audio_arr = out
-    return audio_arr
+        return full_generation, gen_audio
+    return gen_audio
