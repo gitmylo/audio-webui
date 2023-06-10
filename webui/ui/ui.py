@@ -29,6 +29,10 @@ def create_ui(theme) -> gr.Blocks:
         align-self: end;
         border-radius: 0.5em;
     }
+    
+    .offset--10 {
+        transform: translateY(-10px);
+    }
     """
 
     tabs = [

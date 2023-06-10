@@ -27,6 +27,7 @@ If there's an issue with running, please create an [issue](https://github.com/gi
 | --bark-cpu-offload         | [None]         | [None]     | --bark-cpu-offload         | Use cpu offloading to save vram while still running on gpu                                                             |
 | --bark-use-cpu             | [None]         | [None]     | --bark-use-cpu             | Use cpu for bark                                                                                                       |
 | --bark-cloning-large-model | [None]         | [None]     | --bark-cloning-large-model | Use the larger voice cloning model. (It hasn't been tested as much yet)                                                |
+| --tts-use-gpu              | [None]         | [None]     | --tts-use-gpu              | Use your GPU for TTS with the TTS library                                                                              |
 | --share                    | [None]         | -s         | -s                         | Share the gradio instance publicly                                                                                     |
 | --username                 | username (str) | -u, --user | -u username                | Set the username for gradio                                                                                            |
 | --password                 | password (str) | -p, --pass | -p password                | Set the password for gradio                                                                                            |

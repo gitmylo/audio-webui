@@ -16,7 +16,7 @@ parser.add_argument('--bark-use-cpu', action='store_true', help='Use cpu on bark
 parser.add_argument('--bark-cloning-large-model', action='store_true', help='Use the larger voice cloning model for bark')
 
 # TTS
-parser.add_argument('--tts-use-cpu', action='store_true', help='Use cpu for tts instead of gpu')
+parser.add_argument('--tts-use-gpu', action='store_true', help='Use gpu for TTS')
 
 # Gradio
 parser.add_argument('-s', '--share', action='store_true', help='Share this gradio instance.')

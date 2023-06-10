@@ -1,17 +1,16 @@
 import gc
 
-import numpy as np
-import scipy.io.wavfile
 import torch.cuda
 import torchaudio
 from TTS.api import TTS
 import gradio
+from webui.args import args
 
 from webui.modules.download import fill_models
 
 flag_strings = ['denoise', 'denoise output', 'separate background', 'recombine background']
 
-tts_model = None
+tts_model: TTS = None
 tts_model_name = None
 
 
@@ -80,22 +79,25 @@ def denoise(sr, audio):
     return sr, audio
 
 
-def gen(rvc_model_selected, speaker_id, pitch_extract, tts, text_in, audio_in, up_key, index_rate, filter_radius, protect, crepe_hop_length, flag):
-    print(audio_in)
+def gen(rvc_model_selected, speaker_id, pitch_extract, tts, speaker_tts, lang_tts, text_in, audio_in, up_key, index_rate, filter_radius, protect, crepe_hop_length, flag):
     background = None
     audio = None
     if not audio_in:
         global tts_model, tts_model_name
-        if tts_model_name != tts:
-            if tts_model is not None:
-                tts_model = None
-                gc.collect()
-                torch.cuda.empty_cache()
-
-            tts_model_name = tts
-            print('Loading TTS model')
-            tts_model = TTS(tts)
-        audio_in, sr = torch.tensor(tts_model.tts(text_in)), tts_model.synthesizer.output_sample_rate
+        # if tts_model_name != tts:
+        #     if tts_model is not None:
+        #         tts_model = None
+        #         gc.collect()
+        #         torch.cuda.empty_cache()
+        #
+        #     tts_model_name = tts
+        #     print('Loading TTS model')
+        #     tts_model = TTS(tts)
+        load_tts(tts)
+        audio_in, sr = torch.tensor(tts_model.tts(text_in,
+                                                  speaker=speaker_tts if tts_model.is_multi_speaker else None,
+                                                  language=lang_tts if tts_model.is_multi_lingual else None
+                                                  )), tts_model.synthesizer.output_sample_rate
     else:
         sr, audio_in = audio_in
         audio_in = torch.tensor(audio_in)
@@ -150,13 +152,58 @@ def gen(rvc_model_selected, speaker_id, pitch_extract, tts, text_in, audio_in, u
     return [audio_tuple, gradio.make_waveform(audio_tuple), background, audio]
 
 
+def tts_speakers():
+    if tts_model is None:
+        return gradio.update(choices=[]), gradio.update(choices=[])
+    speakers = list(dict.fromkeys([speaker.strip() for speaker in tts_model.speakers])) if tts_model.is_multi_speaker else []
+    languages = list(dict.fromkeys(tts_model.languages)) if tts_model.is_multi_lingual else []
+    return gradio.update(choices=speakers), gradio.update(choices=languages)
+
+
+def load_tts(model):
+    global tts_model, tts_model_name
+    if tts_model_name != model:
+        unload_tts()
+        tts_model_name = model
+        tts_model = TTS(model, gpu=True if torch.cuda.is_available() and args.tts_use_gpu else False)
+    return gradio.update(value=model), *tts_speakers()
+
+
+def unload_tts():
+    global tts_model, tts_model_name
+    if tts_model is not None:
+        tts_model = None
+        tts_model_name = None
+        gc.collect()
+        torch.cuda.empty_cache()
+    return gradio.update(value=''), *tts_speakers()
+
+
 def rvc():
     all_tts = TTS.list_models()
     with gradio.Row():
         with gradio.Column():
             with gradio.Accordion('TTS', open=False):
-                selected_tts = gradio.Dropdown(all_tts, label='TTS model', info='The TTS model to use for text-to-speech')
+                with gradio.Row():
+                    selected_tts = gradio.Dropdown(all_tts, label='TTS model', info='The TTS model to use for text-to-speech', allow_custom_value=True)
+                    selected_tts_unload = gradio.Button('💣', variant='primary tool offset--10')
+
+                with gradio.Row():
+                    speaker_tts = gradio.Dropdown(tts_speakers()[0]['choices'], label='TTS speaker', info='The speaker to use for the TTS model, only for multi speaker models.')
+                    speaker_tts_refresh = gradio.Button('🔃', variant='primary tool offset--10')
+
+                with gradio.Row():
+                    lang_tts = gradio.Dropdown(tts_speakers()[1]['choices'], label='TTS language', info='The language to use for the TTS model, only for multilingual models.')
+                    lang_tts_refresh = gradio.Button('🔃', variant='primary tool offset--10')
+
+                speaker_tts_refresh.click(fn=tts_speakers, outputs=[speaker_tts, lang_tts])
+                lang_tts_refresh.click(fn=tts_speakers, outputs=[speaker_tts, lang_tts])
+
+                selected_tts_unload.click(fn=unload_tts, outputs=[selected_tts, speaker_tts, lang_tts])
+                selected_tts.select(fn=load_tts, inputs=selected_tts, outputs=[selected_tts, speaker_tts, lang_tts])
+
                 text_input = gradio.TextArea(label='Text to speech text', info='Text to speech text if no audio file is used as input.')
+
             with gradio.Accordion('Audio input', open=False):
                 use_microphone = gradio.Checkbox(label='Use microphone')
                 audio_input = gradio.Audio(label='Audio input')
@@ -194,5 +241,5 @@ def rvc():
             audio_bg = gradio.Audio(label='background')
             audio_vocal = gradio.Audio(label='vocals')
 
-        generate.click(fn=gen, inputs=[selected, speaker_id, pitch_extract, selected_tts, text_input, audio_input,
+        generate.click(fn=gen, inputs=[selected, speaker_id, pitch_extract, selected_tts, speaker_tts, lang_tts, text_input, audio_input,
                                        up_key, index_rate, filter_radius, protect, crepe_hop_length, flags], outputs=[audio_out, video_out, audio_bg, audio_vocal])
