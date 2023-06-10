@@ -98,6 +98,7 @@ def generate_audio_new(
     min_eos_p: float = 0.2,
     long_gen_silence_secs: float = 0,
     long_gen_re_feed: bool = True,
+    gen_prefix: str = ''
 ):
     """Generate audio array from input text.
 
@@ -114,16 +115,20 @@ def generate_audio_new(
         min_eos_p: (Added in new) Lower values stop the generation earlier.
         long_gen_silence_secs: (Added in new) The amount of silence between clips for long form generations.
         long_gen_re_feed: (Added in new) For longer generations (\n) use the last generated chunk as the prompt for the next. Better continuation at risk of changing voice.
+        gen_prefix: (Added in new) A prefix to add to every single generated chunk.
 
     Returns:
         numpy audio array at sample frequency 24khz
     """
+    if gen_prefix:
+        gen_prefix = gen_prefix + ' '
 
     silence = np.zeros(int(long_gen_silence_secs * SAMPLE_RATE))
     gen_audio = []
     gen_sections = text.strip().split('\n')
     print('Generation split into sections:', gen_sections)
     for input_text in gen_sections:
+        input_text = gen_prefix + input_text
         semantic_tokens = text_to_semantic_new(
             input_text,
             history_prompt=history_prompt,

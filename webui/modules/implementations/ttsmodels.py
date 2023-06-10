@@ -86,6 +86,7 @@ class BarkTTS(mod.TTSModelLoader):
 
         input_type = gradio.Radio(['Text', 'File'], label='Input type', value='Text', **quick_kwargs)
         textbox = gradio.Textbox(lines=7, label='Input', placeholder='Text to speak goes here', **quick_kwargs)
+        gen_prefix = gradio.Textbox(label='Generation prefix', info='Add this text before every generated chunk, better for keeping emotions.', **quick_kwargs)
         audio_upload = gradio.File(label='Words to speak', file_types=['audio'], **quick_kwargs)
         audio_upload.hide = True
         with gradio.Row(visible=False) as temps:
@@ -106,13 +107,13 @@ class BarkTTS(mod.TTSModelLoader):
 
         mode.select(fn=update_speaker, inputs=mode, outputs=[speaker, refresh_speakers, speaker_file])
         input_type.select(fn=update_input, inputs=input_type, outputs=[textbox, audio_upload])
-        return [textbox, audio_upload, input_type, mode, text_temp, waveform_temp,
+        return [textbox, gen_prefix, audio_upload, input_type, mode, text_temp, waveform_temp,
                 speaker, speaker_file, refresh_speakers, keep_generating, clone_guide, temps, speakers, min_eos_p]
 
     model = 'suno/bark'
 
     def get_response(self, *inputs):
-        textbox, audio_upload, input_type, mode, text_temp, waveform_temp, speaker,\
+        textbox, gen_prefix, audio_upload, input_type, mode, text_temp, waveform_temp, speaker,\
             speaker_file, refresh_speakers, keep_generating, clone_guide, min_eos_p = inputs
         _speaker = None
         if mode == 'File':
@@ -126,7 +127,8 @@ class BarkTTS(mod.TTSModelLoader):
         from bark.generation import SAMPLE_RATE
         if input_type == 'Text':
             history_prompt, audio = generate_audio_new(textbox, _speaker, text_temp, waveform_temp, output_full=True,
-                                                       allow_early_stop=not keep_generating, min_eos_p=min_eos_p)
+                                                       allow_early_stop=not keep_generating, min_eos_p=min_eos_p,
+                                                       gen_prefix=gen_prefix)
         else:
             semantics = wav_to_semantics(audio_upload.name).numpy()
             history_prompt, audio = semantic_to_waveform_new(semantics, _speaker, waveform_temp, output_full=True)
