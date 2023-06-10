@@ -9,7 +9,7 @@
 
 If you still don't understand, refer to this graph. Click the graph to try for yourself:
 
-[![graph.png](graph.png)](https://www.desmos.com/calculator/dtrzof6mjv)
+<a href='https://www.desmos.com/calculator/dtrzof6mjv' target='_blank'>![graph.png](graph.png)</a>
 
 **Green**: Epochs required (y) per x minutes of audio
 
