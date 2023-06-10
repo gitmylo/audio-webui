@@ -206,11 +206,18 @@ def rvc():
 
             with gradio.Accordion('Audio input', open=False):
                 use_microphone = gradio.Checkbox(label='Use microphone')
-                audio_input = gradio.Audio(label='Audio input')
+                audio_el = gradio.Audio(label='Audio input')
+                from webui.ui.tabs.text_to_speech import to_rvc, audio_out
+                from webui.ui.ui import tabs_el
+
+                def to_rvc_func(audio):
+                    return gradio.update(selected='RVC'), audio
+
+                to_rvc.click(fn=to_rvc_func, inputs=audio_out, outputs=[tabs_el, audio_el])
 
                 def update_audio_input(use_mic):
                     return gradio.update(source='microphone' if use_mic else 'upload')
-                use_microphone.change(fn=update_audio_input, inputs=use_microphone, outputs=audio_input)
+                use_microphone.change(fn=update_audio_input, inputs=use_microphone, outputs=audio_el)
 
             with gradio.Accordion('RVC'):
                 with gradio.Row():
@@ -241,5 +248,5 @@ def rvc():
             audio_bg = gradio.Audio(label='background')
             audio_vocal = gradio.Audio(label='vocals')
 
-        generate.click(fn=gen, inputs=[selected, speaker_id, pitch_extract, selected_tts, speaker_tts, lang_tts, text_input, audio_input,
+        generate.click(fn=gen, inputs=[selected, speaker_id, pitch_extract, selected_tts, speaker_tts, lang_tts, text_input, audio_el,
                                        up_key, index_rate, filter_radius, protect, crepe_hop_length, flags], outputs=[audio_out, video_out, audio_bg, audio_vocal])

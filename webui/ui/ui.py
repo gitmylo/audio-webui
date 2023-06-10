@@ -1,6 +1,8 @@
 import gradio as gr
 from .tabs import *
 
+tabs_el: gr.Tabs = None
+
 
 def create_ui(theme) -> gr.Blocks:
 
@@ -37,15 +39,17 @@ def create_ui(theme) -> gr.Blocks:
 
     tabs = [
         ('Text to speech', text_to_speech),
-        ('Rvc', rvc),
+        ('RVC', rvc),
         ('AudioLDM', audioldm_tab),
         ('Whisper', whisper),
         ('Utils', utils_tab),
         ('Extra', extra_tab)
     ]
+    global tabs_el
     with gr.Blocks(theme=theme, title='Audio WebUI', css=css) as webui:
-        with gr.Tabs():
+        with gr.Tabs() as tabs_element:
+            tabs_el = tabs_element
             for name, content in tabs:
-                with gr.Tab(name):
+                with gr.Tab(name, id=name):
                     content()
     return webui

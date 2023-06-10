@@ -8,6 +8,8 @@ mod_type = 'text-to-speech'
 
 loader: mod.TTSModelLoader = mod.TTSModelLoader
 
+to_rvc, audio_out = None, None
+
 
 def get_models_installed():
     # return [model for model in mod.get_installed_models(mod_type) if model in [tts.replace('/', '--') for tts in mod.all_tts_models()]]
@@ -54,10 +56,15 @@ def text_to_speech():
 
                 selected.select(fn=load_model, inputs=selected, outputs=[selected] + all_components, show_progress=True)
         with gradio.Column():
-            generate = gradio.Button('Generate', variant='primary')
-            audio_out = gradio.Audio()
+            global to_rvc, audio_out
+            with gradio.Row():
+                generate = gradio.Button('Generate', variant='primary')
+                to_rvc = gradio.Button('Send to RVC')
+            audio_out = gradio.Audio(interactive=False)
             video_out = gradio.Video()
             file_out = gradio.File()
+
+
 
     def _generate(inputs, values):
         global loader
