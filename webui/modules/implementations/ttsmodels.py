@@ -27,12 +27,11 @@ class BarkTTS(mod.TTSModelLoader):
 
     @staticmethod
     def create_voice(file):
-        file_path = file.name
-        file_name = '.'.join(file_path.replace('\\', '/').split('/')[-1].split('.')[:-1])
+        file_name = '.'.join(file.replace('\\', '/').split('/')[-1].split('.')[:-1])
         out_file = f'data/bark_custom_speakers/{file_name}.npz'
 
-        semantic_prompt = wav_to_semantics(file.name)
-        fine_prompt = generate_fine_from_wav(file.name)
+        semantic_prompt = wav_to_semantics(file)
+        fine_prompt = generate_fine_from_wav(file)
         coarse_prompt = generate_course_history(fine_prompt)
 
 
@@ -49,12 +48,14 @@ class BarkTTS(mod.TTSModelLoader):
                 speaker.hide = True
                 refresh_speakers.hide = True
                 speaker_file.hide = False
-                return [gradio.update(visible=False), gradio.update(visible=False), gradio.update(visible=True)]
+                speaker_name.hide = False
+                return [gradio.update(visible=False), gradio.update(visible=False), gradio.update(visible=True), gradio.update(visible=True)]
             else:
                 speaker.hide = False
                 refresh_speakers.hide = False
                 speaker_file.hide = True
-                return [gradio.update(visible=True), gradio.update(visible=True), gradio.update(visible=False)]
+                speaker_name.hide = True
+                return [gradio.update(visible=True), gradio.update(visible=True), gradio.update(visible=False), gradio.update(visible=False)]
 
         def update_input(option):
             if option == 'Text':
@@ -97,32 +98,36 @@ class BarkTTS(mod.TTSModelLoader):
             speaker = gradio.Dropdown(self.get_voices(), value='None', show_label=False, **quick_kwargs)
             refresh_speakers = gradio.Button('🔃', variant='tool secondary', **quick_kwargs)
         refresh_speakers.click(fn=update_voices, outputs=speaker)
+        speaker_name = gradio.Textbox(label='Speaker name', info='The name to save the speaker as, random if empty', **quick_kwargs)
         speaker_file = gradio.Audio(label='Speaker', **quick_kwargs)
         # speaker_file_transcript = gradio.Textbox(lines=1, label='Transcript', **quick_kwargs)
+        speaker_name.hide = True
         speaker_file.hide = True  # Custom, auto hide speaker_file
         # speaker_file_transcript.hide = True
 
         keep_generating = gradio.Checkbox(label='Keep it up (keep generating)', value=False, **quick_kwargs)
         min_eos_p = gradio.Slider(0.05, 1, 0.2, step=0.05, label='min end of audio probability', info='Lower values cause the generation to stop sooner, higher values make it do more, 1 is about the same as keep generating being on.', **quick_kwargs)
 
-        mode.select(fn=update_speaker, inputs=mode, outputs=[speaker, refresh_speakers, speaker_file])
+        mode.select(fn=update_speaker, inputs=mode, outputs=[speaker, refresh_speakers, speaker_file, speaker_name])
         input_type.select(fn=update_input, inputs=input_type, outputs=[textbox, audio_upload])
         return [textbox, gen_prefix, audio_upload, input_type, mode, text_temp, waveform_temp,
-                speaker, speaker_file, refresh_speakers, keep_generating, clone_guide, temps, speakers, min_eos_p]
+                speaker, speaker_name, speaker_file, refresh_speakers, keep_generating, clone_guide, temps, speakers, min_eos_p]
 
     model = 'suno/bark'
 
     def get_response(self, *inputs):
         textbox, gen_prefix, audio_upload, input_type, mode, text_temp, waveform_temp, speaker,\
-            speaker_file, refresh_speakers, keep_generating, clone_guide, min_eos_p = inputs
+            speaker_name, speaker_file, refresh_speakers, keep_generating, clone_guide, min_eos_p = inputs
         _speaker = None
         if mode == 'File':
             _speaker = speaker if speaker != 'None' else None
         else:
             speaker_sr, speaker_wav = speaker_file
             temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.wav')
-            scipy.io.wavfile.write(temp_file, speaker_sr, speaker_wav)
-            _speaker = self.create_voice(temp_file)
+            if speaker_name:
+                temp_file.name = os.path.join(os.path.dirname(temp_file.name), speaker_name + '.wav')
+            scipy.io.wavfile.write(temp_file.name, speaker_sr, speaker_wav)
+            _speaker = self.create_voice(temp_file.name)
         from webui.modules.implementations.patches.bark_api import generate_audio_new, semantic_to_waveform_new
         from bark.generation import SAMPLE_RATE
         if input_type == 'Text':
