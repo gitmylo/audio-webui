@@ -778,7 +778,7 @@ def train_model(base_ckpt_, epochs):
         f0,
         finished_save_path,
         epoch,
-        data['v'],
+        'v'+str(data['v']),
     )
     yield output, last_loss_hist
 

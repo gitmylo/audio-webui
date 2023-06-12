@@ -315,6 +315,8 @@ def get_vc(sid):
         else:
             net_g = SynthesizerTrnMs768NSFsid_nono(*cpt["config"])
 
+    print(version)
+
     del net_g.enc_q
     print(net_g.load_state_dict(cpt["weight"], strict=False))
     net_g.eval().to(config.device)
