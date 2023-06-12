@@ -331,11 +331,13 @@ def get_continue_models():
 def copy_model(model):
     if model == 'f0':
         return 'Can\'t copy f0 model.'
-    model_path = os.path.join(current_workspace.space_path, 'models', model)
-    rvc_model_use_path = os.path.join('data', 'models', 'rvc', current_workspace.name)
+    filename = current_workspace.name + '.pth'
+    model_path = os.path.join(current_workspace.space_path, 'models', model, filename)
+    rvc_model_use_path = os.path.join('data', 'models', 'rvc', current_workspace.name, filename)
     if os.path.isdir(rvc_model_use_path):
         shutil.rmtree(rvc_model_use_path, ignore_errors=True)
-    shutil.copytree(model_path, rvc_model_use_path)
+    os.makedirs(os.path.dirname(rvc_model_use_path), exist_ok=True)
+    shutil.copyfile(model_path, rvc_model_use_path)
     return 'Copied model'
 
 
