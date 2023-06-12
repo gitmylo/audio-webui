@@ -11,7 +11,7 @@ def create_ui(theme) -> gr.Blocks:
         max-width: calc(100% - 100px) !important;
     }
     
-    .tabitem:not(.tabitem>.gap>.tabs>.tabitem) {
+    .tabitem:not(.tabitem .tabitem) {
         height: calc(100vh - 100px) !important;
         overflow: auto;
     }
@@ -42,6 +42,7 @@ def create_ui(theme) -> gr.Blocks:
         ('RVC', rvc),
         ('AudioLDM', audioldm_tab),
         ('Whisper', whisper),
+        ('Train', training_tab),
         ('Utils', utils_tab),
         ('Extra', extra_tab)
     ]

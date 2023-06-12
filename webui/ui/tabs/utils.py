@@ -38,7 +38,7 @@ def denoise_tab():
         output = f'Processing directory {in_dir}'
         yield output
         for f in os.listdir(in_dir):
-            if f.split('.')[-1] not in ['wav', 'mp3']:
+            if os.path.splitext(f)[-1] not in ['.wav', '.mp3']:
                 continue
             output += f'\nProcessing {f}'
             yield output
@@ -95,9 +95,9 @@ def music_split_tab():
         output = f'Processing directory {in_dir}'
         yield output
         for f in os.listdir(in_dir):
-            split = f.split('.')
+            split = os.path.splitext(f)
             extension = split[-1]
-            if extension not in ['wav', 'mp3']:
+            if extension not in ['.wav', '.mp3']:
                 continue
             output += f'\nProcessing {f}'
             yield output
