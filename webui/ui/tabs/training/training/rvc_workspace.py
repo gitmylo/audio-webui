@@ -780,7 +780,7 @@ def train_model(base_ckpt_, epochs):
         epoch,
         data['v'],
     )
-    yield output, annotate_loss_hist(train_data['loss'])
+    yield output, last_loss_hist
 
 
 def cancel_train():
