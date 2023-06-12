@@ -742,7 +742,7 @@ def train_model(base_ckpt_, epochs):
                 f0,
                 finished_save_path,
                 epoch,
-                'v'+data['v'],
+                'v'+str(data['v']),
             )
 
         # END OF TRAINING CODE
