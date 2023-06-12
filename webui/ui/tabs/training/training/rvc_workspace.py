@@ -1,6 +1,7 @@
 import os
 import shutil
 
+import huggingface_hub
 from scipy import signal
 
 import librosa
@@ -19,6 +20,7 @@ class RvcWorkspace(Workspace):
 
     def create(self, data):
         data_in = base_data.copy()
+        data_in['vsr'] = data['vsr']
         if data['vsr'] == 'v1 40k':
             data_in['v'] = 1
             data_in['sr'] = 40000
@@ -28,7 +30,13 @@ class RvcWorkspace(Workspace):
         else:
             data_in['v'] = 2
             data_in['sr'] = 40_000
+        download_base_models(data_in['vsr'])
         return super(RvcWorkspace, self).create(data_in)
+
+    def load(self):
+        model = super(RvcWorkspace, self).load()
+        download_base_models(model.data['vsr'])
+        return model
 
 
 def norm_write(tmp_audio, gt_wavs_dir, wavs16k_dir, name, sr, max, alpha):
@@ -126,12 +134,27 @@ def pitch_extract():
     pass
 
 
+def download_base_models(version_sr):
+    repo = 'lj1995/VoiceConversionWebUI'
+    version_sr_models = {
+        'v1 40k': {'sf': 'pretrained', 'files': ['f0D40k.pth', 'f0G40k.pth']},
+        'v1 48k': {'sf': 'pretrained', 'files': ['f0D48k.pth', 'f0G48k.pth']},
+        'v2 40k': {'sf': 'pretrained_v2', 'files': ['f0D40k.pth', 'f0G40k.pth']}
+    }
+    dl_path = os.path.join('data', 'training', 'cache', 'RVC')
+    for file in version_sr_models[version_sr]['files']:
+        sf = version_sr_models[version_sr]['sf']
+        if not os.path.isfile(os.path.join(dl_path, sf, file)):
+            huggingface_hub.hf_hub_download(repo, file, subfolder=sf,
+                                            local_dir=dl_path, local_dir_use_symlinks=False)
+
 
 current_workspace: RvcWorkspace = None
 
 base_data = {
     'v': 2,
     'sr': 40_000,
+    'vsr': 'v2 40k',
     'f0': 'harvest',
     'dataset': ''
 }
