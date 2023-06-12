@@ -311,7 +311,7 @@ def pitch_extract():
 def get_suggested_train_epochs():
     data_path = os.path.join(current_workspace.space_path, '0_16k')
     audio_length = len([f for f in os.listdir(data_path) if f.endswith('.wav')])*3/60  # Estimation
-    return math.ceil(1_500/audio_length)
+    return math.ceil(200/audio_length)
 
 
 version_sr_models = {
@@ -330,12 +330,13 @@ def get_continue_models():
 
 def copy_model(model):
     if model == 'f0':
-        return
+        return 'Can\'t copy f0 model.'
     model_path = os.path.join(current_workspace.space_path, 'models', model)
     rvc_model_use_path = os.path.join('data', 'models', 'rvc', current_workspace.name)
     if os.path.isdir(rvc_model_use_path):
         shutil.rmtree(rvc_model_use_path, ignore_errors=True)
     shutil.copytree(model_path, rvc_model_use_path)
+    return 'Copied model'
 
 
 training = False

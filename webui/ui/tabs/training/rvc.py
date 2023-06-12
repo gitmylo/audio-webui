@@ -44,7 +44,7 @@ def train_rvc():
 
                         refresh_checkpoints.click(fn=refresh_checkpoints_click, outputs=base_ckpt)
                     gradio.Markdown('''
-                    ## Prediction of epochs: $f(t_{minutes})=ceil(\\frac{1500}{t_{minutes}})$
+                    ## Prediction of epochs: $f(t_{minutes})=ceil(\\frac{200}{t_{minutes}})$
                     ## $t_{minutes}$ is estimated
                     ''')
                     with gradio.Row():
@@ -108,7 +108,7 @@ def train_rvc():
     pitch_extract.click(fn=rvc_ws.pitch_extract, outputs=status_box)
 
     auto_epochs.click(fn=rvc_ws.get_suggested_train_epochs, outputs=epochs)
-    copy_button.click(fn=rvc_ws.copy_model, inputs=base_ckpt)
+    copy_button.click(fn=rvc_ws.copy_model, inputs=base_ckpt, outputs=status_box)
     train_button.click(fn=rvc_ws.train_model, inputs=[base_ckpt, epochs], outputs=[status_box, loss_plot])
     stop_button.click(fn=rvc_ws.cancel_train, outputs=status_box, queue=False)
 
