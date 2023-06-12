@@ -12,7 +12,7 @@ def train_rvc():
         with gradio.Column():
             gradio.Markdown('''
             # Workspaces
-            ''')
+            ''', elem_classes='text-center')
             with gradio.Tabs():
                 with gradio.Tab('Load'):
                     with gradio.Row():
@@ -25,7 +25,7 @@ def train_rvc():
         with gradio.Column(visible=False) as settings:
             gradio.Markdown('''
             # Settings
-            ''')
+            ''', elem_classes='text-center')
             with gradio.Tabs():
                 with gradio.Tab('data'):
                     dataset_path = gradio.Textbox(label='Dataset path', info='The path to the dataset containing your training audio.')
@@ -35,7 +35,30 @@ def train_rvc():
                     f0_method.change(fn=lambda val: change_setting('f0', val), inputs=f0_method)
                     pitch_extract = gradio.Button('Extract pitches', variant='primary')
                 with gradio.Tab('train'):
-                    pass
+                    with gradio.Row():
+                        base_ckpt = gradio.Dropdown(['f0'], value='f0', label='Base checkpoint', info='The base checkpoint to train from, select f0 if you haven\'t trained yet.')
+                        refresh_checkpoints = gradio.Button('🔃', variant='primary tool offset--10')
+
+                        def refresh_checkpoints_click():
+                            return gradio.update(choices=rvc_ws.get_continue_models())
+
+                        refresh_checkpoints.click(fn=refresh_checkpoints_click, outputs=base_ckpt)
+                    gradio.Markdown('''
+                    ## Prediction of epochs: $f(t_{minutes})=ceil(\\frac{1500}{t_{minutes}})$
+                    ## $t_{minutes}$ is estimated
+                    ''')
+                    with gradio.Row():
+                        epochs = gradio.Number(label='Epochs to train (added)', value=100, interactive=True)
+                        auto_epochs = gradio.Button('Predict epochs', variant='secondary padding-h-0')
+                    batch_size = gradio.Slider(1, 50, 6, step=1, label='Batch size', info='Higher uses more VRAM.')
+                    batch_size.change(fn=lambda v: change_setting('batch_size', v), inputs=batch_size)
+                    save_n_epochs = gradio.Number(10, label='Save every n epochs', info='Save every time n epochs of training have been processed. 0 = disabled.')
+                    save_n_epochs.change(fn=lambda v: change_setting('save_epochs', v), inputs=save_n_epochs)
+                    with gradio.Row():
+                        train_button = gradio.Button('Train', variant='primary padding-h-0')
+                        stop_button = gradio.Button('Stop', variant='stop padding-h-0')
+                    copy_button = gradio.Button('Copy to RVC models')
+
                 with gradio.Tab('how to?'):
                     # TODO: remove Not implemented yet once implemented
                     gradio.Markdown('''
@@ -50,20 +73,21 @@ def train_rvc():
                         4. Click "Extract pitches"
                     3. Open the "train" tab.
                         1. Set training epochs.
-                            * You can click the "use suggested" button to set your training epochs to the recommended amount based on how much data you have.
+                            * You can click the "Predict epochs" button to set your training epochs to the recommended amount based on how much data you have.
                         2. Click "Train", and wait for training to complete.
                     4. You now have a trained model in your 'data/training/RVC/{workspace}/models' folder.
                     ''')
         with gradio.Column():
             gradio.Markdown('''
             # Status
-            ''')
+            ''', elem_classes='text-center')
+            loss_plot = gradio.LinePlot(label='Loss', x_title='steps', y_title='loss', x='x', y='y')
             status_box = gradio.TextArea(label='Status')
 
     def load_workspace(name):
         rvc_ws.current_workspace = rvc_ws.RvcWorkspace(name).load()
         ws = rvc_ws.current_workspace
-        return f'Loaded workspace {name}', ws.name, gradio.update(visible=True), ws.data['dataset'], ws.data['f0']
+        return f'Loaded workspace {name}', ws.name, gradio.update(visible=True), ws.data['dataset'], ws.data['f0'], ws.data['save_epochs'], ws.data['batch_size']
 
     def list_workspaces():
         return gradio.update(choices=rvc_ws.get_workspaces())
@@ -75,10 +99,16 @@ def train_rvc():
         rvc_ws.current_workspace.save()
         return load_workspace(name)
 
-    setting_elements = [status_box, workspace_select, settings, dataset_path, f0_method]
+    setting_elements = [status_box, workspace_select, settings, dataset_path, f0_method, save_n_epochs, batch_size]
 
     process_dataset.click(fn=rvc_ws.process_dataset, outputs=status_box)
     pitch_extract.click(fn=rvc_ws.pitch_extract, outputs=status_box)
+
+    auto_epochs.click(fn=rvc_ws.get_suggested_train_epochs, outputs=epochs)
+    copy_button.click(fn=rvc_ws.copy_model, inputs=base_ckpt)
+    train_button.click(fn=rvc_ws.train_model, inputs=[base_ckpt, epochs], outputs=[status_box, loss_plot])
+    stop_button.click(fn=rvc_ws.cancel_train, outputs=status_box, queue=False)
+
 
     workspace_select.select(fn=load_workspace, inputs=workspace_select, outputs=setting_elements, show_progress=True)
     refresh_workspaces.click(fn=list_workspaces, outputs=workspace_select, show_progress=True)

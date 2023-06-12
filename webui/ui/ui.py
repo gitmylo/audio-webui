@@ -35,6 +35,15 @@ def create_ui(theme) -> gr.Blocks:
     .offset--10 {
         transform: translateY(-10px);
     }
+    
+    .text-center {
+        text-align: center;
+    }
+    
+    .padding-h-0 {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
     """
 
     tabs = [

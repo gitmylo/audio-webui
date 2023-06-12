@@ -23,7 +23,7 @@ def get_rvc_models():
         f_path = os.path.join(path, f)
         if os.path.isdir(f_path):
             for f2 in os.listdir(f_path):
-                if f2.endswith('.pth'):
+                if f2.endswith('.pth') and f2 not in ['f0D40k.pth', 'f0G40k.pth', 'f0D48k.pth', 'f0G48k.pth']:
                     output.append(os.path.join(f, f2))
     return output
 
