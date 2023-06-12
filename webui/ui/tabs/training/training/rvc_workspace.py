@@ -332,7 +332,7 @@ def copy_model(model):
     if model == 'f0':
         return
     model_path = os.path.join(current_workspace.space_path, 'models', model)
-    rvc_model_use_path = os.path.join('data', 'models', 'rvc', model)
+    rvc_model_use_path = os.path.join('data', 'models', 'rvc', current_workspace.name)
     if os.path.isdir(rvc_model_use_path):
         shutil.rmtree(rvc_model_use_path, ignore_errors=True)
     shutil.copytree(model_path, rvc_model_use_path)
@@ -742,7 +742,7 @@ def train_model(base_ckpt_, epochs):
                 f0,
                 finished_save_path,
                 epoch,
-                data['v'],
+                'v'+data['v'],
             )
 
         # END OF TRAINING CODE

@@ -87,10 +87,13 @@ def train_rvc():
     def load_workspace(name):
         rvc_ws.current_workspace = rvc_ws.RvcWorkspace(name).load()
         ws = rvc_ws.current_workspace
-        return f'Loaded workspace {name}', ws.name, gradio.update(visible=True), ws.data['dataset'], ws.data['f0'], ws.data['save_epochs'], ws.data['batch_size']
+        return f'Loaded workspace {name}', ws.name, gradio.update(visible=True), ws.data['dataset'], ws.data['f0'], ws.data['save_epochs'], ws.data['batch_size'], list_models()
 
     def list_workspaces():
         return gradio.update(choices=rvc_ws.get_workspaces())
+
+    def list_models():
+        return gradio.update(choices=rvc_ws.get_continue_models())
 
     def create_workspace(name, vsr):
         rvc_ws.current_workspace = rvc_ws.RvcWorkspace(name).create({
@@ -99,7 +102,7 @@ def train_rvc():
         rvc_ws.current_workspace.save()
         return load_workspace(name)
 
-    setting_elements = [status_box, workspace_select, settings, dataset_path, f0_method, save_n_epochs, batch_size]
+    setting_elements = [status_box, workspace_select, settings, dataset_path, f0_method, save_n_epochs, batch_size, base_ckpt]
 
     process_dataset.click(fn=rvc_ws.process_dataset, outputs=status_box)
     pitch_extract.click(fn=rvc_ws.pitch_extract, outputs=status_box)
