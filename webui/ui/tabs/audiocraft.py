@@ -32,7 +32,7 @@ def audiocraft_tab():
                 unload.click(unload_model, outputs=selected)
             prompt = gradio.TextArea(label='Prompt', info='Put the audio you want here.', placeholder='Something like: "happy rock", "energetic EDM" or "sad jazz"\nLonger descriptions are also supported.')
             duration = gradio.Number(5, label='Duration (s)', info='Duration for the generation in seconds.')
-            input_audio = gradio.Audio(label='Input audio for melody model')
+            input_audio = gradio.Audio(label='Input audio (structure for melody, continuation for others)')
             with gradio.Row():
                 top_k = gradio.Slider(label='top_k', info='Higher number = more possible tokens, 0 to disable', minimum=0, value=250, maximum=10000, step=1)
                 top_p = gradio.Slider(label='top_p', info='Higher number = more possible tokens, 0 to use top_k instead', minimum=0, value=0, maximum=1, step=0.01)

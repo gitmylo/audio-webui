@@ -50,10 +50,22 @@ def generate(prompt='', input_audio=None, use_sample=True, top_k=250, top_p=0.0,
     if is_loaded():
         model.set_generation_params(use_sample, top_k, top_p, temp, duration, cfg_coef)
 
-        if input_audio is not None and supports_melody():
+
+        input_audio_not_none = input_audio is not None
+
+        sr, wav = 0, None
+
+        if input_audio_not_none:
             sr, wav = input_audio
-            wav = (torch.tensor(wav).float() / 32767.0)
+            wav = torch.tensor(wav)
+            if wav.dtype == torch.int16:
+                wav = (wav.float() / 32767.0)
+
+        if input_audio_not_none and supports_melody():
             wav = model.generate_with_chroma([prompt if prompt else None], wav[None].expand(1, -1, -1), sr, True)
+        elif input_audio_not_none:
+            model.set_generation_params(use_sample, top_k, top_p, temp, duration + (wav.shape[0]/sr), cfg_coef)
+            wav = model.generate_continuation(wav[None].expand(1, -1, -1), sr, [prompt if prompt else None], True)
         elif not prompt:
             wav = model.generate_unconditional(1, True)
         else:
