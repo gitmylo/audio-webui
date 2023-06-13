@@ -7,4 +7,5 @@ def launch_webui():
     create_ui(args.theme).queue().launch(share=args.share,
                                          auth=auth,
                                          server_name='0.0.0.0' if args.listen else None,
-                                         server_port=args.port)
+                                         server_port=args.port,
+                                         favicon_path='assets/Logo.png')

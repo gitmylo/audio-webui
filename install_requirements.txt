@@ -27,3 +27,5 @@ TTS
 pytube
 
 openai-whisper
+
+git+https://github.com/facebookresearch/audiocraft.git

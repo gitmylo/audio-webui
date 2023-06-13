@@ -1,4 +1,4 @@
-# Readme 💀x7
+# <img alt="logo" height="25" src="assets/logo.png" width="25"/> Audio Webui <img alt="logo" height="25" src="assets/logo.png" width="25"/>
 
 ## Please read
 This code works on python 3.10, i have not tested it on other versions. Some older versions will have issues.

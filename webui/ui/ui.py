@@ -44,16 +44,38 @@ def create_ui(theme) -> gr.Blocks:
         padding-left: 0 !important;
         padding-right: 0 !important;
     }
+    
+    table {
+        border: 1px solid white !important;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    table a {
+        color: white !important;
+    }
+    
+    table th, table td {
+        padding: 10px !important;
+    }
+    
+    .center-h {
+        margin-left: auto !important;
+        margin-right: auto !important;
+        text-align: center !important;
+    }
     """
 
     tabs = [
         ('Text to speech', text_to_speech),
         ('RVC', rvc),
         ('AudioLDM', audioldm_tab),
+        ('AudioCraft', audiocraft_tab),
         ('Whisper', whisper),
         ('Train', training_tab),
         ('Utils', utils_tab),
-        ('Extra', extra_tab)
+        ('Extra', extra_tab),
+        ('Info', info_tab)
     ]
     global tabs_el
     with gr.Blocks(theme=theme, title='Audio WebUI', css=css) as webui:
