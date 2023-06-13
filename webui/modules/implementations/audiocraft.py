@@ -60,6 +60,8 @@ def generate(prompt='', input_audio=None, use_sample=True, top_k=250, top_p=0.0,
             wav = torch.tensor(wav)
             if wav.dtype == torch.int16:
                 wav = (wav.float() / 32767.0)
+            if wav.dim() == 2 and wav.shape[1] == 2:
+                wav = wav.mean(dim=1)
 
         if input_audio_not_none and supports_melody():
             wav = model.generate_with_chroma([prompt if prompt else None], wav[None].expand(1, -1, -1), sr, True)
