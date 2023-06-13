@@ -1,4 +1,4 @@
-## Note
+## 📓 Note
 I'm still unsure how bark works. I am trying to figure out how it works though. My current knowledge goes here.
 
 <!-- TOC -->
@@ -13,7 +13,7 @@ I'm still unsure how bark works. I am trying to figure out how it works though. 
     * [Method 1:](#method-1-)
 <!-- TOC -->
 
-## Different models
+## 🟥🟧🟩 Different models
 Bark has 3 different models, used for each step in the generation process. Every model also has a smaller version for quicker and less costly generation.
 1. Semantics
    * i: A piece of text
@@ -28,8 +28,8 @@ Bark has 3 different models, used for each step in the generation process. Every
    * p: Reduce noise in the audio
    * o: A numpy array of audio
 
-## Current voice cloning methods
-### The process
+## ❌ Current voice cloning methods
+### 🧨 The process
 1. Take an audio file and a transcription
 2. Prepare the audio to be in the right format
 3. Store how long audio takes
@@ -42,14 +42,14 @@ Bark has 3 different models, used for each step in the generation process. Every
 |      Fine | the audio file                 |
 |    Coarse | first 2 rows of the audio file |
 
-### Why is it so bad?
+### 😡 Why is it so bad?
 As you can see, on step 4, it generates semantic tokens. It does this by generating a random speaker saying the semantics. The problem with that is that these can be completely different from your actual semantics. Therefore, the voice cloning will only be successful if you spoke just like the AI did with the semantic tokens.
 
 Basically, the method generates semantic tokens which say what you said, and combines it with the fine and coarse prompt created from your voice audio.
 
 The problem is that your semantic tokens and fine and coarse prompts usually won't match. Because they are from two separate things. The semantic tokens are based on your input text, which could have a lot of variety. But your fine and coarse prompts are actually based on your audio.
 
-## The next step
+## ❓ The next step
 How would I improve the creation of speaker files for voice cloning?
 
 As of my current knowledge, I don't think there's anything wrong with the creation of the fine and coarse prompts. As the actual audio is put into them. Just as it should be done.
@@ -70,9 +70,9 @@ My current guess for fixing it has a few method proposals:
    * The semantic tokens match the audio files in the .npz. And audio files in the npz can be reversed.
    * Simply use a speech converter, this essentially voice changes the input audio. This won't work great but is better than previous voice cloning methods.
 
-## Implementations (in chronological order)
+## ✨ Implementations (in chronological order)
 
-### Method 3:
+### 🎭 Method 3:
 I have created an implementation of method 3 using coqui-ai/TTS. With the `your_tts` model.
 
 <img src="A:\pycharmprojects\audio-webui\readme\bark\method_3.png"/>
@@ -81,12 +81,12 @@ I have created an implementation of method 3 using coqui-ai/TTS. With the `your_
 
 **Results**: Decent voice cloning, not near perfect though. Better than previous methods, but struggles with some voices and accents. These issues lie in the transfer step.
 
-### Method 1:
+### 🔍 Method 1:
 **Pre**: It looks like bark uses [AudioLM](https://github.com/lucidrains/audiolm-pytorch) for the semantic tokens! I'm not sure if they use a different model though. I'll have to test that. But if they don't use a pre-trained model. I can do step 2.
 
 No, it doesn't look like i can find a model, i did succeed in creating same-size vector embeddings, but the vectors use the wrong tokens.
 
-### Method 2:
+### 🎉 Method 2:
 **Pre**: What if instead of training a whole model, i only create a quantizer based on a bunch of data?
 
 Successful voice cloning, can be very convincing. Still some limitations. But better than anything I've seen done with bark before.

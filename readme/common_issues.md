@@ -1,5 +1,5 @@
-# Common issues
-## Error messages
+# ❗ Common issues ❗
+## ❌ Error messages
 
 | Error                                                 | Solution                                                                  |
 |-------------------------------------------------------|---------------------------------------------------------------------------|
@@ -7,14 +7,14 @@
 | Please install tensorboardX: pip install tensorboardX | You can ignore this warning as it is not a requirement.                   |
 
 
-## Missing models
+## 🔍 Missing models
 
 | Issue                            | Solution                                                                                                      |
 |----------------------------------|---------------------------------------------------------------------------------------------------------------|
 | Where does the HuBERT model go?  | All HuBERT models download automatically to `data/models/hubert`                                              |
 | RVC models don't get downloaded. | RVC models have to manually be downloaded and installed, unzip them into a folder inside of `data/models/rvc` |
 
-## Other issues
+## ❗ Other issues
 
 | Issue                                                        | Solution                                                                                                                                                                                                                                                                                                      |
 |--------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|

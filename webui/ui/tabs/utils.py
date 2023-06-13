@@ -177,9 +177,9 @@ def audio_download_tab():
 
 def utils_tab():
     with gradio.Tabs():
-        with gradio.Tab('denoise'):
+        with gradio.Tab('🧹 denoise'):
             denoise_tab()
-        with gradio.Tab('music splitting'):
+        with gradio.Tab('🔊▶🗣/🎵 music splitting'):
             music_split_tab()
-        with gradio.Tab('audio downloads'):
+        with gradio.Tab('🔽 audio downloads'):
             audio_download_tab()

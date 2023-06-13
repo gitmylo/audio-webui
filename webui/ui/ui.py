@@ -67,18 +67,18 @@ def create_ui(theme) -> gr.Blocks:
     """
 
     tabs = [
-        ('Text to speech', text_to_speech),
-        ('RVC', rvc),
-        ('AudioLDM', audioldm_tab),
-        ('AudioCraft', audiocraft_tab),
-        ('Whisper', whisper),
-        ('Train', training_tab),
-        ('Utils', utils_tab),
-        ('Extra', extra_tab),
-        ('Info', info_tab)
+        ('📜▶🗣 Text to speech', text_to_speech),
+        ('🗣▶🗣 RVC', rvc),
+        ('📜▶🎵 AudioLDM', audioldm_tab),
+        ('📜▶🎵 AudioCraft', audiocraft_tab),
+        ('🗣▶📜 Whisper', whisper),
+        ('🧨 Train', training_tab),
+        ('🔨 Utils', utils_tab),
+        ('⚙ Settings', extra_tab),
+        ('🧾 Info', info_tab)
     ]
     global tabs_el
-    with gr.Blocks(theme=theme, title='Audio WebUI', css=css) as webui:
+    with gr.Blocks(theme=theme, title='🔊Audio WebUI🎵', css=css) as webui:
         with gr.Tabs() as tabs_element:
             tabs_el = tabs_element
             for name, content in tabs:

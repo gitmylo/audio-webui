@@ -183,7 +183,7 @@ def rvc():
     all_tts = TTS.list_models()
     with gradio.Row():
         with gradio.Column():
-            with gradio.Accordion('TTS', open=False):
+            with gradio.Accordion('📜▶🗣 TTS', open=False):
                 with gradio.Row():
                     selected_tts = gradio.Dropdown(all_tts, label='TTS model', info='The TTS model to use for text-to-speech', allow_custom_value=True)
                     selected_tts_unload = gradio.Button('💣', variant='primary tool offset--10')
@@ -204,7 +204,7 @@ def rvc():
 
                 text_input = gradio.TextArea(label='Text to speech text', info='Text to speech text if no audio file is used as input.')
 
-            with gradio.Accordion('Audio input', open=False):
+            with gradio.Accordion('🗣▶🗣 Audio input', open=False):
                 use_microphone = gradio.Checkbox(label='Use microphone')
                 audio_el = gradio.Audio(label='Audio input')
                 from webui.ui.tabs.text_to_speech import to_rvc, audio_out
@@ -219,7 +219,7 @@ def rvc():
                     return gradio.update(source='microphone' if use_mic else 'upload')
                 use_microphone.change(fn=update_audio_input, inputs=use_microphone, outputs=audio_el)
 
-            with gradio.Accordion('RVC'):
+            with gradio.Accordion('🗣 RVC'):
                 with gradio.Row():
                     selected = gradio.Dropdown(get_models_installed()[0]['choices'], label='RVC Model')
                     with gradio.Column(elem_classes='smallsplit'):

@@ -1,5 +1,5 @@
-<h1 class="center-h">Info</h1>
-<h2 class='center-h'>Credits (Not including libraries of libraries, no particular order)</h2>
+<h1 class="center-h">❗ Info ❗</h1>
+<h2 class='center-h'>🧾 Credits (Not including libraries of libraries, no particular order)</h2>
 
 |                                                                                                         Project | Creator                                                 |
 |----------------------------------------------------------------------------------------------------------------:|---------------------------------------------------------|

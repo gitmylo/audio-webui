@@ -11,30 +11,30 @@ def train_rvc():
     with gradio.Row():
         with gradio.Column():
             gradio.Markdown('''
-            # Workspaces
+            # 🚀 Workspaces
             ''', elem_classes='text-center')
             with gradio.Tabs():
-                with gradio.Tab('Load'):
+                with gradio.Tab('🧠 Load'):
                     with gradio.Row():
                         workspace_select = gradio.Dropdown(rvc_ws.get_workspaces(), label='Select workspace')
                         refresh_workspaces = gradio.Button('🔃', variant='primary tool offset--10')
-                with gradio.Tab('Create'):
+                with gradio.Tab('➕ Create'):
                     create_name = gradio.Textbox(label='Name')
                     version_sample_rate = gradio.Radio(['v1 40k', 'v1 48k', 'v2 40k'], value='v2 40k', label='version and sample rate')
                     create_button = gradio.Button('Create workspace', variant='primary')
         with gradio.Column(visible=False) as settings:
             gradio.Markdown('''
-            # Settings
+            # ⚙ Settings
             ''', elem_classes='text-center')
             with gradio.Tabs():
-                with gradio.Tab('data'):
+                with gradio.Tab('🚚 data'):
                     dataset_path = gradio.Textbox(label='Dataset path', info='The path to the dataset containing your training audio.')
                     dataset_path.change(fn=lambda val: change_setting('dataset', val), inputs=dataset_path)
                     process_dataset = gradio.Button('Resample and split dataset', variant='primary')
                     f0_method = gradio.Radio(["none", "dio", "pm", "harvest", "torchcrepe", "torchcrepe tiny"], value='harvest', label='Pitch extraction method', info='Harvest is usually good, crepe has potential to be even better.')
                     f0_method.change(fn=lambda val: change_setting('f0', val), inputs=f0_method)
                     pitch_extract = gradio.Button('Extract pitches', variant='primary')
-                with gradio.Tab('train'):
+                with gradio.Tab('🏃‍ train'):
                     with gradio.Row():
                         base_ckpt = gradio.Dropdown(['f0'], value='f0', label='Base checkpoint', info='The base checkpoint to train from, select f0 if you haven\'t trained yet.')
                         refresh_checkpoints = gradio.Button('🔃', variant='primary tool offset--10')
@@ -59,10 +59,8 @@ def train_rvc():
                         stop_button = gradio.Button('Stop', variant='stop padding-h-0')
                     copy_button = gradio.Button('Copy to RVC models')
 
-                with gradio.Tab('how to?'):
-                    # TODO: remove Not implemented yet once implemented
+                with gradio.Tab('❓ how to?'):
                     gradio.Markdown('''
-                    # Not implemented yet...
                     ## How to train
                     1. Collect audio data (if from youtube, you can use the Utils tab to download audio from youtube quickly).
                       * Optional: use Utils tab to split vocals from music if there's background music.
@@ -79,7 +77,7 @@ def train_rvc():
                     ''')
         with gradio.Column():
             gradio.Markdown('''
-            # Status
+            # ✨ Status
             ''', elem_classes='text-center')
             loss_plot = gradio.LinePlot(label='Loss', x_title='steps', y_title='loss', x='x', y='y')
             status_box = gradio.TextArea(label='Status')

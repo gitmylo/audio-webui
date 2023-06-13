@@ -38,7 +38,7 @@ def audioldm_tab():
             neg_prompt = gradio.TextArea(label='Negative prompt', info='Put things to avoid generating here.', placeholder='low bitrate, low quality, bad quality')
             duration = gradio.Number(5, label='Duration (s)', info='Duration for the generation in seconds.')
             seed = gradio.Number(-1, label='Seed', info='Default: -1 (random). Set the seed for generation, random seed is used when a negative number is given.')
-            with gradio.Accordion('Extra options', open=False):
+            with gradio.Accordion('➕ Extra options', open=False):
                 cfg = gradio.Slider(1, 20, 2.5, step=0.01, label='CFG scale', info='Default: 2.5. How much should the prompt affect the audio on every step?')
                 steps = gradio.Slider(1, 150, 10, step=1, label='Steps', info='Default: 10. How many diffusion steps should be performed?')
                 wav_best_count = gradio.Slider(0, 25, 3, step=1, label='Count', info='Default: 3. How generations to do? Best result will be picked.')

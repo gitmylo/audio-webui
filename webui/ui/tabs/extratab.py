@@ -19,7 +19,7 @@ def delete_model(model):
 
 
 def extra_tab():
-    gradio.Markdown('# Huggingface')
+    gradio.Markdown('# 🤗 Huggingface')
     with gradio.Row():
         with gradio.Column():
             textbox = gradio.Textbox(placeholder='Huggingface token from https://huggingface.co/settings/tokens goes here',
