@@ -107,12 +107,12 @@ def train_rvc():
     process_dataset.click(fn=rvc_ws.process_dataset, outputs=status_box)
     pitch_extract.click(fn=rvc_ws.pitch_extract, outputs=status_box)
 
-    auto_epochs.click(fn=rvc_ws.get_suggested_train_epochs, outputs=epochs)
-    copy_button.click(fn=rvc_ws.copy_model, inputs=base_ckpt, outputs=status_box)
+    auto_epochs.click(fn=rvc_ws.get_suggested_train_epochs, outputs=epochs, queue=False)
+    copy_button.click(fn=rvc_ws.copy_model, inputs=base_ckpt, outputs=status_box, queue=False)
     train_button.click(fn=rvc_ws.train_model, inputs=[base_ckpt, epochs], outputs=[status_box, loss_plot])
     stop_button.click(fn=rvc_ws.cancel_train, outputs=status_box, queue=False)
 
 
     workspace_select.select(fn=load_workspace, inputs=workspace_select, outputs=setting_elements, show_progress=True)
-    refresh_workspaces.click(fn=list_workspaces, outputs=workspace_select, show_progress=True)
+    refresh_workspaces.click(fn=list_workspaces, outputs=workspace_select, show_progress=True, queue=False)
     create_button.click(fn=create_workspace, inputs=[create_name, version_sample_rate], outputs=setting_elements, show_progress=True)
