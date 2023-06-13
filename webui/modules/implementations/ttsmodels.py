@@ -1,3 +1,4 @@
+import gc
 import os.path
 import tempfile
 
@@ -143,8 +144,17 @@ class BarkTTS(mod.TTSModelLoader):
         return (SAMPLE_RATE, audio), temp.name
 
     def unload_model(self):
-        from bark.generation import clean_models
-        clean_models()
+        # from bark.generation import clean_models
+        # clean_models()
+
+        # Temp fix while i wait for https://github.com/suno-ai/bark/pull/356
+        import bark.generation as bark_gen
+        model_keys = list(bark_gen.models.keys())
+        for k in model_keys:
+            if k in bark_gen.models:
+                del bark_gen.models[k]
+        bark_gen._clear_cuda_cache()
+        gc.collect()
 
     def load_model(self):
         from bark.generation import preload_models
