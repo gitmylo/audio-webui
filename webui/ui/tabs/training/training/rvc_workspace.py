@@ -311,7 +311,7 @@ def pitch_extract():
 def get_suggested_train_epochs():
     data_path = os.path.join(current_workspace.space_path, '0_16k')
     audio_length = len([f for f in os.listdir(data_path) if f.endswith('.wav')])*3/60  # Estimation
-    return math.ceil(200/audio_length)
+    return math.ceil(300/audio_length)
 
 
 version_sr_models = {

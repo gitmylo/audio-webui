@@ -44,7 +44,7 @@ def train_rvc():
 
                         refresh_checkpoints.click(fn=refresh_checkpoints_click, outputs=base_ckpt)
                     gradio.Markdown('''
-                    ## Prediction of epochs: $f(t_{minutes})=ceil(\\frac{200}{t_{minutes}})$
+                    ## Prediction of epochs: $f(t_{minutes})=ceil(\\frac{300}{t_{minutes}})$
                     ## $t_{minutes}$ is estimated
                     ''')
                     with gradio.Row():
