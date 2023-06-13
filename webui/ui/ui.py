@@ -45,7 +45,7 @@ def create_ui(theme) -> gr.Blocks:
         padding-right: 0 !important;
     }
     
-    table {
+    table:not(.file-preview) {
         border: 1px solid white !important;
         margin-left: auto;
         margin-right: auto;
