@@ -1,25 +1,42 @@
 # <img alt="logo" height="25" src="assets/logo.png" width="25"/> Audio Webui <img alt="logo" height="25" src="assets/logo.png" width="25"/>
 
-## 💻 NEW: Google colab notebook
-[![Open in colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gitmylo/audio-webui/blob/master/audio_webui_colab.ipynb) [![Open in github](https://img.shields.io/badge/Github-Open%20file-green)](audio_webui_colab.ipynb)
+<!-- TOC -->
+* [<img alt="logo" height="15" src="assets/logo.png" width="15"/> Audio Webui <img alt="logo" height="15" src="assets/logo.png" width="15"/>](#img-altlogo-height25-srcassetslogopng-width25-audio-webui-img-altlogo-height25-srcassetslogopng-width25)
+  * [💬 NEW: Discord server](#-new--discord-server)
+  * [❗❗ Please read ❗❗](#-please-read-)
+  * [💻 Local install](#-local-install)
+    * [🔽 Installing](#-installing)
+    * [🏃‍ Running](#-running)
+  * [💻 Google colab notebook](#-google-colab-notebook)
+  * [💻 Command line flags](#-command-line-flags)
+  * [✨ Current goals and features ✨](#-current-goals-and-features-)
+  * [More readme](#more-readme)
+<!-- TOC -->
+
+## 💬 NEW: Discord server
+[![Discord invite](https://img.shields.io/badge/Discord-Join-%237289da%20)](https://discord.gg/NB86C3Szkg)
 
 ## ❗❗ Please read ❗❗
 This code works on python 3.10 (and possibly above), I have not personally tested it on other versions. Some older versions will have issues.
 
 [Common issues](readme/common_issues.md)
 
-## 🔽 Installing
+## 💻 Local install
+### 🔽 Installing
 Installation is done automatically in a venv when `run.bat` or `run.sh` is ran without the `--skip-install` flag.
 
 Alternatively, run `install.bat` or `install.sh` to just install, and nothing else. To install with install.bat in a custom environment which is currently active. Do `install.bat --skip-venv` or `install.sh --skip-venv`.
 
-## 🏃‍ Running
+### 🏃‍ Running
 Running should be as simple as running `run.bat` or `run.sh` depending on your OS.
 If you want to run with custom command line flags, copy `run_user_example.(bat/sh)` and put whatever flags you want on every run in there. recommended flags are already in the example. (skip install and cpu offload)
 Everything should get installed automatically.
 
 This has not been tested beyond 2 of my pcs.
 If there's an issue with running, please create an [issue](https://github.com/gitmylo/audio-webui/issues)
+
+## 💻 Google colab notebook
+[![Open in colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gitmylo/audio-webui/blob/master/audio_webui_colab.ipynb) [![Open in github](https://img.shields.io/badge/Github-Open%20file-green)](audio_webui_colab.ipynb)
 
 ## 💻 Command line flags
 
