@@ -1,7 +1,7 @@
 # <img alt="logo" height="25" src="assets/logo.png" width="25"/> Audio Webui <img alt="logo" height="25" src="assets/logo.png" width="25"/>
 
 ## 💻 NEW: Google colab notebook
-[![Open in colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gitmylo/audio-webui/blob/master/audio_webui_colab.ipynb) [![Open in github](https://img.shields.io/badge/Github-Open%20file-green)](blob/master/audio_webui_colab.ipynb)
+[![Open in colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gitmylo/audio-webui/blob/master/audio_webui_colab.ipynb) [![Open in github](https://img.shields.io/badge/Github-Open%20file-green)](audio_webui_colab.ipynb)
 
 ## ❗❗ Please read ❗❗
 This code works on python 3.10 (and possibly above), I have not personally tested it on other versions. Some older versions will have issues.
