@@ -230,7 +230,7 @@ def pitch_extract():
                 if not os.path.isfile(full_path):
                     continue
                 output += f'\nExtracting pitch from {f}'
-                if i % 10 == 0:
+                if i % 40 == 0:
                     yield output
                 npy_name = os.path.splitext(f)[0] + '.npy'
                 npy_path_f0 = os.path.join(output_f0, npy_name)
@@ -269,7 +269,7 @@ def pitch_extract():
 
             if os.path.exists(out_path):
                 continue
-            if idx % 10 == 0:
+            if idx % 40 == 0:
                 output += f'\nProcessing {file}'
                 yield output
 
@@ -573,6 +573,9 @@ def train_model(base_ckpt_, epochs):
     training = True
 
     epoch = train_data['epoch']
+    last_saved = -1
+    last_out = ''
+
     # Train code
     for epoch in range(train_data['epoch'], train_data['epoch'] + epochs):
         if not training:
@@ -698,7 +701,6 @@ def train_model(base_ckpt_, epochs):
                 #         epoch, 100.0 * batch_idx / len(train_loader)
                 #     )
                 # )
-                output += f'\nStep {global_step}'
 
                 # Amor For Tensorboard display
                 if loss_mel > 75:
@@ -711,21 +713,25 @@ def train_model(base_ckpt_, epochs):
                 #     f"loss_disc={loss_disc:.3f}, loss_gen={loss_gen:.3f}, loss_fm={loss_fm:.3f},loss_mel={loss_mel:.3f}, loss_kl={loss_kl:.3f}"
                 # )
             if global_step % graph_step == 0:
+                last_out = output + f'\nepoch: {epoch}\nglobal step: {global_step}'
+                if last_saved >= 0:
+                    last_out += f'\nlast saved epoch: {last_saved}'
                 if torch.is_tensor(loss_kl):
                     loss_kl = loss_kl.item()
                 train_data['loss'].append(loss_kl)
                 last_loss_hist = pandas.DataFrame(annotate_loss_hist(train_data['loss']))
-                yield output, last_loss_hist
+                yield last_out, last_loss_hist
 
             global_step += 1
-
-        output += f'\nEpoch {epoch}'
-        yield output, last_loss_hist
+        last_out = output + f'\nepoch: {epoch}\nglobal step: {global_step}'
+        if last_saved >= 0:
+            last_out += f'\nlast saved epoch: {last_saved}'
+        yield last_out, last_loss_hist
 
         if epoch != 0 and data['save_epochs'] != 0 and epoch % data['save_epochs'] == 0:
             d_save_path, g_save_path, finished_save_path, json_path = get_save_paths(epoch, base_ckpt)
-            output += '\nSaving model...'
-            yield output, last_loss_hist
+            last_saved = epoch
+            yield last_out, last_loss_hist
             utils.save_checkpoint(
                 net_g,
                 optim_g,
@@ -752,7 +758,7 @@ def train_model(base_ckpt_, epochs):
                 finished_save_path,
                 epoch,
                 'v'+str(data['v']),
-            )
+                )
 
         # END OF TRAINING CODE
 
@@ -760,7 +766,10 @@ def train_model(base_ckpt_, epochs):
         scheduler_d.step()
     training = False
     output += '\nFinished training. Saving...'
-    yield output, last_loss_hist
+    last_out = output + f'\nepoch: {epoch}\nglobal step: {global_step}'
+    if last_saved >= 0:
+        last_out += f'\nlast saved epoch: {last_saved}'
+    yield last_out, last_loss_hist
     d_save_path, g_save_path, finished_save_path, json_path = get_save_paths(epoch, base_ckpt)
     utils.save_checkpoint(
         net_g,
@@ -789,7 +798,7 @@ def train_model(base_ckpt_, epochs):
         epoch,
         'v'+str(data['v']),
     )
-    yield output, last_loss_hist
+    yield last_out, last_loss_hist
 
 
 def cancel_train():
