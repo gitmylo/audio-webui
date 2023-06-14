@@ -411,7 +411,7 @@ def train_model(base_ckpt_, epochs):
         max_text_len = 5000
         segment_size = 12800 if data['sr'] == 40_000 else 11520
         fp16_run = True
-        learning_rate = 1e-4
+        learning_rate = data['lr']
         betas = [0.8, 0.99]
         eps = 1e-9
         lr_decay = 0.999875
@@ -828,7 +828,8 @@ base_data = {
     'f0': 'harvest',
     'dataset': '',
     'save_epochs': 10,
-    'batch_size': 6
+    'batch_size': 6,
+    'lr': '1e-4'
 }
 
 

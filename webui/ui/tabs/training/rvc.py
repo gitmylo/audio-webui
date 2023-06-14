@@ -54,6 +54,9 @@ def train_rvc():
                     batch_size.change(fn=lambda v: change_setting('batch_size', v), inputs=batch_size)
                     save_n_epochs = gradio.Number(10, label='Save every n epochs', info='Save every time n epochs of training have been processed. 0 = disabled.')
                     save_n_epochs.change(fn=lambda v: change_setting('save_epochs', v), inputs=save_n_epochs)
+                    with gradio.Accordion('advanced', open=False):
+                        lr = gradio.Textbox(label='Learning rate', info='Default: 1e-4, must be readable as a number')
+                        lr.change(fn=lambda v: change_setting('lr', v), inputs=lr)
                     with gradio.Row():
                         train_button = gradio.Button('Train', variant='primary padding-h-0')
                         stop_button = gradio.Button('Stop', variant='stop padding-h-0')
@@ -86,7 +89,7 @@ def train_rvc():
     def load_workspace(name):
         rvc_ws.current_workspace = rvc_ws.RvcWorkspace(name).load()
         ws = rvc_ws.current_workspace
-        return f'Loaded workspace {name}', ws.name, gradio.update(visible=True), ws.data['dataset'], ws.data['f0'], ws.data['save_epochs'], ws.data['batch_size'], list_models()
+        return f'Loaded workspace {name}', ws.name, gradio.update(visible=True), ws.data['dataset'], ws.data['f0'], ws.data['save_epochs'], ws.data['batch_size'], list_models(), ws.data['lr']
 
     def list_workspaces():
         return gradio.update(choices=rvc_ws.get_workspaces())
@@ -101,7 +104,7 @@ def train_rvc():
         rvc_ws.current_workspace.save()
         return load_workspace(name)
 
-    setting_elements = [status_box, workspace_select, settings, dataset_path, f0_method, save_n_epochs, batch_size, base_ckpt]
+    setting_elements = [status_box, workspace_select, settings, dataset_path, f0_method, save_n_epochs, batch_size, base_ckpt, lr]
 
     process_dataset.click(fn=rvc_ws.process_dataset, outputs=status_box)
     pitch_extract.click(fn=rvc_ws.pitch_extract, outputs=status_box)
