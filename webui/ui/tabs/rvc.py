@@ -211,7 +211,7 @@ def rvc():
                 from webui.ui.ui import tabs_el
 
                 def to_rvc_func(audio):
-                    return gradio.update(selected='RVC'), audio
+                    return gradio.update(selected='🗣▶🗣 RVC'), audio
 
                 to_rvc.click(fn=to_rvc_func, inputs=audio_out, outputs=[tabs_el, audio_el])
 
