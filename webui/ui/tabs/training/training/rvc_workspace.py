@@ -209,9 +209,9 @@ def pitch_extract():
     output_feat = os.path.join(space_path, '1_feat')  # %s/3_feature256
     time_step = 160 / 16000 * 1000
 
-    shutil.rmtree(output_f0, ignore_errors=True)
-    shutil.rmtree(output_f0nsf, ignore_errors=True)
-    shutil.rmtree(output_feat, ignore_errors=True)
+    # shutil.rmtree(output_f0, ignore_errors=True)
+    # shutil.rmtree(output_f0nsf, ignore_errors=True)
+    # shutil.rmtree(output_feat, ignore_errors=True)
 
 
     os.makedirs(output_f0, exist_ok=True)
@@ -222,11 +222,14 @@ def pitch_extract():
     yield output
 
     if f0_method != 'none':
-        for f in os.listdir(input_dir):
+        for i, f in enumerate(os.listdir(input_dir)):
             try:
-                output += f'\nExtracting pitch from {f}'
-                yield output
                 full_path = os.path.join(input_dir, f)
+                if os.path.isfile(full_path):
+                    continue
+                output += f'\nExtracting pitch from {f}'
+                if i % 10 == 0:
+                    yield output
                 npy_name = os.path.splitext(f)[0] + '.npy'
                 npy_path_f0 = os.path.join(output_f0, npy_name)
                 npy_path_f0nsf = os.path.join(output_f0nsf, npy_name)
@@ -258,14 +261,15 @@ def pitch_extract():
 
     for idx, file in enumerate(os.listdir(input_dir)):
         try:
-            output += f'\nProcessing {file}'
-            yield output
 
             in_path = os.path.join(input_dir, file)
             out_path = os.path.join(output_feat, os.path.splitext(file)[0] + '.npy')
 
             if os.path.exists(out_path):
                 continue
+            if idx % 10 == 0:
+                output += f'\nProcessing {file}'
+                yield output
 
             features = readwave(in_path, normalize=saved_cfg.task.normalize)
 

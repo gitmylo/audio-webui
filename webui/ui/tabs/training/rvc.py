@@ -61,6 +61,7 @@ def train_rvc():
 
                 with gradio.Tab('❓ how to?'):
                     gradio.Markdown('''
+                    **Don't use too much training data or too many epochs, your model will overtrain. 10 to 60 minutes is the standard**
                     ## How to train
                     1. Collect audio data (if from youtube, you can use the Utils tab to download audio from youtube quickly).
                       * Optional: use Utils tab to split vocals from music if there's background music.
