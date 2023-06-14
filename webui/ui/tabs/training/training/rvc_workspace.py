@@ -65,6 +65,8 @@ class RvcWorkspace(Workspace):
 
     def load(self):
         model = super(RvcWorkspace, self).load()
+        for key in [key for key in base_data.keys() if key not in model.data]:
+            model.data[key] = base_data[key]
         download_base_models(model.data['vsr'])
         return model
 
@@ -225,7 +227,7 @@ def pitch_extract():
         for i, f in enumerate(os.listdir(input_dir)):
             try:
                 full_path = os.path.join(input_dir, f)
-                if os.path.isfile(full_path):
+                if not os.path.isfile(full_path):
                     continue
                 output += f'\nExtracting pitch from {f}'
                 if i % 10 == 0:
