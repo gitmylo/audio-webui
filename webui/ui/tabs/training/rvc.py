@@ -32,7 +32,16 @@ def train_rvc():
                     dataset_path.change(fn=lambda val: change_setting('dataset', val), inputs=dataset_path)
                     process_dataset = gradio.Button('Resample and split dataset', variant='primary')
                     f0_method = gradio.Radio(["none", "dio", "pm", "harvest", "torchcrepe", "torchcrepe tiny"], value='harvest', label='Pitch extraction method', info='Harvest is usually good, crepe has potential to be even better.')
-                    f0_method.change(fn=lambda val: change_setting('f0', val), inputs=f0_method)
+                    crepe_hop_length = gradio.Slider(visible=False, minimum=64, maximum=512, step=64, value=128,
+                                                     label='torchcrepe hop length',
+                                                     info='The length of the hops used for torchcrepe\'s crepe implementation')
+
+                    def set_f0(val: str):
+                        change_setting('f0', val)
+                        return gradio.update(visible=val.startswith('torchcrepe'))
+
+                    f0_method.change(fn=set_f0, inputs=f0_method, outputs=crepe_hop_length)
+                    crepe_hop_length.change(fn=lambda val: change_setting('crepe_hop_length', val))
                     pitch_extract = gradio.Button('Extract pitches', variant='primary')
                 with gradio.Tab('🏃‍ train'):
                     with gradio.Row():
@@ -89,7 +98,7 @@ def train_rvc():
     def load_workspace(name):
         rvc_ws.current_workspace = rvc_ws.RvcWorkspace(name).load()
         ws = rvc_ws.current_workspace
-        return f'Loaded workspace {name}', ws.name, gradio.update(visible=True), ws.data['dataset'], ws.data['f0'], ws.data['save_epochs'], ws.data['batch_size'], list_models(), ws.data['lr']
+        return f'Loaded workspace {name}', ws.name, gradio.update(visible=True), ws.data['dataset'], ws.data['f0'], ws.data['crepe_hop_length'], ws.data['save_epochs'], ws.data['batch_size'], list_models(), ws.data['lr']
 
     def list_workspaces():
         return gradio.update(choices=rvc_ws.get_workspaces())
@@ -104,7 +113,7 @@ def train_rvc():
         rvc_ws.current_workspace.save()
         return load_workspace(name)
 
-    setting_elements = [status_box, workspace_select, settings, dataset_path, f0_method, save_n_epochs, batch_size, base_ckpt, lr]
+    setting_elements = [status_box, workspace_select, settings, dataset_path, f0_method, crepe_hop_length, save_n_epochs, batch_size, base_ckpt, lr]
 
     process_dataset.click(fn=rvc_ws.process_dataset, outputs=status_box)
     pitch_extract.click(fn=rvc_ws.pitch_extract, outputs=status_box)

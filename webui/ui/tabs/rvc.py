@@ -231,6 +231,7 @@ def rvc():
 
                 def update_crepe_hop_length_visible(pitch_mode: str):
                     return gradio.update(visible=pitch_mode.startswith('torchcrepe'))
+
                 pitch_extract.change(fn=update_crepe_hop_length_visible, inputs=pitch_extract, outputs=crepe_hop_length)
 
                 refresh.click(fn=get_models_installed, outputs=[selected, speaker_id], show_progress=True)

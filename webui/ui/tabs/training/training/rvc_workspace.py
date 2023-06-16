@@ -237,7 +237,7 @@ def pitch_extract():
                 npy_path_f0nsf = os.path.join(output_f0nsf, npy_name)
                 x = load_audio(full_path, sr)
                 p_len = x.shape[0] // hop
-                f0 = pe(f0_method, x, f0_min, f0_max, p_len, time_step, 16000, hop, 128)
+                f0 = pe(f0_method, x, f0_min, f0_max, p_len, time_step, 16000, hop, data['crepe_hop_length'])
                 np.save(npy_path_f0nsf, f0)
                 coarse_pitch = coarse_f0(f0, f0_bin, f0_mel_min, f0_mel_max)
                 np.save(npy_path_f0, coarse_pitch)
@@ -826,6 +826,7 @@ base_data = {
     'sr': 40_000,
     'vsr': 'v2 40k',
     'f0': 'harvest',
+    'crepe_hop_length': 128,
     'dataset': '',
     'save_epochs': 10,
     'batch_size': 6,
