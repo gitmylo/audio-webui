@@ -34,7 +34,8 @@ def train_rvc():
                     f0_method = gradio.Radio(["none", "dio", "pm", "harvest", "torchcrepe", "torchcrepe tiny"], value='harvest', label='Pitch extraction method', info='Harvest is usually good, crepe has potential to be even better.')
                     crepe_hop_length = gradio.Slider(visible=False, minimum=64, maximum=512, step=64, value=128,
                                                      label='torchcrepe hop length',
-                                                     info='The length of the hops used for torchcrepe\'s crepe implementation')
+                                                     info='The length of the hops used for torchcrepe\'s crepe implementation',
+                                                     interactive=True)
 
                     def set_f0(val: str):
                         change_setting('f0', val)
