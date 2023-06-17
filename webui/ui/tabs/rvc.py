@@ -1,18 +1,11 @@
-import gc
-
 import torch.cuda
 import torchaudio
-from TTS.api import TTS
 import gradio
-from webui.args import args
 from webui.modules import util
 
 from webui.modules.download import fill_models
 
-flag_strings = ['denoise', 'denoise output', 'separate background', 'recombine background']
-
-tts_model: TTS = None
-tts_model_name = None
+flag_strings = ['denoise', 'denoise output', 'separate background']
 
 
 def flatten_audio(audio_tensor: torch.Tensor | tuple[torch.Tensor, int] | tuple[int, torch.Tensor], add_batch=True):
@@ -110,7 +103,7 @@ def gen(rvc_model_selected, speaker_id, pitch_extract, audio_in, up_key, index_r
         out1, out2 = rvc.vc_single(speaker_id, 'speakeraudio.wav', up_key, None, pitch_extract, rvc_model_selected, None, index_rate, filter_radius, 0, 1, protect, crepe_hop_length)
         audio_tuple = out2
 
-    if background is not None and 'recombine background' in flag:
+    if background is not None and 'separate background' in flag:
         audio = audio_tuple[1] if torch.is_tensor(audio_tuple[1]) else torch.tensor(audio_tuple[1])
         audio_tuple = (audio_tuple[0], flatten_audio(audio, False))
         background = flatten_audio(background if torch.is_tensor(background) else torch.tensor(background), False)
@@ -136,7 +129,6 @@ def gen(rvc_model_selected, speaker_id, pitch_extract, audio_in, up_key, index_r
 
 
 def rvc():
-    all_tts = TTS.list_models()
     with gradio.Row():
         with gradio.Column():
             use_microphone = gradio.Checkbox(label='Use microphone')

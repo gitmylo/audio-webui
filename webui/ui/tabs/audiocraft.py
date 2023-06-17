@@ -1,12 +1,11 @@
 import gradio
 import webui.modules.implementations.audiocraft as acrft
-from audiocraft.data.audio import audio_write
 
 from webui.modules import util
 
 
-def generate(prompt, input_audio, top_k, top_p, temp, duration):
-    output = acrft.generate(prompt, input_audio, True, top_k, top_p, temp, duration)
+def generate(prompt, input_audio, top_k, top_p, temp, duration, progress=gradio.Progress()):
+    output = acrft.generate(prompt, input_audio, True, top_k, top_p, temp, duration, progress=progress)
     if isinstance(output, str):
         return None, None, output
     else:

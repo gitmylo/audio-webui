@@ -1,6 +1,6 @@
 import gc
-import os
 
+import gradio
 import torch
 from audiocraft.models import MusicGen
 
@@ -46,9 +46,15 @@ def is_loaded():
     return loaded
 
 
-def generate(prompt='', input_audio=None, use_sample=True, top_k=250, top_p=0.0, temp=1, duration=8, cfg_coef=3):
+def generate(prompt='', input_audio=None, use_sample=True, top_k=250, top_p=0.0, temp=1, duration=8, cfg_coef=3, progress=gradio.Progress()):
     if is_loaded():
         model.set_generation_params(use_sample, top_k, top_p, temp, duration, cfg_coef)
+        progress(0, desc='Generating')
+
+        def progress_callback(p, t):
+            progress((p, t), desc='Generating')
+
+        model.set_custom_progress_callback(progress_callback)
 
 
         input_audio_not_none = input_audio is not None
