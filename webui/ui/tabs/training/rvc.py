@@ -42,7 +42,7 @@ def train_rvc():
                         return gradio.update(visible=val.startswith('torchcrepe'))
 
                     f0_method.change(fn=set_f0, inputs=f0_method, outputs=crepe_hop_length)
-                    crepe_hop_length.change(fn=lambda val: change_setting('crepe_hop_length', val))
+                    crepe_hop_length.change(fn=lambda val: change_setting('crepe_hop_length', val), inputs=crepe_hop_length)
                     pitch_extract = gradio.Button('Extract pitches', variant='primary')
                 with gradio.Tab('🏃‍ train'):
                     with gradio.Row():
