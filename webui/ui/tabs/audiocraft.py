@@ -2,13 +2,15 @@ import gradio
 import webui.modules.implementations.audiocraft as acrft
 from audiocraft.data.audio import audio_write
 
+from webui.modules import util
+
 
 def generate(prompt, input_audio, top_k, top_p, temp, duration):
     output = acrft.generate(prompt, input_audio, True, top_k, top_p, temp, duration)
     if isinstance(output, str):
         return None, None, output
     else:
-        return output, gradio.make_waveform(output)
+        return output, util.make_waveform(output)
 
 
 def audiocraft_tab():

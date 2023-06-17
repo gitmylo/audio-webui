@@ -3,6 +3,7 @@ from gradio.components import IOComponent
 
 import webui.modules.models as mod
 import webui.modules.implementations.ttsmodels as tts_models
+from webui.modules import util
 
 mod_type = 'text-to-speech'
 
@@ -71,7 +72,7 @@ def text_to_speech():
         inputs = [values[i] for i in range(len(inputs)) if
                   inputs[i] in all_components_dict[loader.model]]  # Filter and convert inputs
         response, file = loader.get_response(*inputs)
-        return response, gradio.make_waveform(response), file
+        return response, util.make_waveform(response), file
 
     filtered_components = filter_components(all_components)
     generate.click(fn=lambda *values: _generate(filtered_components, values), inputs=filtered_components,
