@@ -72,7 +72,7 @@ def generate(prompt='', input_audio=None, use_sample=True, top_k=250, top_p=0.0,
         if input_audio_not_none and supports_melody():
             wav = model.generate_with_chroma([prompt if prompt else None], wav[None].expand(1, -1, -1), sr, True)
         elif input_audio_not_none:
-            model.set_generation_params(use_sample, top_k, top_p, temp, duration + (wav.shape[0]/sr), cfg_coef)
+            model.set_generation_params(use_sample, top_k, top_p, temp, duration, cfg_coef)
             wav = model.generate_continuation(wav[None].expand(1, -1, -1), sr, [prompt if prompt else None], True)
         elif not prompt:
             wav = model.generate_unconditional(1, True)
