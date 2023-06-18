@@ -46,7 +46,9 @@ def audiocraft_tab():
             temp = gradio.Slider(label='temperature', info='Higher number = more randomness for picking the next token',
                                  minimum=0, value=1, maximum=2)
         with gradio.Column():
-            audio_out = gradio.Audio(label='Generated audio')
-            video_out = gradio.Video(label='Waveform video')
+            with gradio.Row():
+                audio_out = gradio.Audio(label='Generated audio')
+            with gradio.Row():
+                video_out = gradio.Video(label='Waveform video')
     gen_button.click(generate, inputs=[prompt, input_audio, top_k, top_p, temp, duration],
                      outputs=[audio_out, video_out])

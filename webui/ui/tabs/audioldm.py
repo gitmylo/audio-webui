@@ -53,9 +53,12 @@ def audioldm_tab():
                 wav_best_count = gradio.Slider(0, 25, 3, step=1, label='Count',
                                                info='Default: 3. How generations to do? Best result will be picked.')
         with gradio.Column():
-            audio_out = gradio.Audio(label='Generated audio')
-            video_out = gradio.Video(label='Waveform video')
-            text_out = gradio.Textbox(label='Result')
+            with gradio.Row():
+                audio_out = gradio.Audio(label='Generated audio')
+            with gradio.Row():
+                video_out = gradio.Video(label='Waveform video')
+            with gradio.Row():
+                text_out = gradio.Textbox(label='Result')
 
     gen_button.click(fn=generate, inputs=[prompt, neg_prompt, duration, steps, cfg, seed, wav_best_count],
                      outputs=[audio_out, video_out, text_out])

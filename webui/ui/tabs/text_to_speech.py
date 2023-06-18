@@ -61,9 +61,12 @@ def text_to_speech():
             with gradio.Row():
                 generate = gradio.Button('Generate', variant='primary')
                 to_rvc = gradio.Button('Send to RVC')
-            audio_out = gradio.Audio(interactive=False)
-            video_out = gradio.Video()
-            file_out = gradio.File()
+            with gradio.Row():
+                audio_out = gradio.Audio(interactive=False)
+            with gradio.Row():
+                video_out = gradio.Video()
+            with gradio.Row():
+                file_out = gradio.File()
 
 
 

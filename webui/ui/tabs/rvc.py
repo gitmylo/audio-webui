@@ -169,11 +169,16 @@ def rvc():
                 protect = gradio.Slider(0, 0.5, 0.33, step=0.01, label='Protect amount', info='Default: 0.33. Avoid non voice sounds. Lower is more being ignored.')
             flags = gradio.Dropdown(flag_strings, label='Flags', info='Things to apply on the audio input/output', multiselect=True)
         with gradio.Column():
-            generate = gradio.Button('Generate', variant='primary')
-            audio_out = gradio.Audio(label='output audio')
-            video_out = gradio.Video(label='output spectrogram video')
-            audio_bg = gradio.Audio(label='background')
-            audio_vocal = gradio.Audio(label='vocals')
+            with gradio.Row():
+                generate = gradio.Button('Generate', variant='primary')
+            with gradio.Row():
+                audio_out = gradio.Audio(label='output audio')
+            with gradio.Row():
+                video_out = gradio.Video(label='output spectrogram video')
+            with gradio.Row():
+                audio_bg = gradio.Audio(label='background')
+            with gradio.Row():
+                audio_vocal = gradio.Audio(label='vocals')
 
         generate.click(fn=gen, inputs=[selected, speaker_id, pitch_extract, audio_el,
                                        up_key, index_rate, filter_radius, protect, crepe_hop_length, flags], outputs=[audio_out, video_out, audio_bg, audio_vocal])
