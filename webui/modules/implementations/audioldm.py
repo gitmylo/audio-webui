@@ -11,6 +11,8 @@ clap_model: transformers.ClapModel = None
 processor: transformers.ClapProcessor = None
 device: str = None
 
+models = ['cvssp/audioldm', 'cvssp/audioldm-s-full-v2', 'cvssp/audioldm-m-full', 'cvssp/audioldm-l-full']
+
 
 def create_model(pretrained='cvssp/audioldm-m-full', map_device='cuda' if torch.cuda.is_available() else 'cpu'):
     if is_loaded():

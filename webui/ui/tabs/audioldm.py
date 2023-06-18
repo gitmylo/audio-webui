@@ -13,26 +13,21 @@ def generate(prompt, negative, duration, steps, cfg, seed, wav_best_count):
 def audioldm_tab():
     with gradio.Row():
         with gradio.Row():
-            load_button = gradio.Button('Load model')
-            status_box = gradio.Textbox('Unloaded AudioLDM.', show_label=False)
-            unload_button = gradio.Button('Unload model', visible=False)
+            selected = gradio.Dropdown(aldm.models, value='cvssp/audioldm-m-full', label='Model (in order of small to large, old to new)')
+            with gradio.Column(elem_classes='smallsplit'):
+                load_button = gradio.Button('🚀', variant='tool secondary')
+                unload_button = gradio.Button('💣', variant='tool primary')
 
-            def load():
-                aldm.create_model()
-                if aldm.is_loaded():
-                    return 'Loaded AudioLDM.', gradio.update(visible=False), gradio.update(visible=True)
-                else:
-                    return 'Failed loading AudioLDM.', gradio.update(visible=True), gradio.update(visible=False)
+            def load(model):
+                aldm.create_model(model)
+                return gradio.update()
 
             def unload():
                 aldm.delete_model()
-                if aldm.is_loaded():
-                    return 'Failed to unload AudioLDM.', gradio.update(visible=False), gradio.update(visible=True)
-                else:
-                    return 'Unloaded AudioLDM.', gradio.update(visible=True), gradio.update(visible=False)
+                return gradio.update()
 
-            load_button.click(fn=load, outputs=[status_box, load_button, unload_button], show_progress=True)
-            unload_button.click(fn=unload, outputs=[status_box, load_button, unload_button], show_progress=True)
+            load_button.click(fn=load, inputs=selected, outputs=selected, show_progress=True)
+            unload_button.click(fn=unload, outputs=selected, show_progress=True)
         with gradio.Row():
             gen_button = gradio.Button('Generate', variant='primary')
 
