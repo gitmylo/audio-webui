@@ -84,7 +84,7 @@ def music_split_tab():
             in_directory = gradio.Textbox(label='Input directory')
             out_directory = gradio.Textbox(label='Output directory')
         batch_progress = gradio.Textbox(label='Batch processing progress')
-    split_batch = gradio.Button('Denoise batch', variant='primary')
+    split_batch = gradio.Button('Split batch', variant='primary')
 
     def batch_music_split(in_dir, out_dir):
         if not os.path.isdir(in_dir):
