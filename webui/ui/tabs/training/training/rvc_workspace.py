@@ -723,11 +723,12 @@ def train_model(base_ckpt_, epochs):
                 yield last_out, last_loss_hist
 
             global_step += 1
+
         last_out = output + f'\nepoch: {epoch}\nglobal step: {global_step}'
         if last_saved >= 0:
             last_out += f'\nlast saved epoch: {last_saved}'
         yield last_out, last_loss_hist
-
+        train_data['epoch'] = epoch
         if epoch != 0 and data['save_epochs'] != 0 and epoch % data['save_epochs'] == 0:
             d_save_path, g_save_path, finished_save_path, json_path = get_save_paths(epoch, base_ckpt)
             last_saved = epoch
