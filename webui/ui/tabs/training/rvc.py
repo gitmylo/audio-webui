@@ -93,8 +93,10 @@ def train_rvc():
             gradio.Markdown('''
             # ✨ Status
             ''', elem_classes='text-center')
-            loss_plot = gradio.LinePlot(label='Loss', x_title='steps', y_title='loss', x='x', y='y')
-            status_box = gradio.TextArea(label='Status')
+            with gradio.Row():
+                loss_plot = gradio.LinePlot(label='Loss', x_title='steps', y_title='loss', x='x', y='y')
+            with gradio.Row():
+                status_box = gradio.TextArea(label='Status')
 
     def load_workspace(name):
         rvc_ws.current_workspace = rvc_ws.RvcWorkspace(name).load()
