@@ -72,7 +72,7 @@ class TTSModelLoader(ModelLoader):
         super().__init__('text-to-speech')
         self.trigger = self.model.replace('/', '--')
 
-    def load_model(self):
+    def load_model(self, progress=gradio.Progress()):
         raise NotImplementedError('Not implemented, please implement this method.')
 
     def unload_model(self):

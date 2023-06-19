@@ -43,16 +43,18 @@ def text_to_speech():
 
                 unload.click(fn=unload_model, outputs=[selected] + all_components, show_progress=True)
 
-                def load_model(model):
+                def load_model(model, progress=gradio.Progress()):
+                    progress(0, desc='Loading model.')
                     global loader
                     if not (hasattr(loader, 'model') and model.lower().endswith(loader.model.lower())):
                         unload_model()
                     loader = loader.from_model(model)
-                    loader.load_model()
+                    loader.load_model(progress)
                     inputs = all_components_dict[loader.model]
                     return_value = [gradio.update()] + [
                         gradio.update(visible=element in inputs and not (hasattr(element, 'hide') and element.hide)) for
                         element in all_components]
+                    progress(1, desc='Loaded model!')
                     return return_value
 
                 selected.select(fn=load_model, inputs=selected, outputs=[selected] + all_components, show_progress=True)

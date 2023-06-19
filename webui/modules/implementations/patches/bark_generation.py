@@ -534,3 +534,37 @@ def codec_decode_new(fine_tokens, decode_on_cpu=False):
         model.to('cpu' if args.bark_use_cpu else 'cuda')
     return audio_arr
 
+
+def preload_models_new(
+    text_use_gpu=True,
+    text_use_small=False,
+    coarse_use_gpu=True,
+    coarse_use_small=False,
+    fine_use_gpu=True,
+    fine_use_small=False,
+    codec_use_gpu=True,
+    force_reload=False,
+    progress=gradio.Progress()
+):
+    """Load all the necessary models for the pipeline."""
+    if o._grab_best_device() == "cpu" and (
+        text_use_gpu or coarse_use_gpu or fine_use_gpu or codec_use_gpu
+    ):
+        logger.warning("No GPU being used. Careful, inference might be very slow!")
+    _ = load_model(
+        model_type="text", use_gpu=text_use_gpu, use_small=text_use_small, force_reload=force_reload
+    )
+    progress((1, 4), desc='Loaded text...')
+    _ = load_model(
+        model_type="coarse",
+        use_gpu=coarse_use_gpu,
+        use_small=coarse_use_small,
+        force_reload=force_reload,
+    )
+    progress((2, 4), desc='Loaded coarse...')
+    _ = load_model(
+        model_type="fine", use_gpu=fine_use_gpu, use_small=fine_use_small, force_reload=force_reload
+    )
+    progress((3, 4), desc='Loaded fine...')
+    _ = load_codec_model(use_gpu=codec_use_gpu, force_reload=force_reload)
+    progress((4, 4), desc='Loaded encodec...')

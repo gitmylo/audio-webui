@@ -160,20 +160,21 @@ class BarkTTS(mod.TTSModelLoader):
         bark_gen._clear_cuda_cache()
         gc.collect()
 
-    def load_model(self):
-        from bark.generation import preload_models
+    def load_model(self, progress=gradio.Progress()):
+        from webui.modules.implementations.patches.bark_generation import preload_models_new
         from webui.args import args
         cpu = args.bark_use_cpu
         gpu = not cpu
         low_vram = args.bark_low_vram
-        preload_models(
+        preload_models_new(
             text_use_gpu=gpu,
             fine_use_gpu=gpu,
             coarse_use_gpu=gpu,
             codec_use_gpu=gpu,
             fine_use_small=low_vram,
             coarse_use_small=low_vram,
-            text_use_small=low_vram
+            text_use_small=low_vram,
+            progress=progress
         )
 
 
@@ -184,7 +185,7 @@ class CoquiTTS(mod.TTSModelLoader):
     current_model: TTS = None
     current_model_name: str = None
 
-    def load_model(self):
+    def load_model(self, progress=gradio.Progress()):
         pass
 
     def unload_model(self):
