@@ -81,7 +81,7 @@ def generate_text_semantic_new(
     global models
     global models_devices
     if "text" not in models:
-        preload_models()
+        preload_models_new()
     model_container = models["text"]
     model = model_container["model"]
     tokenizer = model_container["tokenizer"]
@@ -121,7 +121,7 @@ def generate_text_semantic_new(
         x = x.to(device)
         n_tot_steps = 768
         # custom tqdm updates since we don't know when eos will occur
-        pbar = tqdm.tqdm(disable=silent, total=100)
+        # pbar = tqdm.tqdm(disable=silent, total=100, desc='Generating semantics...')
         pbar_state = 0
         tot_generated_duration_s = 0
         kv_cache = None
@@ -168,26 +168,26 @@ def generate_text_semantic_new(
                     or (min_eos_p is not None and probs[-1] >= min_eos_p)
             ):
                 # eos found, so break
-                pbar.update(100 - pbar_state)
+                # pbar.update(100 - pbar_state)
                 progress((pbar_state, 100), desc='Generating semantics...')
                 break
             x = torch.cat((x, item_next[None]), dim=1)
             tot_generated_duration_s += 1 / SEMANTIC_RATE_HZ
             if max_gen_duration_s is not None and tot_generated_duration_s > max_gen_duration_s:
-                pbar.update(100 - pbar_state)
+                # pbar.update(100 - pbar_state)
                 progress((pbar_state, 100), desc='Generating semantics...')
                 break
             if n == n_tot_steps - 1:
-                pbar.update(100 - pbar_state)
+                # pbar.update(100 - pbar_state)
                 progress((pbar_state, 100), desc='Generating semantics...')
                 break
             del logits, relevant_logits, probs, item_next
             req_pbar_state = np.min([100, int(round(100 * n / n_tot_steps))])
             if req_pbar_state > pbar_state:
-                pbar.update(req_pbar_state - pbar_state)
+                # pbar.update(req_pbar_state - pbar_state)
                 progress((pbar_state, req_pbar_state), desc='Generating semantics...')
             pbar_state = req_pbar_state
-        pbar.close()
+        # pbar.close()
         out = x.detach().cpu().numpy().squeeze()[256 + 256 + 1:]
     if OFFLOAD_CPU:
         model.to("cpu")
@@ -280,7 +280,7 @@ def generate_coarse_new(
     global models
     global models_devices
     if "coarse" not in models:
-        preload_models()
+        preload_models_new()
     model = models["coarse"]
     if OFFLOAD_CPU:
         model.to(models_devices["coarse"])
@@ -301,8 +301,7 @@ def generate_coarse_new(
         x_coarse_in = torch.from_numpy(x_coarse)[None].to(device)
         n_window_steps = int(np.ceil(n_steps / sliding_window_len))
         n_step = 0
-        for curr_step in tqdm.tqdm(range(n_window_steps), total=n_window_steps, disable=silent):
-            progress((curr_step, n_window_steps), desc='Generating coarse audio...')
+        for curr_step in tqdm.tqdm(range(n_window_steps), total=n_window_steps, disable=silent, desc='Generating coarse audio...'):
             semantic_idx = base_semantic_idx + int(round(n_step / semantic_to_coarse_ratio))
             # pad from right side
             x_in = x_semantic_in[:, np.max([0, semantic_idx - max_semantic_history]):]
@@ -387,7 +386,7 @@ def generate_fine_new(
         x_coarse_gen,
         history_prompt: Union[str, dict] = None,
         temp=0.5,
-        silent=True,
+        silent=False,
         progress=gradio.Progress()
 ):
     """Generate full audio codes from coarse audio codes."""
@@ -434,7 +433,7 @@ def generate_fine_new(
     global models
     global models_devices
     if "fine" not in models:
-        preload_models()
+        preload_models_new()
     model = models["fine"]
     if OFFLOAD_CPU:
         model.to(models_devices["fine"])
@@ -473,8 +472,7 @@ def generate_fine_new(
     n_loops = np.max([0, int(np.ceil((x_coarse_gen.shape[1] - (1024 - n_history)) / 512))]) + 1
     with o._inference_mode():
         in_arr = torch.tensor(in_arr.T).to(device)
-        for n in tqdm.tqdm(range(n_loops), disable=silent):
-            progress((n, n_loops), desc='Generating fine audio...')
+        for n in tqdm.tqdm(range(n_loops), disable=silent, desc='Generating fine audio...'):
             start_idx = np.min([n * 512, in_arr.shape[0] - 1024])
             start_fill_idx = np.min([n_history + n * 512, in_arr.shape[0] - 512])
             rel_start_fill_idx = start_fill_idx - start_idx
@@ -523,7 +521,7 @@ def codec_decode_new(fine_tokens, decode_on_cpu=False):
     global models
     global models_devices
     if "codec" not in models:
-        preload_models()
+        preload_models_new()
     model = models["codec"]
     if OFFLOAD_CPU and not decode_on_cpu:
         model.to(models_devices["codec"])

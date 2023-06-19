@@ -1,5 +1,6 @@
 import gradio
 import numpy as np
+import tqdm
 from bark.api import *
 from .bark_generation import generate_text_semantic_new, generate_coarse_new, generate_fine_new, codec_decode_new, SAMPLE_RATE
 
@@ -78,6 +79,7 @@ def semantic_to_waveform_new(
             coarse_tokens,
             history_prompt=history_prompt,
             temp=0.5,
+            progress=progress
         )
     else:
         fine_tokens = coarse_tokens
@@ -136,7 +138,7 @@ def generate_audio_new(
     gen_audio = []
     gen_sections = text.strip().split('\n')
     print('Generation split into sections:', gen_sections)
-    for input_text in gen_sections:
+    for input_text in tqdm.tqdm(gen_sections, desc='Generation section'):
         input_text = gen_prefix + input_text
         semantic_tokens = text_to_semantic_new(
             input_text,

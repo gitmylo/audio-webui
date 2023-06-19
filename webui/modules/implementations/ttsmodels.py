@@ -141,7 +141,8 @@ class BarkTTS(mod.TTSModelLoader):
                                                        gen_prefix=gen_prefix, progress=progress)
         else:
             semantics = wav_to_semantics(audio_upload.name).numpy()
-            history_prompt, audio = semantic_to_waveform_new(semantics, _speaker, waveform_temp, output_full=True, progress=progress)
+            history_prompt, audio = semantic_to_waveform_new(semantics, _speaker, waveform_temp, output_full=True,
+                                                             progress=progress)
         temp = tempfile.NamedTemporaryFile(delete=False)
         temp.name = temp.name.replace(temp.name.replace('\\', '/').split('/')[-1], 'speaker.npz')
         numpy.savez(temp.name, **history_prompt)

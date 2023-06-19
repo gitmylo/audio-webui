@@ -70,15 +70,27 @@ def text_to_speech():
             with gradio.Row():
                 file_out = gradio.File()
 
+    filtered_components = filter_components(all_components)
 
-
-    def _generate(inputs, values, progress=gradio.Progress()):
+    def _generate(progress=gradio.Progress(track_tqdm=True), *values):
+        progress(0, desc='Generating audio...')
         global loader
+        inputs = filtered_components
         inputs = [values[i] for i in range(len(inputs)) if
                   inputs[i] in all_components_dict[loader.model]]  # Filter and convert inputs
         response, file = loader.get_response(*inputs, progress=progress)
         return response, util.make_waveform(response), file
 
-    filtered_components = filter_components(all_components)
-    generate.click(fn=lambda *values: _generate(filtered_components, values), inputs=filtered_components,
+    generate.click(fn=_generate, inputs=filtered_components,
                    outputs=[audio_out, video_out, file_out], show_progress=True)
+
+    # def _generate(inputs, values, progress=gradio.Progress()):
+    #     global loader
+    #     inputs = [values[i] for i in range(len(inputs)) if
+    #               inputs[i] in all_components_dict[loader.model]]  # Filter and convert inputs
+    #     response, file = loader.get_response(*inputs, progress=progress)
+    #     return response, util.make_waveform(response), file
+    #
+    # filtered_components = filter_components(all_components)
+    # generate.click(fn=lambda *values: _generate(filtered_components, values), inputs=filtered_components,
+    #                outputs=[audio_out, video_out, file_out], show_progress=True)
