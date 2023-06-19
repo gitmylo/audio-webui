@@ -3,12 +3,14 @@ import webui.modules.implementations.audioldm as aldm
 from webui.modules import util
 
 
-def generate(prompt, negative, duration, steps, cfg, seed, wav_best_count):
-    output = aldm.generate(prompt, negative, steps, duration, cfg, seed, wav_best_count)
+def generate(prompt, negative, duration, steps, cfg, seed, wav_best_count, progress=gradio.Progress()):
+    output = aldm.generate(prompt, negative, steps, duration, cfg, seed, wav_best_count,
+                           callback=lambda step, _, _2: progress((step, steps), desc='Generating...'))
     if isinstance(output, str):
         return None, None, output
     else:
         return output[1], util.make_waveform(output[1]), f'Successfully generated audio with seed: {output[0]}.'
+
 
 def audioldm_tab():
     with gradio.Row():

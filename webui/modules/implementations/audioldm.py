@@ -56,14 +56,14 @@ def score_waveforms(text, waveforms):
     return waveform
 
 
-def generate(prompt='', negative_prompt='', steps=10, duration=5.0, cfg=2.5, seed=-1, wav_best_count=1):
+def generate(prompt='', negative_prompt='', steps=10, duration=5.0, cfg=2.5, seed=-1, wav_best_count=1, callback=None):
     if is_loaded():
         try:
             seed = seed if seed >= 0 else torch.seed()
             torch.manual_seed(seed)
             output = model(prompt, negative_prompt=negative_prompt if negative_prompt else None,
                            audio_length_in_s=duration, num_inference_steps=steps, guidance_scale=cfg,
-                           num_waveforms_per_prompt=wav_best_count)
+                           num_waveforms_per_prompt=wav_best_count, callback=callback)
             waveforms = output.audios
             if waveforms.shape[0] > 1:
                 waveform = score_waveforms(prompt, waveforms)
