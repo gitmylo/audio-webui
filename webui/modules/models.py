@@ -62,7 +62,7 @@ def all_tts_models():
 
 
 class TTSModelLoader(ModelLoader):
-    def get_response(self, *inputs):
+    def get_response(self, *inputs, progress=gradio.Progress()):
         raise NotImplementedError('Not implemented, please implement this method.')
 
     model: str

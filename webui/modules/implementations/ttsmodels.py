@@ -120,7 +120,7 @@ class BarkTTS(mod.TTSModelLoader):
 
     model = 'suno/bark'
 
-    def get_response(self, *inputs):
+    def get_response(self, *inputs, progress=gradio.Progress()):
         textbox, gen_prefix, audio_upload, input_type, mode, text_temp, waveform_temp, speaker,\
             speaker_name, speaker_file, refresh_speakers, keep_generating, clone_guide, min_eos_p = inputs
         _speaker = None
@@ -138,10 +138,10 @@ class BarkTTS(mod.TTSModelLoader):
         if input_type == 'Text':
             history_prompt, audio = generate_audio_new(textbox, _speaker, text_temp, waveform_temp, output_full=True,
                                                        allow_early_stop=not keep_generating, min_eos_p=min_eos_p,
-                                                       gen_prefix=gen_prefix)
+                                                       gen_prefix=gen_prefix, progress=progress)
         else:
             semantics = wav_to_semantics(audio_upload.name).numpy()
-            history_prompt, audio = semantic_to_waveform_new(semantics, _speaker, waveform_temp, output_full=True)
+            history_prompt, audio = semantic_to_waveform_new(semantics, _speaker, waveform_temp, output_full=True, progress=progress)
         temp = tempfile.NamedTemporaryFile(delete=False)
         temp.name = temp.name.replace(temp.name.replace('\\', '/').split('/')[-1], 'speaker.npz')
         numpy.savez(temp.name, **history_prompt)
@@ -246,7 +246,7 @@ class CoquiTTS(mod.TTSModelLoader):
 
 
 
-    def get_response(self, *inputs):
+    def get_response(self, *inputs, progress=gradio.Progress()):
         selected_tts, selected_tts_unload, speaker_tts, speaker_tts_refresh, lang_tts, lang_tts_refresh, text_input = inputs
         if self.current_model_name != selected_tts:
             if self.current_model is not None:

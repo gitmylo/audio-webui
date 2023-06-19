@@ -1,3 +1,4 @@
+import gradio
 import numpy as np
 from bark.api import *
 from .bark_generation import generate_text_semantic_new, generate_coarse_new, generate_fine_new, codec_decode_new, SAMPLE_RATE
@@ -9,7 +10,8 @@ def text_to_semantic_new(
     temp: float = 0.7,
     silent: bool = False,
     allow_early_stop: bool = True,
-    min_eos_p: float = 0.2
+    min_eos_p: float = 0.2,
+    progress=gradio.Progress()
 ):
     """Generate semantic array from text.
 
@@ -20,6 +22,7 @@ def text_to_semantic_new(
         silent: disable progress bar
         allow_early_stop: (Added in new) set to False to generate until the limit
         min_eos_p: (Added in new) Generation stopping likelyness, Lower means more likely to stop.
+        progress: (Added in new) Gradio progress bar.
 
     Returns:
         numpy semantic array to be fed into `semantic_to_waveform`
@@ -31,7 +34,8 @@ def text_to_semantic_new(
         silent=silent,
         use_kv_caching=True,
         allow_early_stop=allow_early_stop,
-        min_eos_p=min_eos_p
+        min_eos_p=min_eos_p,
+        progress=progress
     )
     return x_semantic
 
@@ -43,7 +47,8 @@ def semantic_to_waveform_new(
     silent: bool = False,
     output_full: bool = False,
     skip_fine: bool = False,
-    decode_on_cpu: bool = False
+    decode_on_cpu: bool = False,
+    progress=gradio.Progress()
 ):
     """Generate audio array from semantic input.
 
@@ -55,6 +60,7 @@ def semantic_to_waveform_new(
         output_full: return full generation to be used as a history prompt
         skip_fine: (Added in new) Skip converting coarse to fine
         decode_on_cpu: (Added in new) Move everything to cpu when decoding, useful for decoding huge audio files on medium vram
+        progress: (Added in new) Gradio progress bar.
 
     Returns:
         numpy audio array at sample frequency 24khz
@@ -64,7 +70,8 @@ def semantic_to_waveform_new(
         history_prompt=history_prompt,
         temp=temp,
         silent=silent,
-        use_kv_caching=True
+        use_kv_caching=True,
+        progress=progress
     )
     if not skip_fine:
         fine_tokens = generate_fine_new(
@@ -98,7 +105,8 @@ def generate_audio_new(
     min_eos_p: float = 0.2,
     long_gen_silence_secs: float = 0,
     long_gen_re_feed: bool = True,
-    gen_prefix: str = ''
+    gen_prefix: str = '',
+    progress=gradio.Progress()
 ):
     """Generate audio array from input text.
 
@@ -116,6 +124,7 @@ def generate_audio_new(
         long_gen_silence_secs: (Added in new) The amount of silence between clips for long form generations.
         long_gen_re_feed: (Added in new) For longer generations (\n) use the last generated chunk as the prompt for the next. Better continuation at risk of changing voice.
         gen_prefix: (Added in new) A prefix to add to every single generated chunk.
+        progress: (Added in new) Gradio progress bar.
 
     Returns:
         numpy audio array at sample frequency 24khz
@@ -135,7 +144,8 @@ def generate_audio_new(
             temp=text_temp,
             silent=silent,
             allow_early_stop=allow_early_stop,
-            min_eos_p=min_eos_p
+            min_eos_p=min_eos_p,
+            progress=progress
         )
         out = semantic_to_waveform_new(
             semantic_tokens,
@@ -144,7 +154,8 @@ def generate_audio_new(
             silent=silent,
             output_full=True,
             skip_fine=skip_fine,
-            decode_on_cpu=decode_on_cpu
+            decode_on_cpu=decode_on_cpu,
+            progress=progress
         )
         full_generation, gen_audio_new = out
         if long_gen_re_feed:

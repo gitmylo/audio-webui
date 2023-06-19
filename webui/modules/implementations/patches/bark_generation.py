@@ -1,6 +1,7 @@
 from typing import Union
 
 import bark.generation as o
+import gradio
 from bark.generation import *
 
 SUPPORTED_LANGS = [
@@ -39,6 +40,7 @@ def generate_text_semantic_new(
         max_gen_duration_s=None,
         allow_early_stop=True,
         use_kv_caching=False,
+        progress=gradio.Progress()
 ):
     """Generate semantic tokens from text."""
     assert isinstance(text, str)
@@ -167,19 +169,23 @@ def generate_text_semantic_new(
             ):
                 # eos found, so break
                 pbar.update(100 - pbar_state)
+                progress((pbar_state, 100), desc='Generating semantics...')
                 break
             x = torch.cat((x, item_next[None]), dim=1)
             tot_generated_duration_s += 1 / SEMANTIC_RATE_HZ
             if max_gen_duration_s is not None and tot_generated_duration_s > max_gen_duration_s:
                 pbar.update(100 - pbar_state)
+                progress((pbar_state, 100), desc='Generating semantics...')
                 break
             if n == n_tot_steps - 1:
                 pbar.update(100 - pbar_state)
+                progress((pbar_state, 100), desc='Generating semantics...')
                 break
             del logits, relevant_logits, probs, item_next
             req_pbar_state = np.min([100, int(round(100 * n / n_tot_steps))])
             if req_pbar_state > pbar_state:
                 pbar.update(req_pbar_state - pbar_state)
+                progress((pbar_state, req_pbar_state), desc='Generating semantics...')
             pbar_state = req_pbar_state
         pbar.close()
         out = x.detach().cpu().numpy().squeeze()[256 + 256 + 1:]
@@ -200,6 +206,7 @@ def generate_coarse_new(
         max_coarse_history=630,  # min 60 (faster), max 630 (more context)
         sliding_window_len=60,
         use_kv_caching=False,
+        progress=gradio.Progress()
 ):
     """Generate coarse audio codes from semantic tokens."""
     assert (
@@ -294,7 +301,8 @@ def generate_coarse_new(
         x_coarse_in = torch.from_numpy(x_coarse)[None].to(device)
         n_window_steps = int(np.ceil(n_steps / sliding_window_len))
         n_step = 0
-        for _ in tqdm.tqdm(range(n_window_steps), total=n_window_steps, disable=silent):
+        for curr_step in tqdm.tqdm(range(n_window_steps), total=n_window_steps, disable=silent):
+            progress((curr_step, n_window_steps), desc='Generating coarse audio...')
             semantic_idx = base_semantic_idx + int(round(n_step / semantic_to_coarse_ratio))
             # pad from right side
             x_in = x_semantic_in[:, np.max([0, semantic_idx - max_semantic_history]):]
@@ -380,6 +388,7 @@ def generate_fine_new(
         history_prompt: Union[str, dict] = None,
         temp=0.5,
         silent=True,
+        progress=gradio.Progress()
 ):
     """Generate full audio codes from coarse audio codes."""
     assert (
@@ -465,6 +474,7 @@ def generate_fine_new(
     with o._inference_mode():
         in_arr = torch.tensor(in_arr.T).to(device)
         for n in tqdm.tqdm(range(n_loops), disable=silent):
+            progress((n, n_loops), desc='Generating fine audio...')
             start_idx = np.min([n * 512, in_arr.shape[0] - 1024])
             start_fill_idx = np.min([n_history + n * 512, in_arr.shape[0] - 512])
             rel_start_fill_idx = start_fill_idx - start_idx

@@ -72,11 +72,11 @@ def text_to_speech():
 
 
 
-    def _generate(inputs, values):
+    def _generate(inputs, values, progress=gradio.Progress()):
         global loader
         inputs = [values[i] for i in range(len(inputs)) if
                   inputs[i] in all_components_dict[loader.model]]  # Filter and convert inputs
-        response, file = loader.get_response(*inputs)
+        response, file = loader.get_response(*inputs, progress=progress)
         return response, util.make_waveform(response), file
 
     filtered_components = filter_components(all_components)
