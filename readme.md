@@ -14,7 +14,7 @@
 <!-- TOC -->
 
 ## 💬 NEW: Discord server
-[![Discord invite](https://img.shields.io/badge/Discord-Join-%237289da%20)](https://discord.gg/NB86C3Szkg)
+[![Discord](https://img.shields.io/discord/1118525872882843711?style=flat)](https://discord.gg/NB86C3Szkg)
 
 ## ❗❗ Please read ❗❗
 This code works on python 3.10 (and possibly above), I have not personally tested it on other versions. Some older versions will have issues.
