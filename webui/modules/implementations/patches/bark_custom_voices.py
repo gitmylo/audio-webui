@@ -50,6 +50,8 @@ def wav_to_semantics(file) -> torch.Tensor:
 
     if wav.shape[0] == 2:  # Stereo to mono if needed
         wav = wav.mean(0, keepdim=True)
+    if wav.shape[1] == 2:
+        wav = wav.mean(1, keepdim=False).unsqueeze(-1)
 
     # Extract semantics in HuBERT style
     print('Extracting semantics')
