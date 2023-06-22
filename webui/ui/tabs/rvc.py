@@ -164,7 +164,7 @@ def rvc():
                 unload.click(fn=unload_rvc, outputs=[selected, speaker_id], show_progress=True)
                 selected.select(fn=load_rvc, inputs=selected, outputs=[selected, speaker_id], show_progress=True)
                 index_rate = gradio.Slider(0, 1, 0.88, step=0.01, label='Index rate for feature retrieval', info='Default: 0.88. Higher is more indexing, takes longer but could be better')
-                filter_radius = gradio.Slider(0, 7, 3, step=1, label='Filter radius', info='Default: 3')
+                filter_radius = gradio.Slider(0, 7, 3, step=1, label='Filter radius', info='Default: 3. Smooth out the pitches, should yield less voice cracks.')
                 up_key = gradio.Number(value=0, label='Pitch offset', info='Default: 0. Shift the pitch up or down')
                 protect = gradio.Slider(0, 0.5, 0.33, step=0.01, label='Protect amount', info='Default: 0.33. Avoid non voice sounds. Lower is more being ignored.')
             flags = gradio.Dropdown(flag_strings, label='Flags', info='Things to apply on the audio input/output', multiselect=True)

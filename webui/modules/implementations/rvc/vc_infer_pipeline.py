@@ -91,7 +91,7 @@ class VC(object):
         f0_mel_max = 1127 * np.log(1 + f0_max / 700)
 
         import webui.modules.implementations.rvc.custom_pitch_extraction as cpe
-        f0 = cpe.pitch_extract(f0_method, x, f0_min, f0_max, p_len, time_step, self.sr, self.window, crepe_hop_length)
+        f0 = cpe.pitch_extract(f0_method, x, f0_min, f0_max, p_len, time_step, self.sr, self.window, crepe_hop_length, filter_radius)
 
         f0 *= pow(2, f0_up_key / 12)
         # with open("test.txt","w")as f:f.write("\n".join([str(i)for i in f0.tolist()]))

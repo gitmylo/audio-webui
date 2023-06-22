@@ -51,7 +51,7 @@ def get_f0_crepe_computation(
     return f0  # Resized f0
 
 
-def pitch_extract(f0_method, x, f0_min, f0_max, p_len, time_step, sr, window, crepe_hop_length):
+def pitch_extract(f0_method, x, f0_min, f0_max, p_len, time_step, sr, window, crepe_hop_length, filter_radius=3):
     if f0_method == "pm":
         f0 = (
             parselmouth.Sound(x, sr)
@@ -77,6 +77,8 @@ def pitch_extract(f0_method, x, f0_min, f0_max, p_len, time_step, sr, window, cr
                 f0_floor=f0_min,
                 frame_period=10,
             )
+            if filter_radius >= 2:
+                f0 = signal.medfilt(f0, filter_radius)
         elif f0_method == "dio":
             f0, t = pyworld.dio(
                 x.astype(np.double),
