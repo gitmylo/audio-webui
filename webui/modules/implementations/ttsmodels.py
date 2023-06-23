@@ -66,11 +66,11 @@ class BarkTTS(mod.TTSModelLoader):
             if option == 'Text':
                 textbox.hide = False
                 audio_upload.hide = True
-                return [gradio.update(visible=False), gradio.update(visible=True)]
+                return [gradio.update(visible=False), gradio.update(visible=True), gradio.update(visible=False)]
             else:
                 textbox.hide = True
                 audio_upload.hide = False
-                return [gradio.update(visible=True), gradio.update(visible=False)]
+                return [gradio.update(visible=True), gradio.update(visible=False), gradio.update(visible=True)]
 
         def update_voices():
             return gradio.update(choices=self.get_voices())
@@ -90,7 +90,7 @@ class BarkTTS(mod.TTSModelLoader):
         * Ends after a short pause for best results.
                 ''', visible=False)
 
-        input_type = gradio.Radio(['Text', 'File'], label='Input type', value='Text', **quick_kwargs)
+        input_type = gradio.Radio(['Text', 'Audio'], label='Input type', value='Text', **quick_kwargs)
         textbox = gradio.Textbox(lines=7, label='Input', placeholder='Text to speak goes here', **quick_kwargs)
         gen_prefix = gradio.Textbox(label='Generation prefix', info='Add this text before every generated chunk, better for keeping emotions.', **quick_kwargs)
         audio_upload = gradio.File(label='Words to speak', file_types=['audio'], **quick_kwargs)
@@ -114,7 +114,7 @@ class BarkTTS(mod.TTSModelLoader):
         min_eos_p = gradio.Slider(0.05, 1, 0.2, step=0.05, label='min end of audio probability', info='Lower values cause the generation to stop sooner, higher values make it do more, 1 is about the same as keep generating being on.', **quick_kwargs)
 
         mode.select(fn=update_speaker, inputs=mode, outputs=[speaker, refresh_speakers, speaker_file, speaker_name])
-        input_type.select(fn=update_input, inputs=input_type, outputs=[textbox, audio_upload])
+        input_type.select(fn=update_input, inputs=input_type, outputs=[textbox, audio_upload, gen_prefix])
         return [textbox, gen_prefix, audio_upload, input_type, mode, text_temp, waveform_temp,
                 speaker, speaker_name, speaker_file, refresh_speakers, keep_generating, clone_guide, temps, speakers, min_eos_p]
 
