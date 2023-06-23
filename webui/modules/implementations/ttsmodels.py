@@ -80,9 +80,9 @@ class BarkTTS(mod.TTSModelLoader):
         gen_prefix = gradio.Textbox(label='Generation prefix', info='Add this text before every generated chunk, better for keeping emotions.', **quick_kwargs)
         audio_upload = gradio.File(label='Words to speak', file_types=['audio'], **quick_kwargs)
         audio_upload.hide = True
-        with gradio.Row(visible=False) as temps:
-            text_temp = gradio.Slider(0.05, 1, 0.7, step=0.05, label='Text temperature', **quick_kwargs)
-            waveform_temp = gradio.Slider(0.05, 1, 0.7, step=0.05, label='Waveform temperature', **quick_kwargs)
+        # with gradio.Row(visible=False) as temps:
+        text_temp = gradio.Slider(0.05, 1.5, 0.7, step=0.05, label='Text temperature', info='Affects the randomness of the generated speech patterns, like with Language models, higher is more random', **quick_kwargs)
+        waveform_temp = gradio.Slider(0.05, 1.5, 0.7, step=0.05, label='Waveform temperature', info='Affects the randomness of the audio generated from the previous generated speech patterns, like with Language models, higher is more random', **quick_kwargs)
 
         with gradio.Accordion(label='Voice cloning guide and long form generations', open=False, visible=False) as a:
             clone_guide = gradio.Markdown('''
@@ -120,7 +120,7 @@ class BarkTTS(mod.TTSModelLoader):
         mode.select(fn=update_speaker, inputs=mode, outputs=[speaker, refresh_speakers, speaker_file, speaker_name])
         input_type.select(fn=update_input, inputs=input_type, outputs=[textbox, audio_upload, gen_prefix])
         return [textbox, gen_prefix, audio_upload, input_type, mode, text_temp, waveform_temp,
-                speaker, speaker_name, speaker_file, refresh_speakers, keep_generating, clone_guide, temps, speakers, min_eos_p, a]
+                speaker, speaker_name, speaker_file, refresh_speakers, keep_generating, clone_guide, speakers, min_eos_p, a]
 
     model = 'suno/bark'
 
