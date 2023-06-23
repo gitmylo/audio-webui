@@ -76,7 +76,7 @@ class BarkTTS(mod.TTSModelLoader):
             return gradio.update(choices=self.get_voices())
 
         input_type = gradio.Radio(['Text', 'Audio'], label='Input type', value='Text', **quick_kwargs)
-        textbox = gradio.Textbox(lines=7, label='Input', placeholder='Text to speak goes here', **quick_kwargs)
+        textbox = gradio.Textbox(lines=7, label='Input', placeholder='Text to speak goes here', info='Use enter to split long generations, keep the audio a bit long. (Automatic optimal splitting will be added soon.)', **quick_kwargs)
         gen_prefix = gradio.Textbox(label='Generation prefix', info='Add this text before every generated chunk, better for keeping emotions.', **quick_kwargs)
         audio_upload = gradio.File(label='Words to speak', file_types=['audio'], **quick_kwargs)
         audio_upload.hide = True
