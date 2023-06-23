@@ -75,20 +75,23 @@ class BarkTTS(mod.TTSModelLoader):
         def update_voices():
             return gradio.update(choices=self.get_voices())
 
-        clone_guide = gradio.Markdown('''
-        ## Long form generations
-        Split your long form generations with newlines (enter), every line will be generated individually, but as a continuation of the last.
-
-        Empty lines at the start and end will be skipped.
-
-        ## When cloning a voice:
-        * The speaker will be saved in the data/bark_custom_speakers directory.
-        * The "file" output contains a different speaker. This is for saving speakers created through random generation. Or continued cloning.
-
-        ## Cloning guide (short edition)
-        * Clear spoken, no noise, no music.
-        * Ends after a short pause for best results.
-                ''', visible=False)
+        with gradio.Accordion(label='Voice cloning guide and long form generations', open=False, visible=False) as a:
+            clone_guide = gradio.Markdown('''
+            ## Long form generations
+            Split your long form generations with newlines (enter), every line will be generated individually, but as a continuation of the last.
+    
+            Empty lines at the start and end will be skipped.
+    
+            ## When cloning a voice:
+            * The speaker will be saved in the data/bark_custom_speakers directory.
+            * The "file" output contains a different speaker. This is for saving speakers created through random generation. Or continued cloning.
+    
+            ## Cloning guide (short edition)
+            * Clear spoken, no noise, no music.
+            * Ends after a short pause for best results.
+            * The speaker will be saved in the data/bark_custom_speakers directory.
+            * The “file” output contains a different speaker. This is for saving speakers created through random generation. Or continued cloning.
+                    ''', visible=False)
 
         input_type = gradio.Radio(['Text', 'Audio'], label='Input type', value='Text', **quick_kwargs)
         textbox = gradio.Textbox(lines=7, label='Input', placeholder='Text to speak goes here', **quick_kwargs)
@@ -116,7 +119,7 @@ class BarkTTS(mod.TTSModelLoader):
         mode.select(fn=update_speaker, inputs=mode, outputs=[speaker, refresh_speakers, speaker_file, speaker_name])
         input_type.select(fn=update_input, inputs=input_type, outputs=[textbox, audio_upload, gen_prefix])
         return [textbox, gen_prefix, audio_upload, input_type, mode, text_temp, waveform_temp,
-                speaker, speaker_name, speaker_file, refresh_speakers, keep_generating, clone_guide, temps, speakers, min_eos_p]
+                speaker, speaker_name, speaker_file, refresh_speakers, keep_generating, clone_guide, temps, speakers, min_eos_p, a]
 
     model = 'suno/bark'
 
