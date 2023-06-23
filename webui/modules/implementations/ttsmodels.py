@@ -75,24 +75,6 @@ class BarkTTS(mod.TTSModelLoader):
         def update_voices():
             return gradio.update(choices=self.get_voices())
 
-        with gradio.Accordion(label='Voice cloning guide and long form generations', open=False, visible=False) as a:
-            clone_guide = gradio.Markdown('''
-            ## Long form generations
-            Split your long form generations with newlines (enter), every line will be generated individually, but as a continuation of the last.
-    
-            Empty lines at the start and end will be skipped.
-    
-            ## When cloning a voice:
-            * The speaker will be saved in the data/bark_custom_speakers directory.
-            * The "file" output contains a different speaker. This is for saving speakers created through random generation. Or continued cloning.
-    
-            ## Cloning guide (short edition)
-            * Clear spoken, no noise, no music.
-            * Ends after a short pause for best results.
-            * The speaker will be saved in the data/bark_custom_speakers directory.
-            * The “file” output contains a different speaker. This is for saving speakers created through random generation. Or continued cloning.
-                    ''', visible=False)
-
         input_type = gradio.Radio(['Text', 'Audio'], label='Input type', value='Text', **quick_kwargs)
         textbox = gradio.Textbox(lines=7, label='Input', placeholder='Text to speak goes here', **quick_kwargs)
         gen_prefix = gradio.Textbox(label='Generation prefix', info='Add this text before every generated chunk, better for keeping emotions.', **quick_kwargs)
@@ -101,6 +83,25 @@ class BarkTTS(mod.TTSModelLoader):
         with gradio.Row(visible=False) as temps:
             text_temp = gradio.Slider(0.05, 1, 0.7, step=0.05, label='Text temperature', **quick_kwargs)
             waveform_temp = gradio.Slider(0.05, 1, 0.7, step=0.05, label='Waveform temperature', **quick_kwargs)
+
+        with gradio.Accordion(label='Voice cloning guide and long form generations', open=False, visible=False) as a:
+            clone_guide = gradio.Markdown('''
+            ## Long form generations
+            Split your long form generations with newlines (enter), every line will be generated individually, but as a continuation of the last.
+
+            Empty lines at the start and end will be skipped.
+
+            ## When cloning a voice:
+            * The speaker will be saved in the data/bark_custom_speakers directory.
+            * The "file" output contains a different speaker. This is for saving speakers created through random generation. Or continued cloning.
+
+            ## Cloning guide (short edition)
+            * Clear spoken, no noise, no music.
+            * Ends after a short pause for best results.
+            * The speaker will be saved in the data/bark_custom_speakers directory.
+            * The “file” output contains a different speaker. This is for saving speakers created through random generation. Or continued cloning.
+                    ''', visible=False)
+
         mode = gradio.Radio(['File', 'Upload'], label='Speaker from', value='File', **quick_kwargs)
         with gradio.Row(visible=False) as speakers:
             speaker = gradio.Dropdown(self.get_voices(), value='None', show_label=False, **quick_kwargs)
