@@ -1,10 +1,12 @@
 # ❗ Common issues ❗
 ## ❌ Error messages
 
-| Error                                                 | Solution                                                                  |
-|-------------------------------------------------------|---------------------------------------------------------------------------|
-| TypeError: 'type' object is not subscriptable         | Use [Python 3.10](https://www.python.org/downloads/release/python-31012/) |
-| Please install tensorboardX: pip install tensorboardX | You can ignore this warning as it is not a requirement.                   |
+| Error                                                                        | Solution                                                                                           |
+|------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
+| TypeError: 'type' object is not subscriptable                                | You're on python < 3.10, Use [Python 3.10](https://www.python.org/downloads/release/python-31012/) |
+| TypeError: unsupported operand type(s) for : 'types.GenericAlias' and 'type' | You're on python < 3.10, Use [Python 3.10](https://www.python.org/downloads/release/python-31012/) |
+| I cannot install TTS, no matching version found                              | You're on python > 3.10, Use [Python 3.10](https://www.python.org/downloads/release/python-31012/) |
+| Please install tensorboardX: pip install tensorboardX                        | You can ignore this warning as it is not a requirement.                                            |
 
 
 ## 🔍 Missing models
