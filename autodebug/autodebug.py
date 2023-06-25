@@ -7,6 +7,11 @@ class AutoDebugException(OSError):
         super(AutoDebugException, self).__init__(message)
 
     def action(self):
+        pass
+
+
+class WrongPythonVersionException(AutoDebugException):
+    def action(self):
         if oscheck.is_windows():
             print('Do you want to download the python 3.10 installer?\nWhen installing, make sure py launcher is selected as well.')
             response = input('Y/n: ').upper()
@@ -19,10 +24,6 @@ class AutoDebugException(OSError):
                 print('If you ever want to download it, the link is: https://www.python.org/downloads/release/python-31011/')
         else:
             print('Please use a package manager to install python 3.10. For example: `apt install python3.10` on debian.')
-
-
-class WrongPythonVersionException(AutoDebugException):
-    pass
 
 
 def catcher(e: Exception):
