@@ -1,4 +1,7 @@
 import gc
+import os.path
+from tempfile import NamedTemporaryFile
+
 import torch
 import whisper
 from transformers import WhisperProcessor, WhisperForConditionalGeneration, pipeline, AutomaticSpeechRecognitionPipeline
@@ -62,20 +65,45 @@ def load(pretrained_model='openai/whisper-base', map_device='cuda' if torch.cuda
         return f'Failed to load, {e}'
 
 
-def transcribe(wav):
-    sr, wav = wav
+def transcribe(wav, files) -> tuple[tuple[int, torch.Tensor], list[str]]:
+    return transcribe_wav(wav), transcribe_files(files)
+
+
+def transcribe_wav(wav):
     global model, processor, device, loaded_model
     if loaded_model is not None:
+        if wav is None:
+            return None
+        sr, wav = wav
         import traceback
         try:
             if sr != 16000:
                 import torchaudio.functional as F
                 wav = F.resample((torch.tensor(wav).to(device).float() / 32767.0).mean(-1).squeeze().unsqueeze(0), sr, 16000).flatten().cpu().detach().numpy()
                 sr = 16000
-            # return model(wav)['text'].strip()
             return whisper.transcribe(model, wav)['text'].strip()
         except Exception as e:
             traceback.print_exception(e)
             return f'Exception: {e}'
     else:
         return 'No model loaded! Please load a model.'
+
+
+def transcribe_files(files: list) -> list[str]:
+    if len(files) == 0:
+        return []
+    out_list = []
+    global model, processor, device, loaded_model
+    if loaded_model is not None:
+        for f in files:
+            filename = os.path.basename(f.name)
+            print('Processing ', filename)
+            filename_noext, fileext = os.path.splitext(filename)
+            out_file = NamedTemporaryFile(mode='w', delete=False, suffix='.txt', prefix=filename_noext)
+
+            out_file.write(whisper.transcribe(model, f.name)['text'].strip())
+
+            out_list.append(out_file.name)
+        return out_list
+    else:
+        return []
