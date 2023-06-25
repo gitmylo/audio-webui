@@ -99,7 +99,7 @@ def transcribe_files(files: list) -> list[str]:
             filename = os.path.basename(f.name)
             print('Processing ', filename)
             filename_noext, fileext = os.path.splitext(filename)
-            out_file = NamedTemporaryFile(mode='w', delete=False, suffix='.txt', prefix=filename_noext)
+            out_file = NamedTemporaryFile(mode='w', delete=False, suffix='.txt', prefix=filename_noext, encoding='utf8')
 
             out_file.write(whisper.transcribe(model, f.name)['text'].strip())
 
