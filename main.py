@@ -4,20 +4,25 @@ import os
 os.environ['HF_HOME'] = os.getenv('HF_HOME', os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'models', 'unclassified'))
 os.environ['MUSICGEN_ROOT'] = os.getenv('MUSICGEN_ROOT', os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'models', 'musicgen'))
 
-from install import ensure_installed
+from autodebug.prelaunch import prelaunch_checks
+from autodebug import autodebug
 
-print('Checking installs and venv')
+try:
+    print('Checking installs and venv + autodebug checks')
 
-ensure_installed()  # Installs missing packages
+    prelaunch_checks()
 
-print('Preparing')
+    print('Preparing')
 
-from webui.modules.implementations.tts_monkeypatching import patch as patch1
-patch1()
+    from webui.modules.implementations.tts_monkeypatching import patch as patch1
+    patch1()
 
-import torch
-print('Launching, cuda available:', torch.cuda.is_available())
+    import torch
+    print('Launching, cuda available:', torch.cuda.is_available())
 
-from webui.webui import launch_webui
+    from webui.webui import launch_webui
 
-launch_webui()
+    launch_webui()
+
+except Exception as e:
+    autodebug.catcher(e)
