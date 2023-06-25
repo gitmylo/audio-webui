@@ -1,10 +1,17 @@
 # <img alt="logo" height="25" src="assets/logo.png" width="25"/> Audio Webui <img alt="logo" height="25" src="assets/logo.png" width="25"/>
 
+## ❗❗ Please read ❗❗
+This code works on python 3.10 (lower versions don't support "|" type annotations, and i believe 3.11 doesn't have support for the TTS library currently).
+
+You also need to have [Git](https://git-scm.com/downloads) installed, you might already have it, run `git --version` in a console/terminal to see if you already have it installed.
+
+[Common issues](https://github.com/gitmylo/audio-webui/wiki/common-issues)
+
 <!-- TOC -->
 * [<img alt="logo" height="15" src="assets/logo.png" width="15"/> Audio Webui <img alt="logo" height="15" src="assets/logo.png" width="15"/>](#img-altlogo-height25-srcassetslogopng-width25-audio-webui-img-altlogo-height25-srcassetslogopng-width25)
+  * [❗❗ Please read ❗❗](#-please-read-)
   * [👍 NEW: Automatic installers](#-new--automatic-installers)
   * [💬 NEW: Discord server](#-new--discord-server)
-  * [❗❗ Please read ❗❗](#-please-read-)
   * [💻 Local install (Manual)](#-local-install--manual-)
     * [🔽 Downloading](#-downloading)
     * [📦 Installing](#-installing)
@@ -24,13 +31,6 @@
 
 ## 💬 NEW: Discord server
 [![Discord](https://img.shields.io/discord/1118525872882843711?style=flat)](https://discord.gg/NB86C3Szkg)
-
-## ❗❗ Please read ❗❗
-This code works on python 3.10 (and possibly above), I have not personally tested it on other versions. Some older versions will have issues.
-
-You also need to have [Git](https://git-scm.com/downloads) installed, you might already have it, run `git --version` in a console/terminal to see if you already have it installed.
-
-[Common issues](https://github.com/gitmylo/audio-webui/wiki/common-issues)
 
 ## 💻 Local install (Manual)
 ### 🔽 Downloading
