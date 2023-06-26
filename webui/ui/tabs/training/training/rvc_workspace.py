@@ -5,6 +5,7 @@ import os
 import shutil
 from time import sleep
 
+import faiss
 import huggingface_hub
 import pandas
 import soundfile
@@ -332,13 +333,19 @@ def copy_model(model):
     if model == 'f0':
         return 'Can\'t copy f0 model.'
     filename = current_workspace.name + '.pth'
+    index_filename = f'{current_workspace.name}_added.index'
+    index_path_filename = os.path.join(current_workspace.space_path, index_filename)
     model_path = os.path.join(current_workspace.space_path, 'models', model, filename)
-    rvc_model_use_path = os.path.join('data', 'models', 'rvc', current_workspace.name, filename)
+    rvc_model_base_path = os.path.join('data', 'models', 'rvc', current_workspace.name)
+    rvc_model_use_path = os.path.join(rvc_model_base_path, filename)
+    index_file_out_path = os.path.join(rvc_model_base_path, index_filename)
     if os.path.isdir(rvc_model_use_path):
         shutil.rmtree(rvc_model_use_path, ignore_errors=True)
     os.makedirs(os.path.dirname(rvc_model_use_path), exist_ok=True)
     shutil.copyfile(model_path, rvc_model_use_path)
-    return 'Copied model'
+    if os.path.isfile(index_path_filename):
+        shutil.copyfile(index_path_filename, index_file_out_path)
+        return 'Copied model\nCopied index'
 
 
 training = False
@@ -795,6 +802,71 @@ def train_model(base_ckpt_, epochs):
         'v'+str(data['v']),
     )
     yield last_out, last_loss_hist
+
+
+def create_index():
+    space_path = current_workspace.space_path
+    data = current_workspace.data
+    _name = current_workspace.name
+    version = 'v' + str(data['v'])
+
+    exp_dir = os.path.join(space_path)
+
+    feature_dir = os.path.join(exp_dir, '1_feat')
+
+    os.makedirs(exp_dir, exist_ok=True)
+    # feature_dir = (
+    #     "%s/3_feature256" % (exp_dir)
+    #     if version == "v1"
+    #     else "%s/3_feature768" % (exp_dir)
+    # )
+    if not os.path.exists(feature_dir):
+        yield "Please perform feature extraction first!"
+        return
+    listdir_res = list(os.listdir(feature_dir))
+    if len(listdir_res) == 0:
+        yield "Please perform feature extraction first!"
+        return
+    npys = []
+    for name in sorted(listdir_res):
+        phone = np.load("%s/%s" % (feature_dir, name))
+        npys.append(phone)
+    big_npy = np.concatenate(npys, 0)
+    big_npy_idx = np.arange(big_npy.shape[0])
+    np.random.shuffle(big_npy_idx)
+    big_npy = big_npy[big_npy_idx]
+    np.save("%s/total_fea.npy" % exp_dir, big_npy)
+    # n_ivf =  big_npy.shape[0] // 39
+    n_ivf = min(int(16 * np.sqrt(big_npy.shape[0])), big_npy.shape[0] // 39)
+    infos = ["%s,%s" % (big_npy.shape, n_ivf)]
+    yield "\n".join(infos)
+    index = faiss.index_factory(256 if version == "v1" else 768, "IVF%s,Flat" % n_ivf)
+    # index = faiss.index_factory(256if version19=="v1"else 768, "IVF%s,PQ128x4fs,RFlat"%n_ivf)
+    infos.append("building")
+    yield "\n".join(infos)
+    index_ivf = faiss.extract_index_ivf(index)  #
+    index_ivf.nprobe = 1
+    index.train(big_npy)
+    faiss.write_index(
+        index,
+        os.path.join(exp_dir, f'{_name}_trained.index')
+    )
+    # faiss.write_index(index, '%s/trained_IVF%s_Flat_FastScan_%s.index'%(exp_dir,n_ivf,version19))
+    infos.append("adding")
+    yield "\n".join(infos)
+    batch_size_add = 8192
+    for i in range(0, big_npy.shape[0], batch_size_add):
+        index.add(big_npy[i : i + batch_size_add])
+    faiss.write_index(
+        index,
+        os.path.join(exp_dir, f'{_name}_added.index')
+    )
+    infos.append(
+        f"Successfully built index，{_name}_added.index"
+    )
+    # faiss.write_index(index, '%s/added_IVF%s_Flat_FastScan_%s.index'%(exp_dir,n_ivf,version19))
+    # infos.append("成功构建索引，added_IVF%s_Flat_FastScan_%s.index"%(n_ivf,version19))
+    yield "\n".join(infos)
 
 
 def cancel_train():

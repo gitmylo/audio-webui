@@ -64,6 +64,7 @@ def train_rvc():
                     with gradio.Row():
                         train_button = gradio.Button('Train', variant='primary padding-h-0')
                         stop_button = gradio.Button('Stop', variant='stop padding-h-0')
+                    create_index_button = gradio.Button('Create index', variant='primary padding-h-0')
                     copy_button = gradio.Button('Copy to RVC models')
 
                 with gradio.Tab('❓ how to?'):
@@ -117,6 +118,7 @@ def train_rvc():
 
     copy_button.click(fn=rvc_ws.copy_model, inputs=base_ckpt, outputs=status_box, queue=False)
     train_button.click(fn=rvc_ws.train_model, inputs=[base_ckpt, epochs], outputs=[status_box, loss_plot])
+    create_index_button.click(fn=rvc_ws.create_index, outputs=status_box)
     stop_button.click(fn=rvc_ws.cancel_train, outputs=status_box, queue=False)
 
 
