@@ -13,7 +13,6 @@ parser.add_argument('--hide-pip-log', action='store_true', help='Hide pip instal
 parser.add_argument('--bark-low-vram', action='store_true', help='Use low vram mode on bark')
 parser.add_argument('--bark-cpu-offload', action='store_true', help='Use cpu offloading for lower vram usage on bark')
 parser.add_argument('--bark-use-cpu', action='store_true', help='Use cpu on bark')
-parser.add_argument('--bark-cloning-large-model', action='store_true', help='Use the larger voice cloning model for bark')
 
 # TTS
 parser.add_argument('--tts-use-gpu', action='store_true', help='Use gpu for TTS')

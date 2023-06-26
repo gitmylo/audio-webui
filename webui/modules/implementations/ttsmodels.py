@@ -5,6 +5,7 @@ import tempfile
 import gradio
 import numpy
 import numpy as np
+import requests
 import scipy.io.wavfile
 import torch.cuda
 from TTS.api import TTS
@@ -14,6 +15,9 @@ from webui.args import args
 from webui.modules import util
 from webui.modules.implementations.patches.bark_custom_voices import wav_to_semantics, generate_fine_from_wav, \
     generate_course_history
+
+
+hubert_models_cache = None
 
 
 class BarkTTS(mod.TTSModelLoader):
@@ -31,11 +35,12 @@ class BarkTTS(mod.TTSModelLoader):
         return ['None'] + found_prompts + ALLOWED_PROMPTS
 
     @staticmethod
-    def create_voice(file):
+    def create_voice(file, clone_model):
+        clone_model_obj = [model for model in hubert_models_cache if model['name'].casefold() == clone_model.casefold()][0]
         file_name = '.'.join(file.replace('\\', '/').split('/')[-1].split('.')[:-1])
         out_file = f'data/bark_custom_speakers/{file_name}.npz'
 
-        semantic_prompt = wav_to_semantics(file)
+        semantic_prompt = wav_to_semantics(file, clone_model_obj)
         fine_prompt = generate_fine_from_wav(file)
         coarse_prompt = generate_course_history(fine_prompt)
 
@@ -47,6 +52,45 @@ class BarkTTS(mod.TTSModelLoader):
                  )
         return file_name
 
+    @staticmethod
+    def get_cloning_models():
+        global hubert_models_cache
+        if hubert_models_cache:
+            return hubert_models_cache
+        try:
+            r = requests.get('https://raw.githubusercontent.com/gitmylo/Voice-cloning-quantizers/main/models.json')
+            hubert_models_cache = r.json()
+        except:  # No internet connection or something similar
+            hubert_models_cache = [
+                {
+                    "name": "Base English",
+                    "repo": "GitMylo/bark-voice-cloning",
+                    "file": "quantifier_hubert_base_ls960_14.pth",
+                    "language": "ENG",
+                    "author": "https://github.com/gitmylo/",
+                    "quant_version": 0,
+                    "official": True,
+                    "dlfilename": "tokenizer.pth",
+                    "extra": {
+                        "dataset": "https://huggingface.co/datasets/GitMylo/bark-semantic-training"
+                    }
+                },
+                {
+                    "name": "Large English",
+                    "repo": "GitMylo/bark-voice-cloning",
+                    "file": "quantifier_V1_hubert_base_ls960_23.pth",
+                    "language": "ENG",
+                    "author": "https://github.com/gitmylo/",
+                    "quant_version": 1,
+                    "official": True,
+                    "dlfilename": "tokenizer_large.pth",
+                    "extra": {
+                        "dataset": "https://huggingface.co/datasets/GitMylo/bark-semantic-training"
+                    }
+                }
+            ]
+        return hubert_models_cache
+
     def _components(self, **quick_kwargs):
         def update_speaker(option):
             if option == 'File':
@@ -54,31 +98,35 @@ class BarkTTS(mod.TTSModelLoader):
                 refresh_speakers.hide = True
                 speaker_file.hide = False
                 speaker_name.hide = False
-                return [gradio.update(visible=False), gradio.update(visible=False), gradio.update(visible=True), gradio.update(visible=True)]
+                return [gradio.update(visible=False), gradio.update(visible=False), gradio.update(visible=True), gradio.update(visible=True), gradio.update(visible=True)]
             else:
                 speaker.hide = False
                 refresh_speakers.hide = False
                 speaker_file.hide = True
                 speaker_name.hide = True
-                return [gradio.update(visible=True), gradio.update(visible=True), gradio.update(visible=False), gradio.update(visible=False)]
+                return [gradio.update(visible=True), gradio.update(visible=True), gradio.update(visible=False), gradio.update(visible=False), gradio.update(visible=False)]
 
         def update_input(option):
             if option == 'Text':
                 textbox.hide = False
                 audio_upload.hide = True
-                return [gradio.update(visible=False), gradio.update(visible=True), gradio.update(visible=False)]
+                return [gradio.update(visible=False), gradio.update(visible=True), gradio.update(visible=True), gradio.update(visible=False)]
             else:
                 textbox.hide = True
                 audio_upload.hide = False
-                return [gradio.update(visible=True), gradio.update(visible=False), gradio.update(visible=True)]
+                return [gradio.update(visible=True), gradio.update(visible=False), gradio.update(visible=False), gradio.update(visible=True)]
 
         def update_voices():
             return gradio.update(choices=self.get_voices())
 
+        clone_models = [m['name'] for m in self.get_cloning_models()]
+
         input_type = gradio.Radio(['Text', 'Audio'], label='Input type', value='Text', **quick_kwargs)
         textbox = gradio.Textbox(lines=7, label='Input', placeholder='Text to speak goes here', info='Use enter to split long generations, keep the audio a bit long. (Automatic optimal splitting will be added soon.)', **quick_kwargs)
         gen_prefix = gradio.Textbox(label='Generation prefix', info='Add this text before every generated chunk, better for keeping emotions.', **quick_kwargs)
+        input_lang_model = gradio.Dropdown(clone_models, value=clone_models[0], label='Speech recognition bark quantizer.', info='The "voice cloning" model to use. Mainly for languages.', **quick_kwargs)
         audio_upload = gradio.File(label='Words to speak', file_types=['audio'], **quick_kwargs)
+        input_lang_model.hide = True
         audio_upload.hide = True
         # with gradio.Row(visible=False) as temps:
         text_temp = gradio.Slider(0.05, 1.5, 0.7, step=0.05, label='Text temperature', info='Affects the randomness of the generated speech patterns, like with Language models, higher is more random', **quick_kwargs)
@@ -107,26 +155,27 @@ class BarkTTS(mod.TTSModelLoader):
             speaker = gradio.Dropdown(self.get_voices(), value='None', show_label=False, **quick_kwargs)
             refresh_speakers = gradio.Button('🔃', variant='tool secondary', **quick_kwargs)
         refresh_speakers.click(fn=update_voices, outputs=speaker)
+        clone_model = gradio.Dropdown(clone_models, value=clone_models[0], label='Voice cloning model.', info='The voice cloning model to use. Mainly for languages.', **quick_kwargs)
         speaker_name = gradio.Textbox(label='Speaker name', info='The name to save the speaker as, random if empty', **quick_kwargs)
         speaker_file = gradio.Audio(label='Speaker', **quick_kwargs)
-        # speaker_file_transcript = gradio.Textbox(lines=1, label='Transcript', **quick_kwargs)
+        clone_model.hide = True
         speaker_name.hide = True
         speaker_file.hide = True  # Custom, auto hide speaker_file
-        # speaker_file_transcript.hide = True
 
         keep_generating = gradio.Checkbox(label='Keep it up (keep generating)', value=False, **quick_kwargs)
         min_eos_p = gradio.Slider(0.05, 1, 0.2, step=0.05, label='min end of audio probability', info='Lower values cause the generation to stop sooner, higher values make it do more, 1 is about the same as keep generating being on.', **quick_kwargs)
 
-        mode.select(fn=update_speaker, inputs=mode, outputs=[speaker, refresh_speakers, speaker_file, speaker_name])
-        input_type.select(fn=update_input, inputs=input_type, outputs=[textbox, audio_upload, gen_prefix])
+        mode.select(fn=update_speaker, inputs=mode, outputs=[speaker, refresh_speakers, speaker_file, speaker_name, clone_model])
+        input_type.select(fn=update_input, inputs=input_type, outputs=[textbox, audio_upload, input_lang_model, gen_prefix])
         return [textbox, gen_prefix, audio_upload, input_type, mode, text_temp, waveform_temp,
-                speaker, speaker_name, speaker_file, refresh_speakers, keep_generating, clone_guide, speakers, min_eos_p, a]
+                speaker, speaker_name, speaker_file, refresh_speakers, keep_generating, clone_guide, speakers, min_eos_p, a, clone_model, input_lang_model]
 
     model = 'suno/bark'
 
     def get_response(self, *inputs, progress=gradio.Progress()):
         textbox, gen_prefix, audio_upload, input_type, mode, text_temp, waveform_temp, speaker,\
-            speaker_name, speaker_file, refresh_speakers, keep_generating, clone_guide, min_eos_p = inputs
+            speaker_name, speaker_file, refresh_speakers, keep_generating, clone_guide, min_eos_p, clone_model,\
+            input_lang_model = inputs
         _speaker = None
         if mode == 'File':
             _speaker = speaker if speaker != 'None' else None
@@ -136,7 +185,7 @@ class BarkTTS(mod.TTSModelLoader):
             if speaker_name:
                 temp_file.name = os.path.join(os.path.dirname(temp_file.name), speaker_name + '.wav')
             scipy.io.wavfile.write(temp_file.name, speaker_sr, speaker_wav)
-            _speaker = self.create_voice(temp_file.name)
+            _speaker = self.create_voice(temp_file.name, clone_model)
         from webui.modules.implementations.patches.bark_api import generate_audio_new, semantic_to_waveform_new
         from bark.generation import SAMPLE_RATE
         if input_type == 'Text':
@@ -144,7 +193,9 @@ class BarkTTS(mod.TTSModelLoader):
                                                        allow_early_stop=not keep_generating, min_eos_p=min_eos_p,
                                                        gen_prefix=gen_prefix, progress=progress)
         else:
-            semantics = wav_to_semantics(audio_upload.name).numpy()
+            input_lang_model_obj = \
+            [model for model in hubert_models_cache if model['name'].casefold() == input_lang_model.casefold()][0]
+            semantics = wav_to_semantics(audio_upload.name, input_lang_model_obj).numpy()
             history_prompt, audio = semantic_to_waveform_new(semantics, _speaker, waveform_temp, output_full=True,
                                                              progress=progress)
         temp = tempfile.NamedTemporaryFile(delete=False)
@@ -156,7 +207,6 @@ class BarkTTS(mod.TTSModelLoader):
         # from bark.generation import clean_models
         # clean_models()
 
-        # Temp fix while i wait for https://github.com/suno-ai/bark/pull/356
         import bark.generation as bark_gen
         model_keys = list(bark_gen.models.keys())
         for k in model_keys:

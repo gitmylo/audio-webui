@@ -26,23 +26,25 @@ def generate_semantic_fine(transcript='There actually isn\'t a way to do that. I
 huberts = {}
 
 
-def load_hubert():
+def load_hubert(clone_model):
+    global huberts
     hubert_path = HuBERTManager.make_sure_hubert_installed()
-    model = ('quantifier_V1_hubert_base_ls960_23.pth', 'tokenizer_large.pth') if args.bark_cloning_large_model else ('quantifier_hubert_base_ls960_14.pth', 'tokenizer.pth')
-    tokenizer_path = HuBERTManager.make_sure_tokenizer_installed(model=model[0], local_file=model[1])
+    # model = ('quantifier_V1_hubert_base_ls960_23.pth', 'tokenizer_large.pth') if args.bark_cloning_large_model else ('quantifier_hubert_base_ls960_14.pth', 'tokenizer.pth')
+    tokenizer_path = HuBERTManager.make_sure_tokenizer_installed(model=clone_model['file'], local_file=clone_model['dlfilename'], repo=clone_model['repo'])
     if 'hubert' not in huberts:
         print('Loading HuBERT')
         huberts['hubert'] = CustomHubert(hubert_path)
-    if 'tokenizer' not in huberts:
+    if 'tokenizer' not in huberts or ('tokenizer_name' in huberts and huberts['tokenizer_name'] != clone_model['name'].casefold()):
         print('Loading Custom Tokenizer')
         tokenizer = CustomTokenizer.load_from_checkpoint(tokenizer_path, map_location=torch.device('cpu'))
         huberts['tokenizer'] = tokenizer
+        huberts['tokenizer_name'] = clone_model['name'].casefold()
 
 
-def wav_to_semantics(file) -> torch.Tensor:
+def wav_to_semantics(file, clone_model) -> torch.Tensor:
     # Vocab size is 10,000.
 
-    load_hubert()
+    load_hubert(clone_model)
 
     wav, sr = torchaudio.load(file)
     # sr, wav = wavfile.read(file)
