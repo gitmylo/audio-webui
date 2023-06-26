@@ -94,27 +94,43 @@ class BarkTTS(mod.TTSModelLoader):
     def _components(self, **quick_kwargs):
         def update_speaker(option):
             if option == 'File':
-                speaker.hide = True
-                refresh_speakers.hide = True
-                speaker_file.hide = False
-                speaker_name.hide = False
-                return [gradio.update(visible=False), gradio.update(visible=False), gradio.update(visible=True), gradio.update(visible=True), gradio.update(visible=True)]
-            else:
                 speaker.hide = False
                 refresh_speakers.hide = False
                 speaker_file.hide = True
                 speaker_name.hide = True
-                return [gradio.update(visible=True), gradio.update(visible=True), gradio.update(visible=False), gradio.update(visible=False), gradio.update(visible=False)]
+                clone_model.hide = True
+                npz_file.hide = True
+                speakers.hide = False
+                return [gradio.update(visible=True), gradio.update(visible=True), gradio.update(visible=True), gradio.update(visible=False), gradio.update(visible=False), gradio.update(visible=False), gradio.update(visible=False)]
+            elif option == 'Clone':
+                speaker.hide = True
+                refresh_speakers.hide = True
+                speaker_file.hide = True
+                speaker_name.hide = False
+                clone_model.hide = False
+                npz_file.hide = True
+                speakers.hide = True
+                return [gradio.update(visible=False), gradio.update(visible=False), gradio.update(visible=False), gradio.update(visible=True), gradio.update(visible=True), gradio.update(visible=True), gradio.update(visible=False)]
+            elif option == 'Upload .npz':
+                speaker.hide = True
+                refresh_speakers.hide = True
+                speaker_file.hide = True
+                speaker_name.hide = True
+                clone_model.hide = True
+                npz_file.hide = False
+                speakers.hide = True
+                return [gradio.update(visible=False), gradio.update(visible=False), gradio.update(visible=False), gradio.update(visible=False),
+                        gradio.update(visible=False), gradio.update(visible=False), gradio.update(visible=True)]
 
         def update_input(option):
             if option == 'Text':
                 textbox.hide = False
                 audio_upload.hide = True
-                return [gradio.update(visible=False), gradio.update(visible=True), gradio.update(visible=True), gradio.update(visible=False)]
+                return [gradio.update(visible=True), gradio.update(visible=False), gradio.update(visible=False), gradio.update(visible=True)]
             else:
                 textbox.hide = True
                 audio_upload.hide = False
-                return [gradio.update(visible=True), gradio.update(visible=False), gradio.update(visible=False), gradio.update(visible=True)]
+                return [gradio.update(visible=False), gradio.update(visible=True), gradio.update(visible=True), gradio.update(visible=False)]
 
         def update_voices():
             return gradio.update(choices=self.get_voices())
@@ -150,7 +166,7 @@ class BarkTTS(mod.TTSModelLoader):
             * The “file” output contains a different speaker. This is for saving speakers created through random generation. Or continued cloning.
                     ''', visible=False)
 
-        mode = gradio.Radio(['File', 'Upload'], label='Speaker from', value='File', **quick_kwargs)
+        mode = gradio.Radio(['File', 'Clone', 'Upload .npz'], label='Speaker from', value='File', **quick_kwargs)
         with gradio.Row(visible=False) as speakers:
             speaker = gradio.Dropdown(self.get_voices(), value='None', show_label=False, **quick_kwargs)
             refresh_speakers = gradio.Button('🔃', variant='tool secondary', **quick_kwargs)
@@ -162,30 +178,36 @@ class BarkTTS(mod.TTSModelLoader):
         speaker_name.hide = True
         speaker_file.hide = True  # Custom, auto hide speaker_file
 
+        npz_file = gradio.File(label='Npz file', file_types=['.npz'], **quick_kwargs)
+        npz_file.hide = True
+
         keep_generating = gradio.Checkbox(label='Keep it up (keep generating)', value=False, **quick_kwargs)
         min_eos_p = gradio.Slider(0.05, 1, 0.2, step=0.05, label='min end of audio probability', info='Lower values cause the generation to stop sooner, higher values make it do more, 1 is about the same as keep generating being on.', **quick_kwargs)
 
-        mode.select(fn=update_speaker, inputs=mode, outputs=[speaker, refresh_speakers, speaker_file, speaker_name, clone_model])
-        input_type.select(fn=update_input, inputs=input_type, outputs=[textbox, audio_upload, input_lang_model, gen_prefix])
+        mode.change(fn=update_speaker, inputs=mode, outputs=[speakers, speaker, refresh_speakers, speaker_file, speaker_name, clone_model, npz_file])
+        input_type.change(fn=update_input, inputs=input_type, outputs=[textbox, audio_upload, input_lang_model, gen_prefix])
         return [textbox, gen_prefix, audio_upload, input_type, mode, text_temp, waveform_temp,
-                speaker, speaker_name, speaker_file, refresh_speakers, keep_generating, clone_guide, speakers, min_eos_p, a, clone_model, input_lang_model]
+                speaker, speaker_name, speaker_file, refresh_speakers, keep_generating, clone_guide, speakers, min_eos_p, a, clone_model, input_lang_model,
+                npz_file]
 
     model = 'suno/bark'
 
     def get_response(self, *inputs, progress=gradio.Progress()):
         textbox, gen_prefix, audio_upload, input_type, mode, text_temp, waveform_temp, speaker,\
             speaker_name, speaker_file, refresh_speakers, keep_generating, clone_guide, min_eos_p, clone_model,\
-            input_lang_model = inputs
+            input_lang_model, npz_file = inputs
         _speaker = None
         if mode == 'File':
             _speaker = speaker if speaker != 'None' else None
-        else:
+        elif mode == 'Clone':
             speaker_sr, speaker_wav = speaker_file
             temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.wav')
             if speaker_name:
                 temp_file.name = os.path.join(os.path.dirname(temp_file.name), speaker_name + '.wav')
             scipy.io.wavfile.write(temp_file.name, speaker_sr, speaker_wav)
             _speaker = self.create_voice(temp_file.name, clone_model)
+        elif mode == 'Upload .npz':
+            _speaker = npz_file.name
         from webui.modules.implementations.patches.bark_api import generate_audio_new, semantic_to_waveform_new
         from bark.generation import SAMPLE_RATE
         if input_type == 'Text':
