@@ -61,22 +61,22 @@ If there's an issue with running, please create an [issue](https://github.com/gi
 
 ## 💻 Command line flags
 
-| Name                       | Args           | Short      | Usage                      | Description                                                                                                            |
-|----------------------------|----------------|------------|----------------------------|------------------------------------------------------------------------------------------------------------------------|
-| --skip-install             | [None]         | -si        | -si                        | Skip installing packages                                                                                               |
-| --skip-venv                | [None]         | -sv        | -sv                        | Skip creating/activating venv, also skips install. (for advanced users)                                                |
-| --bark-low-vram            | [None]         | [None]     | --bark-low-vram            | Use low vram for bark                                                                                                  |
-| --bark-cpu-offload         | [None]         | [None]     | --bark-cpu-offload         | Use cpu offloading to save vram while still running on gpu                                                             |
-| --bark-use-cpu             | [None]         | [None]     | --bark-use-cpu             | Use cpu for bark                                                                                                       |
-| --bark-cloning-large-model | [None]         | [None]     | --bark-cloning-large-model | Use the larger voice cloning model. (It hasn't been tested as much yet)                                                |
-| --tts-use-gpu              | [None]         | [None]     | --tts-use-gpu              | Use your GPU for TTS with the TTS library                                                                              |
-| --share                    | [None]         | -s         | -s                         | Share the gradio instance publicly                                                                                     |
-| --username                 | username (str) | -u, --user | -u username                | Set the username for gradio                                                                                            |
-| --password                 | password (str) | -p, --pass | -p password                | Set the password for gradio                                                                                            |
-| --theme                    | theme (str)    | [None]     | --theme "gradio/soft"      | Set the theme for gradio                                                                                               |
-| --listen                   | [None]         | -l         | -l                         | Listen a server, allowing other devices within your local network to access the server. (or outside if port forwarded) |
-| --port                     | port (int)     | [None]     | --port 12345               | Set a custom port to listen on, by default a port is picked automatically                                              |
-| --hide-pip-log             | [None]         | [None]     | --hide-pip-log             | Hide pip install logs, only show warnings and errors.                                                                  |
+| Name               | Args           | Short      | Usage                 | Description                                                                                                            |
+|--------------------|----------------|------------|-----------------------|------------------------------------------------------------------------------------------------------------------------|
+| --skip-install     | [None]         | -si        | -si                   | Skip installing packages                                                                                               |
+| --skip-venv        | [None]         | -sv        | -sv                   | Skip creating/activating venv, also skips install. (for advanced users)                                                |
+| --bark-low-vram    | [None]         | [None]     | --bark-low-vram       | Use low vram for bark                                                                                                  |
+| --bark-cpu-offload | [None]         | [None]     | --bark-cpu-offload    | Use cpu offloading to save vram while still running on gpu                                                             |
+| --bark-use-cpu     | [None]         | [None]     | --bark-use-cpu        | Use cpu for bark                                                                                                       |
+| --bark-half        | [None]         | [None]     | --bark-half           | Use half precision for bark models. (This uses less VRAM) (Experimental)                                               |
+| --tts-use-gpu      | [None]         | [None]     | --tts-use-gpu         | Use your GPU for TTS with the TTS library                                                                              |
+| --share            | [None]         | -s         | -s                    | Share the gradio instance publicly                                                                                     |
+| --username         | username (str) | -u, --user | -u username           | Set the username for gradio                                                                                            |
+| --password         | password (str) | -p, --pass | -p password           | Set the password for gradio                                                                                            |
+| --theme            | theme (str)    | [None]     | --theme "gradio/soft" | Set the theme for gradio                                                                                               |
+| --listen           | [None]         | -l         | -l                    | Listen a server, allowing other devices within your local network to access the server. (or outside if port forwarded) |
+| --port             | port (int)     | [None]     | --port 12345          | Set a custom port to listen on, by default a port is picked automatically                                              |
+| --hide-pip-log     | [None]         | [None]     | --hide-pip-log        | Hide pip install logs, only show warnings and errors.                                                                  |
 
 
 ## ✨ Current goals and features ✨

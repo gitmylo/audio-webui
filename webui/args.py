@@ -11,6 +11,7 @@ parser.add_argument('--hide-pip-log', action='store_true', help='Hide pip instal
 # Models
 # Bark
 parser.add_argument('--bark-low-vram', action='store_true', help='Use low vram mode on bark')
+parser.add_argument('--bark-half', action='store_true', help='Lower vram usage through half precision.')
 parser.add_argument('--bark-cpu-offload', action='store_true', help='Use cpu offloading for lower vram usage on bark')
 parser.add_argument('--bark-use-cpu', action='store_true', help='Use cpu on bark')
 
