@@ -8,4 +8,4 @@ def launch_webui():
                                          auth=auth,
                                          server_name='0.0.0.0' if args.listen else None,
                                          server_port=args.port,
-                                         favicon_path='assets/Logo.png')
+                                         favicon_path='assets/logo.png')
