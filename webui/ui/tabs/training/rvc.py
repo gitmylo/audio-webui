@@ -53,13 +53,7 @@ def train_rvc():
                             return gradio.update(choices=rvc_ws.get_continue_models())
 
                         refresh_checkpoints.click(fn=refresh_checkpoints_click, outputs=base_ckpt)
-                    gradio.Markdown('''
-                    ## Prediction of epochs: $f(t_{minutes})=ceil(\\frac{300}{t_{minutes}})$
-                    ## $t_{minutes}$ is estimated
-                    ''')
-                    with gradio.Row():
-                        epochs = gradio.Number(label='Epochs to train (added)', value=100, interactive=True)
-                        auto_epochs = gradio.Button('Predict epochs', variant='secondary padding-h-0')
+                    epochs = gradio.Number(label='Epochs to train (added)', value=100, interactive=True)
                     batch_size = gradio.Slider(1, 50, 6, step=1, label='Batch size', info='Higher uses more VRAM.')
                     batch_size.change(fn=lambda v: change_setting('batch_size', v), inputs=batch_size)
                     save_n_epochs = gradio.Number(10, label='Save every n epochs', info='Save every time n epochs of training have been processed. 0 = disabled.')
@@ -121,7 +115,6 @@ def train_rvc():
     process_dataset.click(fn=rvc_ws.process_dataset, outputs=status_box)
     pitch_extract.click(fn=rvc_ws.pitch_extract, outputs=status_box)
 
-    auto_epochs.click(fn=rvc_ws.get_suggested_train_epochs, outputs=epochs, queue=False)
     copy_button.click(fn=rvc_ws.copy_model, inputs=base_ckpt, outputs=status_box, queue=False)
     train_button.click(fn=rvc_ws.train_model, inputs=[base_ckpt, epochs], outputs=[status_box, loss_plot])
     stop_button.click(fn=rvc_ws.cancel_train, outputs=status_box, queue=False)
