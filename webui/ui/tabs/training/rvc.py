@@ -44,6 +44,7 @@ def train_rvc():
                     f0_method.change(fn=set_f0, inputs=f0_method, outputs=crepe_hop_length)
                     crepe_hop_length.change(fn=lambda val: change_setting('crepe_hop_length', val), inputs=crepe_hop_length)
                     pitch_extract = gradio.Button('Extract pitches', variant='primary')
+                    create_index_button = gradio.Button('Create index file', variant='primary padding-h-0')
                 with gradio.Tab('🏃‍ train'):
                     with gradio.Row():
                         base_ckpt = gradio.Dropdown(['f0'], value='f0', label='Base checkpoint', info='The base checkpoint to train from, select f0 if you haven\'t trained yet.')
@@ -64,7 +65,6 @@ def train_rvc():
                     with gradio.Row():
                         train_button = gradio.Button('Train', variant='primary padding-h-0')
                         stop_button = gradio.Button('Stop', variant='stop padding-h-0')
-                    create_index_button = gradio.Button('Create index', variant='primary padding-h-0')
                     copy_button = gradio.Button('Copy to RVC models')
 
                 with gradio.Tab('❓ how to?'):
@@ -78,6 +78,7 @@ def train_rvc():
                         2. Click "Process dataset"
                         3. Pick your preferred pitch extraction method. Harvest and crepe are recommended.
                         4. Click "Extract pitches"
+                        5. Click "Create index file" (Optional, adds a .index file, which uses more space, but improves results)
                     3. Open the "train" tab.
                         1. Set training epochs.
                             * You can click the "Predict epochs" button to set your training epochs to the recommended amount based on how much data you have.
