@@ -25,9 +25,10 @@ def get_rvc_models():
             for f2 in os.listdir(f_path):
                 if f2.endswith('.pth') and f2 not in ['f0D40k.pth', 'f0G40k.pth', 'f0D48k.pth', 'f0G48k.pth']:
                     output.append(os.path.join(f, f2))
-        elif os.path.isfile(f_path):
-            if f.endswith('.pth') and f not in ['f0D40k.pth', 'f0G40k.pth', 'f0D48k.pth', 'f0G48k.pth']:
-                output.append(f)
+        # Don't allow files anymore, it's bugged.
+        # elif os.path.isfile(f_path):
+        #     if f.endswith('.pth') and f not in ['f0D40k.pth', 'f0G40k.pth', 'f0D48k.pth', 'f0G48k.pth']:
+        #         output.append(f)
     return output
 
 

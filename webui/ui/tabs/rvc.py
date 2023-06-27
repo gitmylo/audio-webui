@@ -1,3 +1,5 @@
+import os
+
 import torch.cuda
 import torchaudio
 import gradio
@@ -94,13 +96,29 @@ def gen(rvc_model_selected, speaker_id, pitch_extract, audio_in, up_key, index_r
         audio_tuple = denoise(*audio_tuple)
 
     if rvc_model_selected:
+        print('Selected model', rvc_model_selected)
         if len(audio_tuple[1].shape) == 1:
             audio_tuple = (audio_tuple[0], audio_tuple[1].unsqueeze(0))
         torchaudio.save('speakeraudio.wav', audio_tuple[1], audio_tuple[0])
 
         import webui.modules.implementations.rvc.rvc as rvc
         rvc.load_rvc(rvc_model_selected)
-        out1, out2 = rvc.vc_single(speaker_id, 'speakeraudio.wav', up_key, None, pitch_extract, rvc_model_selected, None, index_rate, filter_radius, 0, 1, protect, crepe_hop_length)
+
+        index_file = ''
+        try:
+            model_basedir = os.path.join('data', 'models', 'rvc', os.path.dirname(rvc_model_selected))
+            index_files = [f for f in os.listdir(model_basedir) if f.endswith('.index')]
+            if len(index_files) > 0:
+                for f in index_files:
+                    full_path = os.path.join(model_basedir, f)
+                    if 'added' in f:
+                        index_file = full_path
+                if not index_file:
+                    index_file = index_files[0]
+        except:
+            pass
+
+        out1, out2 = rvc.vc_single(speaker_id, 'speakeraudio.wav', up_key, None, pitch_extract, index_file, None, index_rate, filter_radius, 0, 1, protect, crepe_hop_length)
         audio_tuple = out2
 
     if background is not None and 'separate background' in flag:
