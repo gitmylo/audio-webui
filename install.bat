@@ -5,3 +5,4 @@ if %errorlevel%==0 (
 ) else (
     python install.py %*
 )
+PAUSE

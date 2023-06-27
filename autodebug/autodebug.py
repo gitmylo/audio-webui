@@ -1,3 +1,5 @@
+import traceback
+
 import setup_tools.os as oscheck
 import setup_tools.commands as commands
 
@@ -24,17 +26,30 @@ class WrongPythonVersionException(AutoDebugException):
                 print('If you ever want to download it, the link is: https://www.python.org/downloads/release/python-31011/')
         else:
             print('Please use a package manager to install python 3.10. For example: `apt install python3.10` on debian.')
+        input()
+
+
+def print_banner():
+    print('''
+    ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+    █░▄▄▀██░██░█▄▄░▄▄██░▄▄▄░██░▄▄▀██░▄▄▄██░▄▄▀██░██░██░▄▄░██
+    █░▀▀░██░██░███░████░███░██░██░██░▄▄▄██░▄▄▀██░██░██░█▀▀██
+    █░██░██▄▀▀▄███░████░▀▀▀░██░▀▀░██░▀▀▀██░▀▀░██▄▀▀▄██░▀▀▄██
+    ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀''')
 
 
 def catcher(e: Exception):
     if isinstance(e, AutoDebugException):
-        print('''
-▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
-█░▄▄▀██░██░█▄▄░▄▄██░▄▄▄░██░▄▄▀██░▄▄▄██░▄▄▀██░██░██░▄▄░██
-█░▀▀░██░██░███░████░███░██░██░██░▄▄▄██░▄▄▀██░██░██░█▀▀██
-█░██░██▄▀▀▄███░████░▀▀▀░██░▀▀░██░▀▀▀██░▀▀░██▄▀▀▄██░▀▀▄██
-▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀''')
+        print_banner()
         print(e)
         e.action()
+    elif isinstance(e, ImportError):
+        traceback.print_exception(e, )
+        print_banner()
+        print(e)
+        print('Your install might have failed to install one of the requirements, are you missing a package?')
+        print('Depending on the error message that was given during install, you might need to install visual C++ build tools.')
+        print('Or read common issues at https://github.com/gitmylo/audio-webui/wiki/common-issues')
+        input()
     else:
         raise e
