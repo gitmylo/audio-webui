@@ -1,6 +1,6 @@
 # Unable to check the testing here. As i do not have a linux system, and not enough storage on C: to install wsl
 
-if ! type "python3.10" > /dev/null; then
+if ! type python3.10 > /dev/null; then
   python3.10 main.py "$@"
 else
   echo 'WARNING: python3.10 command was not found, attempting with python command, this could fail.'
