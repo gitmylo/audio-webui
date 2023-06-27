@@ -83,7 +83,8 @@ def train_rvc():
                         1. Set training epochs.
                             * You can click the "Predict epochs" button to set your training epochs to the recommended amount based on how much data you have.
                         2. Click "Train", and wait for training to complete.
-                    4. You now have a trained model in your 'data/training/RVC/{workspace}/models' folder.
+                    4. Select the model in the "Base checkpoint" dropdown (refresh first)
+                    5. Now, click "Copy to RVC models". Now you can use the trained model inside of your RVC tab.
                     ''')
         with gradio.Column():
             gradio.Markdown('''
