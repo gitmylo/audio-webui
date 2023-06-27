@@ -1,4 +1,4 @@
-from webui import args  # Will show help message if needed
+from webui.args import args  # Will show help message if needed
 import os
 # Set custom default huggingface download path
 if not args.no_data_cache:
