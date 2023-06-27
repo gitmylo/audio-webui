@@ -65,6 +65,7 @@ If there's an issue with running, please create an [issue](https://github.com/gi
 |--------------------|----------------|------------|-----------------------|------------------------------------------------------------------------------------------------------------------------|
 | --skip-install     | [None]         | -si        | -si                   | Skip installing packages                                                                                               |
 | --skip-venv        | [None]         | -sv        | -sv                   | Skip creating/activating venv, also skips install. (for advanced users)                                                |
+| --no-data-cache    | [None]         | [None]     | --no-data-cache       | Don't change the default dir for huggingface_hub models. (This might fix some models not loading)                      |
 | --bark-low-vram    | [None]         | [None]     | --bark-low-vram       | Use low vram for bark                                                                                                  |
 | --bark-cpu-offload | [None]         | [None]     | --bark-cpu-offload    | Use cpu offloading to save vram while still running on gpu                                                             |
 | --bark-use-cpu     | [None]         | [None]     | --bark-use-cpu        | Use cpu for bark                                                                                                       |

@@ -7,6 +7,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-si', '--skip-install', action='store_true', help='Skip installing packages')
 parser.add_argument('-sv', '--skip-venv', action='store_true', help='Skip creating/activating venv, also skips install (for advanced users)')
 parser.add_argument('--hide-pip-log', action='store_true', help='Hide pip install logs, only show warnings and errors.')
+parser.add_argument('--no-data-cache', action='store_true', help='Don\'t override the default huggingface_hub cache path.')
 
 # Models
 # Bark
