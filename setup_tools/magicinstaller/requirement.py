@@ -1,4 +1,5 @@
 import re
+import shlex
 import subprocess
 import sys
 import time
@@ -55,7 +56,9 @@ class Requirement:
         }
         thread = Thread(target=self.loading_thread, args=[status_dict, name], daemon=True)
         thread.start()
-        result = subprocess.run(f'{sys.executable} -m pip install --upgrade {command}', capture_output=True, text=True)
+        args = f'{sys.executable} -m pip install --upgrade {command}'
+        args = args if self.is_windows() else shlex.split(args)
+        result = subprocess.run(args, capture_output=True, text=True)
         status_dict['running'] = False
         while thread.is_alive():
             time.sleep(0.1)
@@ -71,7 +74,9 @@ class Requirement:
         global valid_last
         if valid_last:
             return valid_last
-        result = subprocess.run(f'{sys.executable} -m pip freeze', capture_output=True, text=True)
+        args = f'{sys.executable} -m pip freeze'
+        args = args if self.is_windows() else shlex.split(args)
+        result = subprocess.run(args, capture_output=True, text=True)
         test_str = result.stdout
         out_list = []
         matches = re.finditer('^(.*)(?:==| @ )(.+)$', test_str, re.MULTILINE)
