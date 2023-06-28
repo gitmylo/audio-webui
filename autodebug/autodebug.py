@@ -29,6 +29,21 @@ class WrongPythonVersionException(AutoDebugException):
         input()
 
 
+class InstallFailException(AutoDebugException):
+    def __init__(self, exit_code, stdout, stderr):
+        super(InstallFailException, self).__init__('Install failed!')
+        self.exit_code = exit_code
+        self.stdout = stdout
+        self.stderr = stderr
+
+    def action(self):
+        print(f'STDOUT:\n{self.stdout}\n\n\n\nSTDERR:\n{self.stderr}\n\n')
+        print('Please read the error above carefully. It might tell you to install visual C++ build tools, it might tell you something else.\nIf you are unsure, please create an issue at https://github.com/gitmylo/audio-webui/issues.')
+        print('When creating an issue, please include your full autodebug message.')
+        print(f'Exit code: {self.exit_code}')
+        input()
+
+
 def print_banner():
     print('''
     ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄

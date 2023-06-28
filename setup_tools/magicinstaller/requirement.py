@@ -2,6 +2,7 @@ import subprocess
 import sys
 import time
 
+from autodebug.autodebug import InstallFailException
 from setup_tools.os import is_windows
 from threading import Thread
 
@@ -18,7 +19,7 @@ class Requirement:
     def post_install(self, install_output: tuple[int, str, str]):
         exit_code, stdout, stderr = install_output
         if exit_code != 0:
-            print('Exit code as not 0.')
+            raise InstallFailException(exit_code, stdout, stderr)
 
     def is_right_version(self):
         raise NotImplementedError('Not implemented')
