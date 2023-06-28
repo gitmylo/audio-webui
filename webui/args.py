@@ -31,3 +31,6 @@ args = parser.parse_args()
 
 if args.bark_cpu_offload:
     os.environ['SUNO_OFFLOAD_CPU'] = "True"
+
+if args.skip_install:
+    print('--skip-install is deprecated and will be removed later. The flag isn\'t needed anymore.')
