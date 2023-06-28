@@ -1,3 +1,4 @@
+import sys
 import traceback
 
 import setup_tools.os as oscheck
@@ -59,8 +60,11 @@ def catcher(e: Exception):
         print(e)
         e.action()
     elif isinstance(e, ImportError):
-        traceback.print_exception(e, )
-        print_banner()
+        if 'No module named \'pywintypes\''.casefold() in str(e).casefold():
+            print('Install finished, pywintypes missing, relaunching script.')
+            commands.run_command(sys.executable, sys.argv[0])
+            return
+        traceback.print_exception(e)
         print(e)
         print('Your install might have failed to install one of the requirements, are you missing a package?')
         print('Depending on the error message that was given during install, you might need to install visual C++ build tools.')

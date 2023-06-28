@@ -32,5 +32,5 @@ args = parser.parse_args()
 if args.bark_cpu_offload:
     os.environ['SUNO_OFFLOAD_CPU'] = "True"
 
-if args.skip_install:
-    print('--skip-install is deprecated and will be removed later. The flag isn\'t needed anymore.')
+if args.hide_pip_log:
+    print('--hide-pip-log is deprecated and will be removed in a future release. The flag isn\'t used anymore.')
