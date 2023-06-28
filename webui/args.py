@@ -31,3 +31,6 @@ args = parser.parse_args()
 
 if args.bark_cpu_offload:
     os.environ['SUNO_OFFLOAD_CPU'] = "True"
+
+if args.hide_pip_log:
+    print('--hide-pip-log is deprecated and will be removed in a future release. The flag isn\'t used anymore.')
