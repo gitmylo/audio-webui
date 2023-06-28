@@ -358,8 +358,9 @@ def simplify_loss_hist(loss_hist):
 def annotate_loss_hist(loss_hist):
     out_loss = {'x': [], 'y': []}
     loss_hist = loss_hist[-5000:]
+    offset = max(len(loss_hist)-5000, 0)
     for i, loss in enumerate(loss_hist):
-        out_loss['x'].append(int(i * graph_step))
+        out_loss['x'].append(int(i * graph_step + offset))
         out_loss['y'].append(loss)
     return out_loss
 
