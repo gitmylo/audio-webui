@@ -61,8 +61,8 @@ def text_to_speech():
         with gradio.Column():
             global to_rvc, audio_out
             with gradio.Row():
-                generate = gradio.Button('Generate', variant='primary')
-                to_rvc = gradio.Button('Send to RVC')
+                generate = gradio.Button('Generate', variant='primary', elem_id='tts-generate')
+                to_rvc = gradio.Button('Send to RVC', elem_id='tts-to-rvc')
             with gradio.Row():
                 audio_out = gradio.Audio(interactive=False)
             with gradio.Row():

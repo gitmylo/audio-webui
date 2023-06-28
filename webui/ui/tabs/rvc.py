@@ -188,7 +188,7 @@ def rvc():
             flags = gradio.Dropdown(flag_strings, label='Flags', info='Things to apply on the audio input/output', multiselect=True)
         with gradio.Column():
             with gradio.Row():
-                generate = gradio.Button('Generate', variant='primary')
+                generate = gradio.Button('Generate', variant='primary', elem_id='rvc-generate')
             with gradio.Row():
                 audio_out = gradio.Audio(label='output audio')
             with gradio.Row():
