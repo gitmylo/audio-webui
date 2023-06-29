@@ -1,3 +1,5 @@
+import re
+
 import gradio
 import numpy as np
 import tqdm
@@ -94,6 +96,47 @@ def semantic_to_waveform_new(
     return audio_arr
 
 
+
+def strict_split(string: str):
+    return re.split('[.,:;!?]', string)
+
+
+def non_strict_split(string: str):
+    return string.split('.')
+
+
+def long_merge(splits: list[str]):
+    limit = 220  # Estimated for normal speaking speed
+
+    out_list = []
+    current_str = ''
+
+    for split in splits:
+        if len(current_str) + len(split) <= limit:
+            current_str += '. ' + split
+        else:
+            out_list.append(current_str)
+            current_str = split
+
+    return out_list
+
+
+def strict_short(string):
+    return strict_split(string)
+
+
+def strict_long(string):
+    return long_merge(strict_split(string))
+
+
+def non_strict_short(string):
+    return non_strict_split(string)
+
+
+def non_strict_long(string):
+    return long_merge(non_strict_split(string))
+
+
 def generate_audio_new(
     text: str,
     history_prompt: Optional[Union[str, dict]] = None,
@@ -108,6 +151,7 @@ def generate_audio_new(
     long_gen_silence_secs: float = 0,
     long_gen_re_feed: bool = True,
     gen_prefix: str = '',
+    split_type: str = 'Manual',
     progress=gradio.Progress()
 ):
     """Generate audio array from input text.
@@ -126,6 +170,7 @@ def generate_audio_new(
         long_gen_silence_secs: (Added in new) The amount of silence between clips for long form generations.
         long_gen_re_feed: (Added in new) For longer generations (\n) use the last generated chunk as the prompt for the next. Better continuation at risk of changing voice.
         gen_prefix: (Added in new) A prefix to add to every single generated chunk.
+        split_type: (Added in new) The way to split the clips.
         progress: (Added in new) Gradio progress bar.
 
     Returns:
@@ -136,7 +181,20 @@ def generate_audio_new(
 
     silence = np.zeros(int(long_gen_silence_secs * SAMPLE_RATE))
     gen_audio = []
-    gen_sections = text.strip().split('\n')
+    match split_type.casefold():
+        case 'manual':
+            gen_sections = text.strip().split('\n')
+        case 'strict short':
+            gen_sections = strict_short(text)
+        case 'strict long':
+            gen_sections = strict_long(text)
+        case 'non-strict short':
+            gen_sections = non_strict_short(text)
+        case 'non-strict long':
+            gen_sections = non_strict_long(text)
+        case _:
+            print('??? Unknown split method selected. Not splitting.')
+            gen_sections = [text]
     print('Generation split into sections:', gen_sections)
     for input_text in tqdm.tqdm(gen_sections, desc='Generation section'):
         input_text = gen_prefix + input_text

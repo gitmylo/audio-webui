@@ -12,7 +12,6 @@ from TTS.api import TTS
 
 import webui.modules.models as mod
 from webui.args import args
-from webui.modules import util
 from webui.modules.implementations.patches.bark_custom_voices import wav_to_semantics, generate_fine_from_wav, \
     generate_course_history
 
@@ -125,12 +124,14 @@ class BarkTTS(mod.TTSModelLoader):
         def update_input(option):
             if option == 'Text':
                 textbox.hide = False
+                split_type.hide = False
                 audio_upload.hide = True
-                return [gradio.update(visible=True), gradio.update(visible=False), gradio.update(visible=False), gradio.update(visible=True)]
+                return [gradio.update(visible=True), gradio.update(visible=True), gradio.update(visible=False), gradio.update(visible=False), gradio.update(visible=True)]
             else:
                 textbox.hide = True
+                split_type.hide = True
                 audio_upload.hide = False
-                return [gradio.update(visible=False), gradio.update(visible=True), gradio.update(visible=True), gradio.update(visible=False)]
+                return [gradio.update(visible=False), gradio.update(visible=False), gradio.update(visible=True), gradio.update(visible=True), gradio.update(visible=False)]
 
         def update_voices():
             return gradio.update(choices=self.get_voices())
@@ -138,7 +139,9 @@ class BarkTTS(mod.TTSModelLoader):
         clone_models = [m['name'] for m in self.get_cloning_models()]
 
         input_type = gradio.Radio(['Text', 'Audio'], label='Input type', value='Text', **quick_kwargs)
-        textbox = gradio.Textbox(lines=7, label='Input', placeholder='Text to speak goes here', info='Use enter to split long generations, keep the audio a bit long. (Automatic optimal splitting will be added soon.)', **quick_kwargs)
+        textbox = gradio.Textbox(lines=7, label='Input', placeholder='Text to speak goes here', info='For manual splitting, use enter. Otherwise, don\'t worry about it', **quick_kwargs)
+        split_type = gradio.Dropdown(['Manual', 'Strict short', 'Strict long', 'Non-strict short', 'Non-strict long'], value='Strict long', label='Splitting type', **quick_kwargs)
+
         gen_prefix = gradio.Textbox(label='Generation prefix', info='Add this text before every generated chunk, better for keeping emotions.', **quick_kwargs)
         input_lang_model = gradio.Dropdown(clone_models, value=clone_models[0], label='Speech recognition bark quantizer.', info='The "voice cloning" model to use. Mainly for languages.', **quick_kwargs)
         audio_upload = gradio.File(label='Words to speak', file_types=['audio'], **quick_kwargs)
@@ -185,17 +188,17 @@ class BarkTTS(mod.TTSModelLoader):
         min_eos_p = gradio.Slider(0.05, 1, 0.2, step=0.05, label='min end of audio probability', info='Lower values cause the generation to stop sooner, higher values make it do more, 1 is about the same as keep generating being on.', **quick_kwargs)
 
         mode.change(fn=update_speaker, inputs=mode, outputs=[speakers, speaker, refresh_speakers, speaker_file, speaker_name, clone_model, npz_file])
-        input_type.change(fn=update_input, inputs=input_type, outputs=[textbox, audio_upload, input_lang_model, gen_prefix])
+        input_type.change(fn=update_input, inputs=input_type, outputs=[textbox, split_type, audio_upload, input_lang_model, gen_prefix])
         return [textbox, gen_prefix, audio_upload, input_type, mode, text_temp, waveform_temp,
                 speaker, speaker_name, speaker_file, refresh_speakers, keep_generating, clone_guide, speakers, min_eos_p, a, clone_model, input_lang_model,
-                npz_file]
+                npz_file, split_type]
 
     model = 'suno/bark'
 
     def get_response(self, *inputs, progress=gradio.Progress()):
         textbox, gen_prefix, audio_upload, input_type, mode, text_temp, waveform_temp, speaker,\
             speaker_name, speaker_file, refresh_speakers, keep_generating, clone_guide, min_eos_p, clone_model,\
-            input_lang_model, npz_file = inputs
+            input_lang_model, npz_file, split_type = inputs
         _speaker = None
         if mode == 'File':
             _speaker = speaker if speaker != 'None' else None
@@ -213,7 +216,7 @@ class BarkTTS(mod.TTSModelLoader):
         if input_type == 'Text':
             history_prompt, audio = generate_audio_new(textbox, _speaker, text_temp, waveform_temp, output_full=True,
                                                        allow_early_stop=not keep_generating, min_eos_p=min_eos_p,
-                                                       gen_prefix=gen_prefix, progress=progress)
+                                                       gen_prefix=gen_prefix, progress=progress, split_type=split_type)
         else:
             input_lang_model_obj = \
             [model for model in hubert_models_cache if model['name'].casefold() == input_lang_model.casefold()][0]
