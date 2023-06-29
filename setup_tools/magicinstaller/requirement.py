@@ -3,6 +3,7 @@ import shlex
 import subprocess
 import sys
 import time
+from enum import Enum
 
 from autodebug.autodebug import InstallFailException
 from setup_tools.os import is_windows
@@ -10,6 +11,14 @@ from threading import Thread
 
 
 valid_last: list[tuple[str, str]] = None
+
+
+class CompareAction(Enum):
+    LT = -2
+    LEQ = -1
+    EQ = 0
+    GEQ = 1
+    GT = 2
 
 
 class Requirement:
@@ -110,6 +119,30 @@ class SimpleRequirement(Requirement):
 
 
 class SimpleRequirementInit(SimpleRequirement):
-    def __init__(self, package_name):
+    def __init__(self, package_name, compare: CompareAction = None, version: str = None):
         super().__init__()
         self.package_name = package_name
+        self.compare = compare
+        self.version = version
+
+    def is_right_version(self):
+        if self.compare is None or self.version is None:
+            return True
+        from packaging import version
+        version_obj = version.parse(self.get_package_version(self.package_name))
+        version_target_obj = version.parse(self.version)
+        match self.compare:
+            case CompareAction.LT:
+                return version_obj < version_target_obj
+            case CompareAction.LEQ:
+                return version_obj <= version_target_obj
+            case CompareAction.EQ:
+                return version_obj == version_target_obj
+            case CompareAction.GEQ:
+                return version_obj >= version_target_obj
+            case CompareAction.GT:
+                return version_obj > version_target_obj
+
+            case _:
+                return True
+

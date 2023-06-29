@@ -9,9 +9,12 @@ from .tts_package import TTS
 from .pytube_package import PyTube
 from .whisper_package import Whisper
 from .audiocraft_package import AudioCraft
+from setup_tools.magicinstaller.requirement import SimpleRequirementInit, CompareAction
 
 requirements = [
     Packaging(),  # Allows for version checks
+
+    SimpleRequirementInit('numpy', CompareAction.GEQ, '1.23.5'),
 
     Torch(),
 
