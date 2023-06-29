@@ -1,5 +1,11 @@
 # <img alt="logo" height="25" src="assets/logo.png" width="25"/> Audio Webui <img alt="logo" height="25" src="assets/logo.png" width="25"/>
 
+[![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/t/gitmylo/audio-webui)](https://github.com/gitmylo/audio-webui/commits/master)
+[![GitHub contributors](https://img.shields.io/github/contributors-anon/gitmylo/audio-webui)](https://github.com/gitmylo/audio-webui/graphs/contributors)
+[![GitHub all releases](https://img.shields.io/github/downloads/gitmylo/audio-webui/total?label=installer%20downloads)](https://github.com/gitmylo/audio-webui/releases/tag/Installers)
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/gitmylo?label=github+sponsors+supporters)](https://github.com/sponsors/gitmylo)
+
+
 ## ❗❗ Please read ❗❗
 This code works on python 3.10 (lower versions don't support "|" type annotations, and i believe 3.11 doesn't have support for the TTS library currently).
 
