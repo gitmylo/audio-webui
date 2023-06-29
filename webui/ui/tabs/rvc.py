@@ -119,6 +119,7 @@ def gen(rvc_model_selected, speaker_id, pitch_extract, audio_in, up_key, index_r
             pass
 
         out1, out2 = rvc.vc_single(speaker_id, 'speakeraudio.wav', up_key, None, pitch_extract, index_file, None, index_rate, filter_radius, 0, 1, protect, crepe_hop_length)
+        print(out1)
         audio_tuple = out2
 
     if background is not None and 'separate background' in flag:
