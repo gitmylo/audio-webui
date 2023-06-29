@@ -119,6 +119,8 @@ def long_merge(splits: list[str]):
             current_str = split
 
     if current_str:
+        if len(out_list) == 0:
+            current_str = current_str.strip('. ')
         out_list.append(current_str)
 
     return out_list
