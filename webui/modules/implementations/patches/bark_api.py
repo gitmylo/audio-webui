@@ -118,6 +118,9 @@ def long_merge(splits: list[str]):
             out_list.append(current_str)
             current_str = split
 
+    if current_str:
+        out_list.append(current_str)
+
     return out_list
 
 
