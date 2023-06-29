@@ -29,7 +29,7 @@ def showwaves(
 
         output_mp4 = tempfile.NamedTemporaryFile(suffix=".mkv", delete=False)
 
-        command = f'ffmpeg -y -i {audio_file} -filter_complex "[0:a]showwaves=s=1280x720:mode=line,format=yuv420p[v]" -map "[v]" -map 0:a -c:v libx264 -c:a copy {output_mp4.name}'
+        command = f'ffmpeg -y -i {audio_file} -filter_complex "[0:a]showwaves=s=1280x720:mode=line,format=yuv420p[v]" -map "[v]" -map 0:a -preset veryfast -c:v libx264 -c:a copy {output_mp4.name}'
 
         if not setup_tools.os.is_windows():
             command = shlex.split(command)
