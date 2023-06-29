@@ -175,6 +175,20 @@ def audio_download_tab():
     download_button.click(fn=ad.download_audio, inputs=[url_type, url], outputs=file_out)
 
 
+def waveform_tab():
+    def create_waveform(audio):
+        import webui.modules.util as u
+        return u.make_waveform(audio)
+
+    with gradio.Row():
+        audio_in = gradio.Audio(label='Input audio')
+        video_out = gradio.PlayableVideo(label='Output waveform video')
+
+    create_waveform_button = gradio.Button('Create waveform video')
+    create_waveform_button.click(fn=create_waveform, inputs=audio_in, outputs=video_out)
+
+
+
 def utils_tab():
     with gradio.Tabs():
         with gradio.Tab('🧹 denoise'):
@@ -183,3 +197,5 @@ def utils_tab():
             music_split_tab()
         with gradio.Tab('🔽 audio downloads'):
             audio_download_tab()
+        with gradio.Tab('📈 audio waveforms'):
+            waveform_tab()
