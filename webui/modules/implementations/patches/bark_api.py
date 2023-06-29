@@ -120,7 +120,7 @@ def long_merge(splits: list[str]):
 
     if current_str:
         if len(out_list) == 0:
-            current_str = current_str.strip('. ')
+            current_str = current_str.lstrip('. ')
         out_list.append(current_str)
 
     return out_list
