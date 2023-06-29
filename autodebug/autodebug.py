@@ -39,7 +39,9 @@ class InstallFailException(AutoDebugException):
 
     def action(self):
         print(f'STDOUT:\n{self.stdout}\n\n\n\nSTDERR:\n{self.stderr}\n\n')
-        print('Please read the error above carefully. It might tell you to install visual C++ build tools, it might tell you something else.\nIf you are unsure, please create an issue at https://github.com/gitmylo/audio-webui/issues.')
+        if 'Microsoft Visual C++ 14.0 is required. Get it with "Microsoft Visual C++ Build Tools'.casefold() in self.stderr.casefold():
+            print('You need to have visual studio C++ build tools installed. Follow the link above.')
+        print('Please read the error above carefully. \nIf you are unsure, please create an issue at https://github.com/gitmylo/audio-webui/issues.')
         print('When creating an issue, please include your full autodebug message.')
         print(f'Exit code: {self.exit_code}')
         input()
@@ -67,8 +69,7 @@ def catcher(e: Exception):
         traceback.print_exception(e)
         print(e)
         print('Your install might have failed to install one of the requirements, are you missing a package?')
-        print('Depending on the error message that was given during install, you might need to install visual C++ build tools.')
-        print('Or read common issues at https://github.com/gitmylo/audio-webui/wiki/common-issues')
+        print('You can read common issues at https://github.com/gitmylo/audio-webui/wiki/common-issues')
         input()
     else:
         raise e
