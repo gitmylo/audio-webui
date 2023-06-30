@@ -8,6 +8,7 @@ import torchaudio
 import torchaudio.functional as F
 
 import webui.ui.tabs.rvc as rvc
+from webui.modules.implementations.ffmpeg_utils import ffmpeg_utils_tab
 
 
 def denoise_tab():
@@ -195,7 +196,9 @@ def utils_tab():
             denoise_tab()
         with gradio.Tab('🔊▶🗣/🎵 music splitting'):
             music_split_tab()
-        with gradio.Tab('🔽 audio downloads'):
-            audio_download_tab()
         with gradio.Tab('📈 audio waveforms'):
             waveform_tab()
+        with gradio.Tab('👽 FFMPEG'):
+            ffmpeg_utils_tab()
+        with gradio.Tab('🔽 audio downloads'):
+            audio_download_tab()
