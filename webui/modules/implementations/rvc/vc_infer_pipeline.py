@@ -247,7 +247,7 @@ class VC(object):
             file_index != ""
             # and file_big_npy != ""
             # and os.path.exists(file_big_npy) == True
-            and os.path.exists(file_index) == True
+            and os.path.exists(file_index)
             and index_rate != 0
         ):
             try:
