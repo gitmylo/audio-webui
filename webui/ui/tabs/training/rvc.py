@@ -20,7 +20,7 @@ def train_rvc():
                         refresh_workspaces = gradio.Button('🔃', variant='primary tool offset--10')
                 with gradio.Tab('➕ Create'):
                     create_name = gradio.Textbox(label='Name')
-                    version_sample_rate = gradio.Radio(['v1 40k', 'v1 48k', 'v2 40k'], value='v2 40k', label='version and sample rate')
+                    version_sample_rate = gradio.Radio(['v1 40k', 'v1 48k', 'v2 40k', 'v2 48k'], value='v2 40k', label='version and sample rate')
                     create_button = gradio.Button('Create workspace', variant='primary')
         with gradio.Column(visible=False) as settings:
             gradio.Markdown('''

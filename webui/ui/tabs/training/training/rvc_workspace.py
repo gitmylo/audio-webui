@@ -58,9 +58,12 @@ class RvcWorkspace(Workspace):
         elif data['vsr'] == 'v1 48k':
             data_in['v'] = 1
             data_in['sr'] = 48_000
-        else:
+        elif data['vsr'] == 'v2 40k':
             data_in['v'] = 2
             data_in['sr'] = 40_000
+        elif data['vsr'] == 'v2 48k':
+            data_in['v'] = 2
+            data_in['sr'] = 48_000
         download_base_models(data_in['vsr'])
         return super(RvcWorkspace, self).create(data_in)
 
@@ -74,7 +77,7 @@ class RvcWorkspace(Workspace):
 
 def norm_write(tmp_audio, gt_wavs_dir, wavs16k_dir, name, sr, max, alpha):
     tmp_audio = (tmp_audio / np.abs(tmp_audio).max() * (max * alpha)) + (
-        1 - alpha
+            1 - alpha
     ) * tmp_audio
     wavfile.write(
         "%s/%s.wav" % (gt_wavs_dir, name),
@@ -172,7 +175,6 @@ def process_dataset():
             output += f'\nException {e} Skipping'
             yield output
 
-
     output += '\nFinished processing dataset.'
     yield output
 
@@ -180,7 +182,7 @@ def process_dataset():
 def coarse_f0(f0, f0_bin, f0_mel_min, f0_mel_max):
     f0_mel = 1127 * np.log(1 + f0 / 700)
     f0_mel[f0_mel > 0] = (f0_mel[f0_mel > 0] - f0_mel_min) * (
-        f0_bin - 2
+            f0_bin - 2
     ) / (f0_mel_max - f0_mel_min) + 1
 
     # use 0 or 1
@@ -216,7 +218,6 @@ def pitch_extract():
     # shutil.rmtree(output_f0nsf, ignore_errors=True)
     # shutil.rmtree(output_feat, ignore_errors=True)
 
-
     os.makedirs(output_f0, exist_ok=True)
     os.makedirs(output_f0nsf, exist_ok=True)
     os.makedirs(output_feat, exist_ok=True)
@@ -238,7 +239,8 @@ def pitch_extract():
                 npy_path_f0nsf = os.path.join(output_f0nsf, npy_name)
                 x = load_audio(full_path, sr)
                 p_len = x.shape[0] // hop
-                f0 = pe(f0_method, x, f0_min, f0_max, p_len, time_step, 16000, hop, data['crepe_hop_length'], data['filter_radius'])
+                f0 = pe(f0_method, x, f0_min, f0_max, p_len, time_step, 16000, hop, data['crepe_hop_length'],
+                        data['filter_radius'])
                 np.save(npy_path_f0nsf, f0)
                 coarse_pitch = coarse_f0(f0, f0_bin, f0_mel_min, f0_mel_max)
                 np.save(npy_path_f0, coarse_pitch)
@@ -305,7 +307,6 @@ def pitch_extract():
     output += '\nProcessing features...'
     yield output
 
-
     del model
     del models
     gc.collect()
@@ -318,7 +319,8 @@ def pitch_extract():
 version_sr_models = {
     'v1 40k': {'sf': 'pretrained', 'files': ['f0D40k.pth', 'f0G40k.pth']},
     'v1 48k': {'sf': 'pretrained', 'files': ['f0D48k.pth', 'f0G48k.pth']},
-    'v2 40k': {'sf': 'pretrained_v2', 'files': ['f0D40k.pth', 'f0G40k.pth']}
+    'v2 40k': {'sf': 'pretrained_v2', 'files': ['f0D40k.pth', 'f0G40k.pth']},
+    'v2 48k': {'sf': 'pretrained_v2', 'files': ['f0D48k.pth', 'f0G48k.pth']}
 }
 
 
@@ -358,7 +360,7 @@ def simplify_loss_hist(loss_hist):
 def annotate_loss_hist(loss_hist):
     out_loss = {'x': [], 'y': []}
     loss_hist = loss_hist[-5000:]
-    offset = max(len(loss_hist)-5000, 0)
+    offset = max(len(loss_hist) - 5000, 0)
     for i, loss in enumerate(loss_hist):
         out_loss['x'].append(int(i * graph_step + offset))
         out_loss['y'].append(loss)
@@ -382,7 +384,9 @@ def train_model(base_ckpt_, epochs):
     data = current_workspace.data
     f0 = data['f0'] != 'none'
     ckpt_path = os.path.join(current_workspace.space_path, 'models')
-    base_ckpt, is_base = (os.path.join('data', 'training', 'cache', 'RVC', version_sr_models[data['vsr']]['sf']), True) if base_ckpt_ == 'f0' \
+    base_ckpt, is_base = (
+        os.path.join('data', 'training', 'cache', 'RVC', version_sr_models[data['vsr']]['sf']),
+        True) if base_ckpt_ == 'f0' \
         else (os.path.join(ckpt_path, base_ckpt_), False)
     fea_dim = 256 if data['v'] == 1 else 768
     torch.manual_seed(1234)
@@ -403,10 +407,71 @@ def train_model(base_ckpt_, epochs):
 
     training_files = get_all_paths()
 
+    print(data['vsr'])
+
+    match data['vsr']:
+        case 'v1 48k':
+            _model = {
+                "inter_channels": 192,
+                "hidden_channels": 192,
+                "filter_channels": 768,
+                "n_heads": 2,
+                "n_layers": 6,
+                "kernel_size": 3,
+                "p_dropout": 0,
+                "resblock": "1",
+                "resblock_kernel_sizes": [3, 7, 11],
+                "resblock_dilation_sizes": [[1, 3, 5], [1, 3, 5], [1, 3, 5]],
+                "upsample_rates": [10, 6, 2, 2, 2],
+                "upsample_initial_channel": 512,
+                "upsample_kernel_sizes": [16, 16, 4, 4, 4],
+                "use_spectral_norm": False,
+                "gin_channels": 256,
+                "spk_embed_dim": 109
+            }
+        case 'v2 48k':
+            _model = {
+                "inter_channels": 192,
+                "hidden_channels": 192,
+                "filter_channels": 768,
+                "n_heads": 2,
+                "n_layers": 6,
+                "kernel_size": 3,
+                "p_dropout": 0,
+                "resblock": "1",
+                "resblock_kernel_sizes": [3, 7, 11],
+                "resblock_dilation_sizes": [[1, 3, 5], [1, 3, 5], [1, 3, 5]],
+                "upsample_rates": [12, 10, 2, 2],
+                "upsample_initial_channel": 512,
+                "upsample_kernel_sizes": [24, 20, 4, 4],
+                "use_spectral_norm": False,
+                "gin_channels": 256,
+                "spk_embed_dim": 109
+            }
+        case 'v1 40k' | 'v2 40k' | _:
+            _model = {
+                "inter_channels": 192,
+                "hidden_channels": 192,
+                "filter_channels": 768,
+                "n_heads": 2,
+                "n_layers": 6,
+                "kernel_size": 3,
+                "p_dropout": 0,
+                "resblock": "1",
+                "resblock_kernel_sizes": [3, 7, 11],
+                "resblock_dilation_sizes": [[1, 3, 5], [1, 3, 5], [1, 3, 5]],
+                "upsample_rates": [10, 10, 2, 2],
+                "upsample_initial_channel": 512,
+                "upsample_kernel_sizes": [16, 16, 4, 4],
+                "use_spectral_norm": False,
+                "gin_channels": 256,
+                "spk_embed_dim": 109
+            }
+
     class HParams:  # Workaround
         max_wav_value = 32768.0
         sampling_rate = data['sr']
-        sample_rate = str(int(data['sr']))[:-3]+'k'
+        sample_rate = str(int(data['sr']))[:-3] + 'k'
         filter_length = 2048
         hop_length = 400
         win_length = 2048
@@ -423,24 +488,7 @@ def train_model(base_ckpt_, epochs):
         mel_fmax = None
         c_mel = 45
         c_kl = 1.0
-        model = {
-            "inter_channels": 192,
-            "hidden_channels": 192,
-            "filter_channels": 768,
-            "n_heads": 2,
-            "n_layers": 6,
-            "kernel_size": 3,
-            "p_dropout": 0,
-            "resblock": "1",
-            "resblock_kernel_sizes": [3, 7, 11],
-            "resblock_dilation_sizes": [[1, 3, 5], [1, 3, 5], [1, 3, 5]],
-            "upsample_rates": [10, 10, 2, 2],
-            "upsample_initial_channel": 512,
-            "upsample_kernel_sizes": [16, 16, 4, 4],
-            "use_spectral_norm": False,
-            "gin_channels": 256,
-            "spk_embed_dim": 109
-        }
+        model = _model
 
     if f0:
         train_dataset = TextAudioLoaderMultiNSFsid(training_files, HParams)
@@ -492,14 +540,14 @@ def train_model(base_ckpt_, epochs):
             **HParams.model,
             is_half=HParams.fp16_run,
             sr=HParams.sampling_rate,
-            )
+        )
     else:
         net_g = RVC_Model_nof0(
             HParams.filter_length // 2 + 1,
             HParams.segment_size // HParams.hop_length,
             **HParams.model,
             is_half=HParams.fp16_run,
-            )
+        )
 
     if torch.cuda.is_available():
         net_g = net_g.cuda()
@@ -685,6 +733,7 @@ def train_model(base_ckpt_, epochs):
                 # Generator
                 y_d_hat_r, y_d_hat_g, fmap_r, fmap_g = net_d(wave, y_hat)
                 with autocast(enabled=False):
+                    print(y_mel.shape, y_hat_mel.shape)
                     loss_mel = F.l1_loss(y_mel, y_hat_mel) * HParams.c_mel
                     loss_kl = kl_loss(z_p, logs_q, m_p, logs_p, z_mask) * HParams.c_kl
                     loss_fm = feature_loss(fmap_r, fmap_g)
@@ -761,8 +810,8 @@ def train_model(base_ckpt_, epochs):
                 f0,
                 finished_save_path,
                 epoch,
-                'v'+str(data['v']),
-                )
+                'v' + str(data['v']),
+            )
 
         # END OF TRAINING CODE
 
@@ -800,7 +849,7 @@ def train_model(base_ckpt_, epochs):
         f0,
         finished_save_path,
         epoch,
-        'v'+str(data['v']),
+        'v' + str(data['v']),
     )
     yield last_out, last_loss_hist
 
@@ -857,7 +906,7 @@ def create_index():
     yield "\n".join(infos)
     batch_size_add = 8192
     for i in range(0, big_npy.shape[0], batch_size_add):
-        index.add(big_npy[i : i + batch_size_add])
+        index.add(big_npy[i: i + batch_size_add])
     faiss.write_index(
         index,
         os.path.join(exp_dir, f'{_name}_added.index')
