@@ -13,13 +13,19 @@ def run_command(command) -> subprocess.CompletedProcess:
     return subprocess.run(command)
 
 
+def clear(count):
+    return [None]*count
+
+
 def image_audio():
     with gradio.Row():
         with gradio.Column():
             image = gradio.Image(label='Image', type='filepath')
             audio = gradio.Audio(label='Audio', type='filepath')
         output = gradio.PlayableVideo(label='Output video')
-    combine_button = gradio.Button('Combine', variant='primary')
+    with gradio.Row():
+        combine_button = gradio.Button('Combine', variant='primary')
+        clear_button = gradio.Button('Clear')
 
     def image_audio_func(i, a):
         out_file = NamedTemporaryFile(delete=False, suffix='.mp4').name
@@ -28,6 +34,7 @@ def image_audio():
         return out_file
 
     combine_button.click(fn=image_audio_func, inputs=[image, audio], outputs=output)
+    clear_button.click(fn=lambda: clear(3), outputs=[image, audio, output])
 
 
 def video_audio():
@@ -36,7 +43,9 @@ def video_audio():
             video = gradio.Video(label='Video')
             audio = gradio.Audio(label='Audio', type='filepath')
         output = gradio.PlayableVideo(label='Output video')
-    combine_button = gradio.Button('Combine', variant='primary')
+    with gradio.Row():
+        combine_button = gradio.Button('Combine', variant='primary')
+        clear_button = gradio.Button('Clear')
 
     def image_audio_func(v, a):
         out_file = NamedTemporaryFile(delete=False, suffix='.mp4').name
@@ -45,10 +54,31 @@ def video_audio():
         return out_file
 
     combine_button.click(fn=image_audio_func, inputs=[video, audio], outputs=output)
+    clear_button.click(fn=lambda: clear(3), outputs=[video, audio, output])
+
+
+def video_strip():
+    with gradio.Row():
+        video = gradio.Video(label='Video')
+        output = gradio.Audio(label='Audio')
+    with gradio.Row():
+        strip_button = gradio.Button('Strip', variant='primary')
+        clear_button = gradio.Button('Clear')
+
+    def strip(a):
+        out_file = NamedTemporaryFile(delete=False, suffix='.wav').name
+        result = run_command(f'ffmpeg -y -i "{a}" "{out_file}"')
+        assert result.returncode == 0
+        return out_file
+
+    strip_button.click(fn=strip, inputs=video, outputs=output)
+    clear_button.click(fn=lambda: clear(2), outputs=[video, output])
 
 
 def ffmpeg_utils_tab():
     with gradio.Tabs():
+        with gradio.Tab('📽 = 🔊'):
+            video_strip()
         with gradio.Tab('🖼 + 🔊 = 📽'):
             image_audio()
         with gradio.Tab('📽 + 🔊 = 📽'):
