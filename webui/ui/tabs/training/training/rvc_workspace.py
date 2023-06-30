@@ -231,8 +231,8 @@ def pitch_extract():
                 full_path = os.path.join(input_dir, f)
                 if not os.path.isfile(full_path):
                     continue
-                output += f'\nExtracting pitch from {f}'
                 if i % 40 == 0:
+                    output += f'\nExtracting pitch from {f}'
                     yield output
                 npy_name = os.path.splitext(f)[0] + '.npy'
                 npy_path_f0 = os.path.join(output_f0, npy_name)
@@ -264,13 +264,16 @@ def pitch_extract():
         model = model.half()
     model.eval()
 
+    output += '\nProcessing features...'
+    yield output
+
     for idx, file in enumerate(os.listdir(input_dir)):
         try:
 
             in_path = os.path.join(input_dir, file)
             out_path = os.path.join(output_feat, os.path.splitext(file)[0] + '.npy')
 
-            if os.path.exists(out_path):
+            if not os.path.isfile(in_path):
                 continue
             if idx % 40 == 0:
                 output += f'\nProcessing {file}'
@@ -304,8 +307,6 @@ def pitch_extract():
             output += f'\nException: {e}'
             yield output
 
-    output += '\nProcessing features...'
-    yield output
 
     del model
     del models
