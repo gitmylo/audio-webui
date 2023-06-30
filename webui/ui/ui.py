@@ -57,6 +57,12 @@ def create_ui(theme) -> gr.Blocks:
             StyleValue('text-align', 'center !important')
 
 
+        with StyleRule('.tab-nav'):
+            StyleValue('overflow-x', 'auto')
+            StyleValue('overflow-y', 'hidden')
+            StyleValue('flex-wrap', 'nowrap !important')
+            StyleValue('white-space', 'nowrap !important')
+
     tabs = [
         ('📜▶🗣 Text to speech', text_to_speech),
         ('🗣▶🗣 RVC', rvc),
