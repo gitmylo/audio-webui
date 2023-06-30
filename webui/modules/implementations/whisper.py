@@ -90,7 +90,7 @@ def transcribe_wav(wav):
 
 
 def transcribe_files(files: list) -> list[str]:
-    if len(files) == 0:
+    if files is None or len(files) == 0:
         return []
     out_list = []
     global model, processor, device, loaded_model
