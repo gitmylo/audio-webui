@@ -108,7 +108,7 @@ def strict_split(string: str, regex='([.,:;!?])'):
             last += split
             splits_out.append(last)
 
-    if not splits_out[-1] == last:
+    if len(splits_out) == 0 or not splits_out[-1] == last:
         splits_out.append(last)
 
     return splits_out
@@ -128,7 +128,8 @@ def long_merge(splits: list[str]):
         if len(current_str) + len(split) <= limit:
             current_str += split
         else:
-            out_list.append(current_str)
+            if current_str:
+                out_list.append(current_str)
             current_str = split
 
     if current_str:
