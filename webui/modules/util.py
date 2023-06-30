@@ -57,6 +57,7 @@ def make_waveform(
     match wav_type:
         case 'showwaves':
             return showwaves(audio)
-        case 'gradio' | _:
+        case 'gradio':
             return gradio.make_waveform(audio, bg_color=bg_color, bg_image=bg_image, fg_alpha=fg_alpha, bars_color=bars_color, bar_count=bar_count, bar_width=bar_width)
-
+        case 'none' | _:
+            return None

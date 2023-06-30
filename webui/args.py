@@ -27,7 +27,7 @@ parser.add_argument('-l', '--listen', action='store_true', help='Listen on 0.0.0
 parser.add_argument('--port', type=int, help='Use a different port, automatic when not set.', default=None)
 
 # Visualizer
-parser.add_argument('--wav-type', type=str, choices=['gradio', 'showwaves'], default='gradio', help='The type of waveform visualizer to use')
+parser.add_argument('--wav-type', type=str, choices=['none', 'gradio', 'showwaves'], default='gradio', help='The type of waveform visualizer to use')
 
 args = parser.parse_args()
 
