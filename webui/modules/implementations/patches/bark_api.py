@@ -97,12 +97,25 @@ def semantic_to_waveform_new(
 
 
 
-def strict_split(string: str):
-    return re.split('[.,:;!?]', string)
+def strict_split(string: str, regex='([.,:;!?])'):
+    splits = re.split(regex, string)
+    splits_out = []
+    last = ''
+    for idx, split in enumerate(splits):
+        if idx % 2 == 0:
+            last = split
+        else:
+            last += split
+            splits_out.append(last)
+
+    if not splits_out[-1] == last:
+        splits_out.append(last)
+
+    return splits_out
 
 
 def non_strict_split(string: str):
-    return string.split('.')
+    return strict_split(string, '(\\.)')
 
 
 def long_merge(splits: list[str]):
@@ -113,14 +126,12 @@ def long_merge(splits: list[str]):
 
     for split in splits:
         if len(current_str) + len(split) <= limit:
-            current_str += '. ' + split
+            current_str += split
         else:
             out_list.append(current_str)
             current_str = split
 
     if current_str:
-        if len(out_list) == 0:
-            current_str = current_str.lstrip('. ')
         out_list.append(current_str)
 
     return out_list
