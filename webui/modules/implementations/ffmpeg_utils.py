@@ -79,7 +79,7 @@ def ffmpeg_utils_tab():
     with gradio.Tabs():
         with gradio.Tab('📽 = 🔊'):
             video_strip()
-        with gradio.Tab('🖼 + 🔊 = 📽'):
+        with gradio.Tab('📷 + 🔊 = 📽'):
             image_audio()
         with gradio.Tab('📽 + 🔊 = 📽'):
             video_audio()
