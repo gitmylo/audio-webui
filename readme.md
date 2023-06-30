@@ -5,6 +5,8 @@
 [![GitHub all releases](https://img.shields.io/github/downloads/gitmylo/audio-webui/total?label=installer%20downloads)](https://github.com/gitmylo/audio-webui/releases/tag/Installers)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/gitmylo?label=github+sponsors+supporters)](https://github.com/sponsors/gitmylo)
 
+[![Discord](https://img.shields.io/discord/1118525872882843711?style=flat&label=discord)](https://discord.gg/NB86C3Szkg)
+
 
 ## ❗❗ Please read ❗❗
 This code works on python 3.10 (lower versions don't support "|" type annotations, and i believe 3.11 doesn't have support for the TTS library currently).
@@ -34,9 +36,6 @@ You also need to have [Git](https://git-scm.com/downloads) installed, you might 
 1. Put the installer in a folder
 2. Run the installer for your operating system.
 3. Now run the webui's install script. Follow the steps at [📦 Installing](#-installing)
-
-## 💬 NEW: Discord server
-[![Discord](https://img.shields.io/discord/1118525872882843711?style=flat)](https://discord.gg/NB86C3Szkg)
 
 ## 💻 Local install (Manual)
 ### 🔽 Downloading
