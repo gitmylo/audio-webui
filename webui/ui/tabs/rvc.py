@@ -114,7 +114,7 @@ def gen(rvc_model_selected, speaker_id, pitch_extract, audio_in, up_key, index_r
                     if 'added' in f:
                         index_file = full_path
                 if not index_file:
-                    index_file = index_files[0]
+                    index_file = os.path.join(model_basedir, index_files[0])
         except:
             pass
 
