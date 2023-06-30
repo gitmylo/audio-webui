@@ -16,7 +16,7 @@ function scrollGlow(el) {
         if (leftVal > 0) {
             left = true
         }
-        if (leftVal < leftMax) {
+        if (leftVal < leftMax-5) {
             right = true
         }
     }
