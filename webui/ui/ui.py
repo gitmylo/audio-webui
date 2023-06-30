@@ -63,6 +63,22 @@ def create_ui(theme) -> gr.Blocks:
             StyleValue('flex-wrap', 'nowrap !important')
             StyleValue('white-space', 'nowrap !important')
 
+            StyleValue('border-bottom', 'none !important')
+
+        with StyleRule('.tabitem'):
+            StyleValue('border-top', '1px solid var(--border-color-primary) !important')
+
+        with StyleRule('.leftscroll'):
+            StyleValue('border-left', '5px solid red !important')
+            StyleValue('border-radius', '10px 0 0 10px')
+
+        with StyleRule('.rightscroll'):
+            StyleValue('border-right', '5px solid red !important')
+            StyleValue('border-radius', '0 10px 10px 0')
+
+        with StyleRule('.leftscroll.rightscroll'):
+            StyleValue('border-radius', '10px')
+
     tabs = [
         ('📜▶🗣 Text to speech', text_to_speech),
         ('🗣▶🗣 RVC', rvc),
