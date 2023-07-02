@@ -11,7 +11,6 @@ import torch.cuda
 from TTS.api import TTS
 
 import webui.modules.models as mod
-from webui.args import args
 from webui.modules.implementations.patches.bark_custom_voices import wav_to_semantics, generate_fine_from_wav, \
     generate_course_history
 from webui.ui.tabs import settings
@@ -242,9 +241,7 @@ class BarkTTS(mod.TTSModelLoader):
 
     def load_model(self, progress=gradio.Progress()):
         from webui.modules.implementations.patches.bark_generation import preload_models_new
-        from webui.args import args
-        cpu = args.bark_use_cpu
-        gpu = not cpu
+        gpu = not settings.get('bark_use_cpu')
         preload_models_new(
             text_use_gpu=gpu,
             fine_use_gpu=gpu,
@@ -331,7 +328,7 @@ class CoquiTTS(mod.TTSModelLoader):
                 gc.collect()
                 torch.cuda.empty_cache()
             self.current_model_name = selected_tts
-            self.current_model = TTS(selected_tts, gpu=True if torch.cuda.is_available() and args.tts_use_gpu else False)
+            self.current_model = TTS(selected_tts, gpu=True if torch.cuda.is_available() and settings.get('tts_use_gpu') else False)
         audio = np.array(self.current_model.tts(text_input, speaker_tts if self.current_model.is_multi_speaker else None, lang_tts if self.current_model.is_multi_lingual else None))
         audio_tuple = (self.current_model.synthesizer.output_sample_rate, audio)
         return audio_tuple, None

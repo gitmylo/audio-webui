@@ -70,17 +70,45 @@ class BarkMix(CustomSetting):
 
 config = {
     'bark_models_mix': {
-        'tab': 'Bark',
+        'tab': '🐶 Bark',
         'type': BarkMix,
         'default': BarkMix('large:large:large')
     },
-    'tts_use_gpu': {
-        'tab': 'Coqui TTS',
+    'bark_half': {
+        'tab': '🐶 Bark',
         'type': bool,
         'default': False,
-        'readname': 'TTS: use gpu',
-        'description': 'Use the GPU for tts',
-        'el_kwargs': {}
+        'readname': 'Half precision',
+        'description': 'Use half precision for Bark models, lower VRAM, slightly slower generations.'
+    },
+    'bark_offload_cpu': {
+        'tab': '🐶 Bark',
+        'type': bool,
+        'default': True,
+        'readname': 'Cpu offload',
+        'description': 'Only load the currently needed bark model into the gpu\'s VRAM, keep unused models in RAM for quick loading.'
+    },
+    'bark_use_cpu': {
+        'tab': '🐶 Bark',
+        'type': bool,
+        'default': False,
+        'readname': 'Use cpu',
+        'description': 'Do all processing on cpu, slow.'
+    },
+    'tts_use_gpu': {
+        'tab': '🐸 Coqui TTS',
+        'type': bool,
+        'default': False,
+        'readname': 'use gpu',
+        'description': 'Use the GPU for TTS',
+        'el_kwargs': {}  # Example
+    },
+    'wav_type': {
+        'type': str,
+        'default': 'gradio',
+        'choices': ['none', 'gradio', 'showwaves'],
+        'readname': 'Waveform visualizer',
+        'description': 'Pick a style to display the audio outputs as in a video.'
     }
 }
 
@@ -103,8 +131,8 @@ def auto_value(val):
 
 def save_config():
     global config
-    output = {key: {k: auto_value(v) for k, v in zip(config[key].keys(), config[key].values()) if k == 'value'} for key, value in zip(config.keys(), config.values())}
-    json.dump(output, open(config_path, 'w'))
+    output = {key: [auto_value(v) for k, v in zip(config[key].keys(), config[key].values()) if k == 'value'][0] for key, value in zip(config.keys(), config.values())}
+    json.dump(output, open(config_path, 'w'), indent=2)
 
 
 def load_config():
@@ -113,7 +141,7 @@ def load_config():
         config_dict = json.load(open(config_path))
         for k, v in zip(config.keys(), config.values()):
             if k in config_dict.keys():
-                v['value'] = v['type'](config_dict[k]['value'])
+                v['value'] = v['type'](config_dict[k])
     for k, v in zip(config.keys(), config.values()):
         v.setdefault('value', v['default'])
     return config
@@ -132,38 +160,49 @@ def ui_for_setting(name, setting):
         return setting['value'].create_ui(name, setting)
 
     standard_kwargs = {
-        'value': setting['value'],
-        'label': setting['readname']
+        'value': setting.get('value', setting.get('default', None)),
+        'label': setting.get('readname', None)
     }
 
     for kwarg, kwarg_val in zip(setting['el_kwargs'].keys(), setting['el_kwargs'].values()) if 'el_kwargs' in setting.keys() else []:
         standard_kwargs[kwarg] = kwarg_val
 
     withinfo = standard_kwargs.copy()
-    withinfo['info'] = setting['description']
+    withinfo['info'] = setting.get('description', None)
 
-    match setting['type'].__name__:
+    typename = setting['type'].__name__
+    match typename:
         case 'bool':
             return gradio.Checkbox(**withinfo)
         case 'int' | 'float':
             num_type = 'number'
             if 'num_type' in setting.keys():
                 num_type = setting['num_type']
+            step_val = setting.get('step', 1 if typename == 'int' else None)
             match num_type:
                 case 'number':
-                    return gradio.Number(**withinfo)
+                    return gradio.Number(precision=step_val, **withinfo)
                 case 'slider':
-                    return gradio.Slider(**withinfo)
+                    return gradio.Slider(step=step_val, **withinfo)
         case 'list':
             list_type = 'dropdown'
             if 'list_type' in setting.keys():
                 list_type = setting['list_type']
             match list_type:
                 case 'dropdown':
-                    return gradio.Dropdown(choices=setting['choices'], **withinfo)
-                case 'radio':
-                    return gradio.Radio(choices=setting['choices'], **withinfo)
+                    return gradio.Dropdown(choices=setting['choices'], multiselect=True, **withinfo)
+                case 'checkbox':
+                    return gradio.CheckboxGroup(choices=setting['choices'], **withinfo)
         case 'str':
+            if 'choices' in setting.keys():
+                list_type = 'dropdown'
+                if 'list_type' in setting.keys():
+                    list_type = setting['list_type']
+                match list_type:
+                    case 'dropdown':
+                        return gradio.Dropdown(choices=setting['choices'], **withinfo)
+                    case 'radio':
+                        return gradio.Radio(choices=setting['choices'], **withinfo)
             return gradio.Textbox(**withinfo)
 
     raise NotImplementedError('Setting type not implemented! Create a new setting type by extending CustomSetting.')
@@ -184,15 +223,21 @@ def delete_model(model):
 
 def settings():
     load_config()
-    save_config()
+    save_config()  # Save newly added values
 
     tab_config = {}
+    other_tab = {}
     for key, setting in zip(config.keys(), config.values()):
-        tab = setting['tab']
+        tab = setting.get('tab', '❓ other')
         if tab not in tab_config.keys():
-            tab_config[tab] = {key: setting}
+            if tab == '❓ other':
+                other_tab[key] = setting
+            else:
+                tab_config[tab] = {key: setting}
         else:
             tab_config[tab][key] = setting
+
+    tab_config['❓ other'] = other_tab  # Ensure other is at end
 
     with gradio.Tabs():
         for tab, key_dict in zip(tab_config.keys(), tab_config.values()):
