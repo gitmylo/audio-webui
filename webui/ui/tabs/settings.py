@@ -35,6 +35,10 @@ config = {
 config_path = os.path.join('data', 'config.json')
 
 
+def get_setting(name):
+    return config[name]['value']
+
+
 def auto_value(val):
     if hasattr(val, 'save_val'):
         return val.save_val()
@@ -63,6 +67,8 @@ def load_config():
 def change_value(name, value):
     global config
     config[name]['value'] = value
+    if 'change_call' in config[name].keys():
+        config[name].change_call()
     save_config()  # Maybe add autosave as a setting instead of always on if the amount of settings becomes too much
 
 
