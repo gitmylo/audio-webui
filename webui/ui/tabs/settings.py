@@ -239,13 +239,18 @@ def settings():
 
     tab_config['❓ other'] = other_tab  # Ensure other is at end
 
+    def change_setting(setting):
+        def c(v):
+            change_value(setting, v)
+        return c
+
     with gradio.Tabs():
         for tab, key_dict in zip(tab_config.keys(), tab_config.values()):
             with gradio.Tab(tab):
                 for key, setting in zip(key_dict.keys(), key_dict.values()):
                     elem = ui_for_setting(key, setting)
                     if elem is not None:
-                        elem.change(fn=lambda v: change_value(key, v), inputs=elem)
+                        elem.change(fn=change_setting(key), inputs=elem)
 
 
 def extra_tab():
