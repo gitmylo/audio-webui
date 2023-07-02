@@ -245,15 +245,15 @@ class BarkTTS(mod.TTSModelLoader):
         from webui.args import args
         cpu = args.bark_use_cpu
         gpu = not cpu
-        low_vram = args.bark_low_vram
+        small = args.bark_use_small
         preload_models_new(
             text_use_gpu=gpu,
             fine_use_gpu=gpu,
             coarse_use_gpu=gpu,
             codec_use_gpu=gpu,
-            fine_use_small=low_vram,
-            coarse_use_small=low_vram,
-            text_use_small=low_vram,
+            fine_use_small=small,
+            coarse_use_small=small,
+            text_use_small=small,
             progress=progress
         )
 

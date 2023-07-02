@@ -1,7 +1,31 @@
 import argparse
 import os
 
-parser = argparse.ArgumentParser()
+
+class BarkModelChoices(argparse.Action):
+    def __call__(self, parser, args, values, option_string=None):
+        if len(values) != 3:
+            raise ValueError('Incorrect syntax for --bark-models-mix, use 3 characters')
+        valid_models = {
+            'l': {
+                'name': 'Large',
+                'large': True
+            },
+            's': {
+                'name': 'Small',
+                'large': False
+            }
+        }
+        selected_models = []
+        for char in values:
+            if char not in valid_models.keys():
+                raise ValueError(f'An unknown model was specified for --bark-models-mix, Available models: {list(valid_models.keys())}')
+            selected_models.append(valid_models[char])
+        model_indexes = ['text', 'coarse', 'fine']
+        setattr(args, self.dest, {key: value for key, value in zip(model_indexes, selected_models)})
+
+
+parser = argparse.ArgumentParser(prog='Audio-Webui', description='A webui for audio related neural networks.')
 
 # Install
 parser.add_argument('-si', '--skip-install', action='store_true', help='Skip installing packages')
@@ -10,7 +34,10 @@ parser.add_argument('--no-data-cache', action='store_true', help='Don\'t overrid
 
 # Models
 # Bark
-parser.add_argument('--bark-low-vram', action='store_true', help='Use low vram mode on bark')
+bark_models = parser.add_mutually_exclusive_group()
+bark_models.add_argument('--bark-use-small', action='store_true', help='Use low vram mode on bark')
+bark_models.add_argument('--bark-models-mix', action=BarkModelChoices, help='Mix bark small (s) and large (l) models, example: "lsl" for large text, small coarse, large fine')
+
 parser.add_argument('--bark-half', action='store_true', help='Lower vram usage through half precision.')
 parser.add_argument('--bark-cpu-offload', action='store_true', help='Use cpu offloading for lower vram usage on bark')
 parser.add_argument('--bark-use-cpu', action='store_true', help='Use cpu on bark')

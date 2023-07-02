@@ -26,7 +26,7 @@ You also need to have [Git](https://git-scm.com/downloads) installed, you might 
     * [🔼 Updating](#-updating)
     * [🏃‍ Running](#-running)
   * [💻 Google colab notebook](#-google-colab-notebook)
-  * [💻 Command line flags](#-command-line-flags)
+  * [💻 Common command line flags](#-common-command-line-flags)
   * [✨ Current goals and features ✨](#-current-goals-and-features-)
   * [More readme](#more-readme)
 <!-- TOC -->
@@ -64,14 +64,14 @@ If there's an issue with running, please create an [issue](https://github.com/gi
 ## 💻 Google colab notebook
 [![Open in colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gitmylo/audio-webui/blob/master/audio_webui_colab.ipynb) [![Open in github](https://img.shields.io/badge/Github-Open%20file-green)](audio_webui_colab.ipynb)
 
-## 💻 Command line flags
+## 💻 Common command line flags
 
 | Name               | Args                                   | Short      | Usage                 | Description                                                                                                            |
 |--------------------|----------------------------------------|------------|-----------------------|------------------------------------------------------------------------------------------------------------------------|
 | --skip-install     | [None]                                 | -si        | -si                   | Skip installing packages                                                                                               |
 | --skip-venv        | [None]                                 | -sv        | -sv                   | Skip creating/activating venv, also skips install. (for advanced users)                                                |
 | --no-data-cache    | [None]                                 | [None]     | --no-data-cache       | Don't change the default dir for huggingface_hub models. (This might fix some models not loading)                      |
-| --bark-low-vram    | [None]                                 | [None]     | --bark-low-vram       | Use low vram for bark                                                                                                  |
+| --bark-use-small   | [None]                                 | [None]     | --bark-low-vram       | Use low smaller models for bark                                                                                        |
 | --bark-cpu-offload | [None]                                 | [None]     | --bark-cpu-offload    | Use cpu offloading to save vram while still running on gpu                                                             |
 | --bark-use-cpu     | [None]                                 | [None]     | --bark-use-cpu        | Use cpu for bark                                                                                                       |
 | --bark-half        | [None]                                 | [None]     | --bark-half           | Use half precision for bark models. (This uses less VRAM) (Experimental)                                               |
@@ -83,7 +83,7 @@ If there's an issue with running, please create an [issue](https://github.com/gi
 | --listen           | [None]                                 | -l         | -l                    | Listen a server, allowing other devices within your local network to access the server. (or outside if port forwarded) |
 | --port             | port (int)                             | [None]     | --port 12345          | Set a custom port to listen on, by default a port is picked automatically                                              |
 | --wav-type         | type any of: [none, gradio, showwaves] | [None]     | --wav-type showwaves  | Change the visualizers for creating a video from audio. Use "none" to disable previews.                                |
-
+and more, read [args.py](https://github.com/gitmylo/audio-webui/blob/master/webui/args.py) or run with `--help` for info about ALL the available args.
 
 ## ✨ Current goals and features ✨
 moved to [wiki](https://github.com/gitmylo/audio-webui/wiki/Features)
