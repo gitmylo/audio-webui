@@ -23,7 +23,6 @@ from scipy.io import wavfile
 from torch.utils.data import DataLoader
 
 from hubert import hubert_manager
-from webui.args import args
 from webui.modules.implementations.rvc import utils
 from webui.modules.implementations.rvc.data_utils import TextAudioLoaderMultiNSFsid, TextAudioLoader, \
     DistributedBucketSampler, TextAudioCollateMultiNSFsid, TextAudioCollate, spec_to_mel_torch, mel_spectrogram_torch
