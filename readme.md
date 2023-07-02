@@ -13,6 +13,8 @@ This code works on python 3.10 (lower versions don't support "|" type annotation
 
 You also need to have [Git](https://git-scm.com/downloads) installed, you might already have it, run `git --version` in a console/terminal to see if you already have it installed.
 
+On Windows, you need to have visual studio C++ build tools installed.
+
 [Common issues](https://github.com/gitmylo/audio-webui/wiki/common-issues)
 
 <!-- TOC -->
@@ -44,7 +46,7 @@ It is recommended to use git to download the webui, using git allows for easy up
 To download using git, run `git clone https://github.com/gitmylo/audio-webui` in a console/terminal
 
 ### 📦 Installing
-Installation is done automatically in a venv when `run.bat` or `run.sh` is ran without the `--skip-install` flag.
+Installation is done automatically in a venv when you run `run.bat` or `run.sh` (.bat on Windows, .sh on Linux/MacOS).
 
 Alternatively, run `install.bat` or `install.sh` to just install, and nothing else. To install with install.bat in a custom environment which is currently active. Do `install.bat --skip-venv` or `install.sh --skip-venv`.
 
@@ -55,10 +57,8 @@ OR run `git pull` in the folder your webui is installed in.
 
 ### 🏃‍ Running
 Running should be as simple as running `run.bat` or `run.sh` depending on your OS.
-If you want to run with custom command line flags, copy `run_user_example.(bat/sh)` and put whatever flags you want on every run in there. recommended flags are already in the example. (skip install and cpu offload)
 Everything should get installed automatically.
 
-This has not been tested beyond 2 of my pcs.
 If there's an issue with running, please create an [issue](https://github.com/gitmylo/audio-webui/issues)
 
 ## 💻 Google colab notebook
