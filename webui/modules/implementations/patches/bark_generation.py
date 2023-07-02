@@ -4,7 +4,7 @@ import bark.generation as o
 import gradio
 from bark.generation import *
 
-from webui.args import args
+from webui.ui.tabs import settings
 
 SUPPORTED_LANGS = [
     ("English", "en"),
@@ -88,7 +88,7 @@ def generate_text_semantic_new(
     model = model_container["model"]
     tokenizer = model_container["tokenizer"]
     encoded_text = np.array(o._tokenize(tokenizer, text)) + TEXT_ENCODING_OFFSET
-    if OFFLOAD_CPU:
+    if settings.get('bark_offload_cpu'):
         model.to(models_devices["text"])
     device = next(model.parameters()).device
     if len(encoded_text) > 256:
@@ -191,7 +191,7 @@ def generate_text_semantic_new(
             pbar_state = req_pbar_state
         # pbar.close()
         out = x.detach().cpu().numpy().squeeze()[256 + 256 + 1:]
-    if OFFLOAD_CPU:
+    if settings.get('bark_offload_cpu'):
         model.to("cpu")
     assert all(0 <= out) and all(out < SEMANTIC_VOCAB_SIZE)
     o._clear_cuda_cache()
@@ -284,7 +284,7 @@ def generate_coarse_new(
     if "coarse" not in models:
         preload_models_new()
     model = models["coarse"]
-    if OFFLOAD_CPU:
+    if settings.get('bark_offload_cpu'):
         model.to(models_devices["coarse"])
     device = next(model.parameters()).device
     # start loop
@@ -372,7 +372,7 @@ def generate_coarse_new(
                 n_step += 1
             del x_in
         del x_semantic_in
-    if OFFLOAD_CPU:
+    if settings.get('bark_offload_cpu'):
         model.to("cpu")
     gen_coarse_arr = x_coarse_in.detach().cpu().numpy().squeeze()[len(x_coarse_history):]
     del x_coarse_in
@@ -437,7 +437,7 @@ def generate_fine_new(
     if "fine" not in models:
         preload_models_new()
     model = models["fine"]
-    if OFFLOAD_CPU:
+    if settings.get('bark_offload_cpu'):
         model.to(models_devices["fine"])
     device = next(model.parameters()).device
     # make input arr
@@ -507,7 +507,7 @@ def generate_fine_new(
             del in_buffer
         gen_fine_arr = in_arr.detach().cpu().numpy().squeeze().T
         del in_arr
-    if OFFLOAD_CPU:
+    if settings.get('bark_offload_cpu'):
         model.to("cpu")
     gen_fine_arr = gen_fine_arr[:, n_history:]
     if n_remove_from_end > 0:
@@ -525,7 +525,7 @@ def codec_decode_new(fine_tokens, decode_on_cpu=False):
     if "codec" not in models:
         preload_models_new()
     model = models["codec"]
-    if OFFLOAD_CPU and not decode_on_cpu:
+    if settings.get('bark_offload_cpu') and not decode_on_cpu:
         model.to(models_devices["codec"])
     elif decode_on_cpu:
         model.to('cpu')
@@ -537,11 +537,10 @@ def codec_decode_new(fine_tokens, decode_on_cpu=False):
     out = model.decoder(emb)
     audio_arr = out.detach().cpu().numpy().squeeze()
     del arr, emb, out
-    if OFFLOAD_CPU and not decode_on_cpu:
+    if settings.get('bark_offload_cpu') and not decode_on_cpu:
         model.to("cpu")
     elif decode_on_cpu:
-        from webui.args import args
-        model.to('cpu' if args.bark_use_cpu else 'cuda')
+        model.to('cpu' if settings.get('bark_use_cpu') else 'cuda')
     return audio_arr
 
 
@@ -571,7 +570,7 @@ def _load_model(ckpt_path, device, use_small=False, model_type="text"):
         del model_args["vocab_size"]
     gptconf = ConfigClass(**checkpoint["model_args"])
     model = ModelClass(gptconf)
-    if args.bark_half:
+    if settings.get('bark_half'):
         model = model.half()
     state_dict = checkpoint["model"]
     # fixup checkpoint
@@ -605,19 +604,18 @@ def _load_model(ckpt_path, device, use_small=False, model_type="text"):
 
 
 def load_model(use_gpu=True, use_small=False, force_reload=False, model_type="text"):
+    _load_model_f = funcy.partial(_load_model, model_type=model_type, use_small=use_small)
     if model_type not in ("text", "coarse", "fine"):
         raise NotImplementedError()
 
-    if args.bark_models_mix:
-        use_small = not args.bark_models_mix[model_type]['large']
-
-    _load_model_f = funcy.partial(_load_model, model_type=model_type, use_small=use_small)
+    if settings.get('bark_models_mix'):
+        use_small = not settings.get('bark_models_mix')[model_type]['large']
 
     global models
     global models_devices
     device = o._grab_best_device(use_gpu=use_gpu)
     model_key = f"{model_type}"
-    if OFFLOAD_CPU:
+    if settings.get('bark_offload_cpu'):
         models_devices[model_key] = device
         device = "cpu"
     if model_key not in models or force_reload:
@@ -629,6 +627,25 @@ def load_model(use_gpu=True, use_small=False, force_reload=False, model_type="te
         models[model_key]["model"].to(device)
     else:
         models[model_key].to(device)
+    return models[model_key]
+
+
+def load_codec_model(use_gpu=True, force_reload=False):
+    global models
+    global models_devices
+    device = o._grab_best_device(use_gpu=use_gpu)
+    if device == "mps":
+        # encodec doesn't support mps
+        device = "cpu"
+    model_key = "codec"
+    if settings.get('bark_offload_cpu'):
+        models_devices[model_key] = device
+        device = "cpu"
+    if model_key not in models or force_reload:
+        clean_models(model_key=model_key)
+        model = o._load_codec_model(device)
+        models[model_key] = model
+    models[model_key].to(device)
     return models[model_key]
 
 

@@ -1,4 +1,3 @@
-import os.path
 import torch
 import torchaudio
 from bark.generation import SAMPLE_RATE, load_codec_model
@@ -8,7 +7,7 @@ from hubert.hubert_manager import HuBERTManager
 from hubert.pre_kmeans_hubert import CustomHubert
 from webui.modules.implementations.patches.bark_generation import generate_text_semantic_new, generate_coarse_new, generate_fine_new
 from encodec.utils import convert_audio
-from webui.args import args
+from webui.ui.tabs import settings
 
 
 def generate_semantic_fine(transcript='There actually isn\'t a way to do that. It\'s impossible. Please don\'t even bother.'):
@@ -79,11 +78,11 @@ def generate_course_history(fine_history):
 
 
 def generate_fine_from_wav(file):
-    model = load_codec_model(use_gpu=not args.bark_use_cpu)  # Don't worry about reimporting, it stores the loaded model in a dict
+    model = load_codec_model(use_gpu=not settings.get('bark_use_cpu'))  # Don't worry about reimporting, it stores the loaded model in a dict
     wav, sr = torchaudio.load(file)
     wav = convert_audio(wav, sr, SAMPLE_RATE, model.channels)
     wav = wav.unsqueeze(0)
-    if not (args.bark_cpu_offload or args.bark_use_cpu):
+    if not (settings.get('bark_offload_cpu') or settings.get('bark_use_cpu')):
         wav = wav.to('cuda')
     with torch.no_grad():
         encoded_frames = model.encode(wav)

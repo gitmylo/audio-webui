@@ -13,6 +13,7 @@ from matplotlib import pyplot as plt
 
 import setup_tools.os
 from webui.args import args
+from webui.ui.tabs import settings
 
 
 def showwaves(
@@ -53,7 +54,7 @@ def make_waveform(
     wav_type: str = None
 ):
     if wav_type is None:
-        wav_type = args.wav_type.casefold()
+        wav_type = settings.get('wav_type').casefold()
     match wav_type:
         case 'showwaves':
             return showwaves(audio)
