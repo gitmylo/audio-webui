@@ -604,13 +604,12 @@ def _load_model(ckpt_path, device, use_small=False, model_type="text"):
 
 
 def load_model(use_gpu=True, use_small=False, force_reload=False, model_type="text"):
+    _load_model_f = funcy.partial(_load_model, model_type=model_type, use_small=use_small)
     if model_type not in ("text", "coarse", "fine"):
         raise NotImplementedError()
 
     if settings.get('bark_models_mix'):
         use_small = not settings.get('bark_models_mix')[model_type]['large']
-
-    _load_model_f = funcy.partial(_load_model, model_type=model_type, use_small=use_small)
 
     global models
     global models_devices
@@ -628,6 +627,25 @@ def load_model(use_gpu=True, use_small=False, force_reload=False, model_type="te
         models[model_key]["model"].to(device)
     else:
         models[model_key].to(device)
+    return models[model_key]
+
+
+def load_codec_model(use_gpu=True, force_reload=False):
+    global models
+    global models_devices
+    device = o._grab_best_device(use_gpu=use_gpu)
+    if device == "mps":
+        # encodec doesn't support mps
+        device = "cpu"
+    model_key = "codec"
+    if settings.get('bark_offload_cpu'):
+        models_devices[model_key] = device
+        device = "cpu"
+    if model_key not in models or force_reload:
+        clean_models(model_key=model_key)
+        model = o._load_codec_model(device)
+        models[model_key] = model
+    models[model_key].to(device)
     return models[model_key]
 
 
