@@ -41,6 +41,8 @@ class InstallFailException(AutoDebugException):
         print(f'STDOUT:\n{self.stdout}\n\n\n\nSTDERR:\n{self.stderr}\n\n')
         if 'Microsoft Visual C++ 14.0 is required. Get it with "Microsoft Visual C++ Build Tools'.casefold() in self.stderr.casefold():
             print('You need to have visual studio C++ build tools installed. Follow the link above.')
+        if 'OSError: [WinError: 5] Access is denied:'.casefold() in self.stderr.casefold():
+            print('OSError, try running again.')
         print('Please read the error above carefully. \nIf you are unsure, please create an issue at https://github.com/gitmylo/audio-webui/issues.')
         print('When creating an issue, please include your full autodebug message.')
         print(f'Exit code: {self.exit_code}')
@@ -62,10 +64,12 @@ def catcher(e: Exception):
         print(e)
         e.action()
     elif isinstance(e, ImportError):
-        if 'No module named \'pywintypes\''.casefold() in str(e).casefold():
+        e_comp = str(e).casefold()
+        if 'No module named \'pywintypes\''.casefold() in e_comp:
             print('Install finished, pywintypes missing, relaunching script.')
-            commands.run_command(sys.executable, sys.argv[0])
+            commands.run_command(sys.executable, ' '.join([f'"{arg}"' for arg in sys.argv]))
             return
+
         traceback.print_exception(e)
         print(e)
         print('Your install might have failed to install one of the requirements, are you missing a package?')
