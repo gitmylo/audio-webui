@@ -43,7 +43,7 @@ parser.add_argument('--bark-cpu-offload', action='store_true', help='Use cpu off
 parser.add_argument('--bark-use-cpu', action='store_true', help='Use cpu on bark')
 
 # TTS
-parser.add_argument('--tts-use-gpu', action='store_true', help='Use gpu for TTS')
+# parser.add_argument('--tts-use-gpu', action='store_true', help='Use gpu for TTS')
 
 # Gradio
 parser.add_argument('-s', '--share', action='store_true', help='Share this gradio instance.')
