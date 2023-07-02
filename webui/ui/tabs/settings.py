@@ -11,7 +11,7 @@ class CustomSetting:
     def __init__(self, value):
         self.value = self.load_val(value)
 
-    def create_ui(self, setting):
+    def create_ui(self, name, setting):
         raise NotImplementedError('UI for setting not implemented.')
 
     def load_val(self, val):
@@ -21,8 +21,61 @@ class CustomSetting:
         raise NotImplementedError('Value saving not implemented.')
 
 
+class BarkMix(CustomSetting):
+    model_indexes = ['text', 'coarse', 'fine']
+    valid_models = {
+        'large': {
+            'name': 'large',
+            'large': True
+        },
+        'small': {
+            'name': 'small',
+            'large': False
+        }
+    }
+
+    def create_ui(self, name, setting):
+        gradio.Markdown('### Bark models')
+        with gradio.Row():
+
+            def create_model_el(model):
+                dd = gradio.Dropdown(self.valid_models.keys(), value=setting['value'].value[model]['name'], label=model)
+
+                def s(v):
+                    self.value[model] = self.valid_models[v]
+                    change_value(name, self.save_val())
+
+                dd.change(fn=s, inputs=dd)
+
+
+            for model in self.model_indexes:
+                create_model_el(model)
+
+    def load_val(self, val):
+        val = val.split(':')
+        if len(val) != 3:
+            raise ValueError('Incorrect syntax for --bark-models-mix, use 3 characters')
+
+        selected_models = []
+        for char in val:
+            if char not in self.valid_models.keys():
+                raise ValueError(
+                    f'An unknown model was specified for --bark-models-mix, Available models: {list(self.valid_models.keys())}')
+            selected_models.append(self.valid_models[char])
+        return {key: value for key, value in zip(self.model_indexes, selected_models)}
+
+    def save_val(self):
+        return ':'.join([self.value[idx]['name'] for idx in self.model_indexes])
+
+
 config = {
+    'bark_models_mix': {
+        'tab': 'Bark',
+        'type': BarkMix,
+        'default': BarkMix('large:large:large')
+    },
     'tts_use_gpu': {
+        'tab': 'Coqui TTS',
         'type': bool,
         'default': False,
         'readname': 'TTS: use gpu',
@@ -35,8 +88,11 @@ config = {
 config_path = os.path.join('data', 'config.json')
 
 
-def get_setting(name):
-    return config[name]['value']
+def get(name):
+    val = config[name]['value']
+    if isinstance(val, CustomSetting):
+        return val.value
+    return val
 
 
 def auto_value(val):
@@ -57,10 +113,9 @@ def load_config():
         config_dict = json.load(open(config_path))
         for k, v in zip(config.keys(), config.values()):
             if k in config_dict.keys():
-                v['value'] = v['type'](config_dict[k])
+                v['value'] = v['type'](config_dict[k]['value'])
     for k, v in zip(config.keys(), config.values()):
-        if 'value' not in v.keys():
-            v['value'] = v['default']
+        v.setdefault('value', v['default'])
     return config
 
 
@@ -72,9 +127,9 @@ def change_value(name, value):
     save_config()  # Maybe add autosave as a setting instead of always on if the amount of settings becomes too much
 
 
-def ui_for_setting(setting):
+def ui_for_setting(name, setting):
     if hasattr(setting['value'], 'create_ui'):
-        return setting['value'].create_ui(setting)
+        return setting['value'].create_ui(name, setting)
 
     standard_kwargs = {
         'value': setting['value'],
@@ -130,17 +185,29 @@ def delete_model(model):
 def settings():
     load_config()
     save_config()
+
+    tab_config = {}
     for key, setting in zip(config.keys(), config.values()):
-        elem = ui_for_setting(setting)
-        if elem is not None:
-            elem.change(fn=lambda v: change_value(key, v), inputs=elem)
+        tab = setting['tab']
+        if tab not in tab_config.keys():
+            tab_config[tab] = {key: setting}
+        else:
+            tab_config[tab][key] = setting
+
+    with gradio.Tabs():
+        for tab, key_dict in zip(tab_config.keys(), tab_config.values()):
+            with gradio.Tab(tab):
+                for key, setting in zip(key_dict.keys(), key_dict.values()):
+                    elem = ui_for_setting(key, setting)
+                    if elem is not None:
+                        elem.change(fn=lambda v: change_value(key, v), inputs=elem)
 
 
 def extra_tab():
     with gradio.Tabs():
-        with gradio.Tab('Main'):
+        with gradio.Tab('✅ Main'):
             settings()
-        with gradio.Tab('Extra'):
+        with gradio.Tab('➕ Extra'):
             gradio.Markdown('# 🤗 Huggingface')
             with gradio.Row():
                 with gradio.Column():

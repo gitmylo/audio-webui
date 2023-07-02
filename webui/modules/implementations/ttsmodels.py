@@ -14,7 +14,7 @@ import webui.modules.models as mod
 from webui.args import args
 from webui.modules.implementations.patches.bark_custom_voices import wav_to_semantics, generate_fine_from_wav, \
     generate_course_history
-
+from webui.ui.tabs import settings
 
 hubert_models_cache = None
 
@@ -245,15 +245,11 @@ class BarkTTS(mod.TTSModelLoader):
         from webui.args import args
         cpu = args.bark_use_cpu
         gpu = not cpu
-        small = args.bark_use_small
         preload_models_new(
             text_use_gpu=gpu,
             fine_use_gpu=gpu,
             coarse_use_gpu=gpu,
             codec_use_gpu=gpu,
-            fine_use_small=small,
-            coarse_use_small=small,
-            text_use_small=small,
             progress=progress
         )
 
@@ -305,7 +301,7 @@ class CoquiTTS(mod.TTSModelLoader):
             if self.current_model_name != model:
                 unload_tts()
                 self.current_model_name = model
-                self.current_model = TTS(model, gpu=True if torch.cuda.is_available() and args.tts_use_gpu else False)
+                self.current_model = TTS(model, gpu=True if torch.cuda.is_available() and settings.get('tts_use_gpu') else False)
             return gradio.update(value=model), *self.tts_speakers()
 
         def unload_tts():

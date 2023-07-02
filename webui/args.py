@@ -34,9 +34,9 @@ parser.add_argument('--no-data-cache', action='store_true', help='Don\'t overrid
 
 # Models
 # Bark
-bark_models = parser.add_mutually_exclusive_group()
-bark_models.add_argument('--bark-use-small', action='store_true', help='Use low vram mode on bark')
-bark_models.add_argument('--bark-models-mix', action=BarkModelChoices, help='Mix bark small (s) and large (l) models, example: "lsl" for large text, small coarse, large fine')
+# bark_models = parser.add_mutually_exclusive_group()
+# bark_models.add_argument('--bark-use-small', action='store_true', help='Use low vram mode on bark')
+# bark_models.add_argument('--bark-models-mix', action=BarkModelChoices, help='Mix bark small (s) and large (l) models, example: "lsl" for large text, small coarse, large fine')
 
 parser.add_argument('--bark-half', action='store_true', help='Lower vram usage through half precision.')
 parser.add_argument('--bark-cpu-offload', action='store_true', help='Use cpu offloading for lower vram usage on bark')
