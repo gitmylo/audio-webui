@@ -66,17 +66,18 @@ If there's an issue with running, please create an [issue](https://github.com/gi
 
 ## 💻 Common command line flags
 
-| Name               | Args                                   | Short      | Usage                 | Description                                                                                                            |
-|--------------------|----------------------------------------|------------|-----------------------|------------------------------------------------------------------------------------------------------------------------|
-| --skip-install     | [None]                                 | -si        | -si                   | Skip installing packages                                                                                               |
-| --skip-venv        | [None]                                 | -sv        | -sv                   | Skip creating/activating venv, also skips install. (for advanced users)                                                |
-| --no-data-cache    | [None]                                 | [None]     | --no-data-cache       | Don't change the default dir for huggingface_hub models. (This might fix some models not loading)                      |
-| --share            | [None]                                 | -s         | -s                    | Share the gradio instance publicly                                                                                     |
-| --username         | username (str)                         | -u, --user | -u username           | Set the username for gradio                                                                                            |
-| --password         | password (str)                         | -p, --pass | -p password           | Set the password for gradio                                                                                            |
-| --theme            | theme (str)                            | [None]     | --theme "gradio/soft" | Set the theme for gradio                                                                                               |
-| --listen           | [None]                                 | -l         | -l                    | Listen a server, allowing other devices within your local network to access the server. (or outside if port forwarded) |
-| --port             | port (int)                             | [None]     | --port 12345          | Set a custom port to listen on, by default a port is picked automatically                                              |
+| Name            | Args                                   | Short      | Usage                 | Description                                                                                                            |
+|-----------------|----------------------------------------|------------|-----------------------|------------------------------------------------------------------------------------------------------------------------|
+| --skip-install  | [None]                                 | -si        | -si                   | Skip installing packages                                                                                               |
+| --skip-venv     | [None]                                 | -sv        | -sv                   | Skip creating/activating venv, also skips install. (for advanced users)                                                |
+| --no-data-cache | [None]                                 | [None]     | --no-data-cache       | Don't change the default dir for huggingface_hub models. (This might fix some models not loading)                      |
+| --launch        | [None]                                 | [None]     | --launch              | Automatically open the webui in your browser once it launches.                                                         |
+| --share         | [None]                                 | -s         | -s                    | Share the gradio instance publicly                                                                                     |
+| --username      | username (str)                         | -u, --user | -u username           | Set the username for gradio                                                                                            |
+| --password      | password (str)                         | -p, --pass | -p password           | Set the password for gradio                                                                                            |
+| --theme         | theme (str)                            | [None]     | --theme "gradio/soft" | Set the theme for gradio                                                                                               |
+| --listen        | [None]                                 | -l         | -l                    | Listen a server, allowing other devices within your local network to access the server. (or outside if port forwarded) |
+| --port          | port (int)                             | [None]     | --port 12345          | Set a custom port to listen on, by default a port is picked automatically                                              |
 
 ## ✨ Current goals and features ✨
 moved to [wiki](https://github.com/gitmylo/audio-webui/wiki/Features)

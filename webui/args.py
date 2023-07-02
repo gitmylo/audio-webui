@@ -15,5 +15,6 @@ parser.add_argument('-p', '--password', '--pass', type=str, help='Gradio passwor
 parser.add_argument('--theme', type=str, help='Gradio theme', default='gradio/soft')
 parser.add_argument('-l', '--listen', action='store_true', help='Listen on 0.0.0.0')
 parser.add_argument('--port', type=int, help='Use a different port, automatic when not set.', default=None)
+parser.add_argument('--launch', action='store_true', help='Automatically open a browser window when the webui launches.')
 
 args = parser.parse_args()
