@@ -96,7 +96,7 @@ def semantic_to_waveform_new(
 
 
 
-def strict_split(string: str, regex='([.,:;!?])'):
+def strict_split(string: str, regex='([.,:;!?\\n])'):
     splits = re.split(regex, string)
     splits_out = []
     last = ''
