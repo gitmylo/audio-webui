@@ -14,6 +14,8 @@ from setup_tools.magicinstaller.requirement import SimpleRequirementInit, Compar
 requirements = [
     Packaging(),  # Allows for version checks
 
+    SimpleRequirementInit('numpy', CompareAction.EQ, '1.23.5'),
+
     Torch(),
 
     Transformers(),
@@ -44,7 +46,5 @@ requirements = [
 
     Whisper(),
 
-    AudioCraft(),
-
-    SimpleRequirementInit('numpy', CompareAction.EQ, '1.23.5')
+    AudioCraft()
 ]

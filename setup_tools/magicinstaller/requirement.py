@@ -146,3 +146,7 @@ class SimpleRequirementInit(SimpleRequirement):
             case _:
                 return True
 
+    def install(self) -> tuple[int, str, str]:
+        if self.version is None:
+            return self.install_pip(self.package_name)
+        return self.install_pip(f'{self.package_name}=={self.version}', self.package_name)
