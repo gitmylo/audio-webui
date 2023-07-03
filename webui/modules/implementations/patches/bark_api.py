@@ -197,20 +197,23 @@ def generate_audio_new(
 
     silence = np.zeros(int(long_gen_silence_secs * SAMPLE_RATE))
     gen_audio = []
-    match split_type.casefold():
-        case 'manual':
-            gen_sections = text.strip().split('\n')
-        case 'strict short':
-            gen_sections = strict_short(text)
-        case 'strict long':
-            gen_sections = strict_long(text)
-        case 'non-strict short':
-            gen_sections = non_strict_short(text)
-        case 'non-strict long':
-            gen_sections = non_strict_long(text)
-        case _:
-            print('??? Unknown split method selected. Not splitting.')
-            gen_sections = [text]
+    if text:
+        match split_type.casefold():
+            case 'manual':
+                gen_sections = text.strip().split('\n')
+            case 'strict short':
+                gen_sections = strict_short(text)
+            case 'strict long':
+                gen_sections = strict_long(text)
+            case 'non-strict short':
+                gen_sections = non_strict_short(text)
+            case 'non-strict long':
+                gen_sections = non_strict_long(text)
+            case _:
+                print('??? Unknown split method selected. Not splitting.')
+                gen_sections = [text]
+    else:
+        gen_sections = [text]
     print('Generation split into sections:', gen_sections)
     for input_text in tqdm.tqdm(gen_sections, desc='Generation section'):
         input_text = gen_prefix + input_text
