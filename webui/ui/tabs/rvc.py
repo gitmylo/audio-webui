@@ -198,6 +198,9 @@ def rvc():
                 audio_bg = gradio.Audio(label='background')
             with gradio.Row():
                 audio_vocal = gradio.Audio(label='vocals')
+            with gradio.Row():
+                with gradio.Accordion('Real-time RVC', open=False):
+                    realtime_mic = gradio.Audio(label='Mic input', source='microphone', streaming=True)
 
         generate.click(fn=gen, inputs=[selected, speaker_id, pitch_extract, audio_el,
                                        up_key, index_rate, filter_radius, protect, crepe_hop_length, flags], outputs=[audio_out, video_out, audio_bg, audio_vocal])
