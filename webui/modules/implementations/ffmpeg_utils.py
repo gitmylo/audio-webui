@@ -59,7 +59,7 @@ def video_audio():
 
 def video_strip():
     with gradio.Row():
-        video = gradio.Video(label='Video')
+        video = gradio.File(label='Video or other file with audio.')
         output = gradio.Audio(label='Audio')
     with gradio.Row():
         strip_button = gradio.Button('Strip', variant='primary')
@@ -67,7 +67,7 @@ def video_strip():
 
     def strip(a):
         out_file = NamedTemporaryFile(delete=False, suffix='.wav').name
-        result = run_command(f'ffmpeg -y -i "{a}" "{out_file}"')
+        result = run_command(f'ffmpeg -y -i "{a.name}" "{out_file}"')
         assert result.returncode == 0
         return out_file
 
