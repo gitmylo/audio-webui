@@ -604,12 +604,13 @@ def _load_model(ckpt_path, device, use_small=False, model_type="text"):
 
 
 def load_model(use_gpu=True, use_small=False, force_reload=False, model_type="text"):
-    _load_model_f = funcy.partial(_load_model, model_type=model_type, use_small=use_small)
     if model_type not in ("text", "coarse", "fine"):
         raise NotImplementedError()
 
     if settings.get('bark_models_mix'):
         use_small = not settings.get('bark_models_mix')[model_type]['large']
+
+    _load_model_f = funcy.partial(_load_model, model_type=model_type, use_small=use_small)
 
     global models
     global models_devices
