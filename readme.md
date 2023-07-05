@@ -18,7 +18,7 @@ On Windows, you need to have visual studio C++ build tools installed.
 [Common issues](https://github.com/gitmylo/audio-webui/wiki/common-issues)
 
 <!-- TOC -->
-* [<img alt="logo" height="25" src="assets/logo.png" width="25"/> Audio Webui <img alt="logo" height="25" src="assets/logo.png" width="25"/>](#img-altlogo-height25-srcassetslogopng-width25-audio-webui-img-altlogo-height25-srcassetslogopng-width25)
+* [<img alt="logo" height="15" src="assets/logo.png" width="15"/> Audio Webui <img alt="logo" height="15" src="assets/logo.png" width="15"/>](#img-altlogo-height25-srcassetslogopng-width25-audio-webui-img-altlogo-height25-srcassetslogopng-width25)
   * [❗❗ Please read ❗❗](#-please-read-)
   * [👍 NEW: Automatic installers](#-new-automatic-installers)
   * [💻 Local install (Manual)](#-local-install-manual)
