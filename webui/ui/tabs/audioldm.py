@@ -3,8 +3,8 @@ import webui.modules.implementations.audioldm as aldm
 from webui.modules import util
 
 
-def generate(prompt, negative, duration, steps, cfg, seed, wav_best_count, progress=gradio.Progress()):
-    output = aldm.generate(prompt, negative, steps, duration, cfg, seed, wav_best_count,
+def generate(prompt, negative, duration, steps, cfg, seed, wav_best_count, enhance, progress=gradio.Progress()):
+    output = aldm.generate(prompt, negative, steps, duration, cfg, seed, wav_best_count, enhance,
                            callback=lambda step, _, _2: progress((step, steps), desc='Generating...'))
     if isinstance(output, str):
         return None, None, output
@@ -41,7 +41,7 @@ def audioldm_tab():
                                          placeholder='low bitrate, low quality, bad quality')
             duration = gradio.Number(5, label='Duration (s)', info='Duration for the generation in seconds.')
             seed = gradio.Number(-1, label='Seed',
-                                 info='Default: -1 (random). Set the seed for generation, random seed is used when a negative number is given.')
+                                 info='Default: -1 (random). Set the seed for generation, random seed is used when a negative number is given.', precision=0)
             with gradio.Accordion('➕ Extra options', open=False):
                 cfg = gradio.Slider(1, 20, 2.5, step=0.01, label='CFG scale',
                                     info='Default: 2.5. How much should the prompt affect the audio on every step?')
@@ -49,6 +49,7 @@ def audioldm_tab():
                                       info='Default: 10. How many diffusion steps should be performed?')
                 wav_best_count = gradio.Slider(0, 25, 3, step=1, label='Count',
                                                info='Default: 3. How generations to do? Best result will be picked.')
+                enhance = gradio.Checkbox(label='Enhance output', info='This could sound better, but could also sound worse.', value=True)
         with gradio.Column():
             with gradio.Row():
                 audio_out = gradio.Audio(label='Generated audio')
@@ -57,5 +58,5 @@ def audioldm_tab():
             with gradio.Row():
                 text_out = gradio.Textbox(label='Result')
 
-    gen_button.click(fn=generate, inputs=[prompt, neg_prompt, duration, steps, cfg, seed, wav_best_count],
+    gen_button.click(fn=generate, inputs=[prompt, neg_prompt, duration, steps, cfg, seed, wav_best_count, enhance],
                      outputs=[audio_out, video_out, text_out])
