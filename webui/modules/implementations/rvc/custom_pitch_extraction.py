@@ -1,8 +1,6 @@
 import numpy as np
 import parselmouth
 import torch
-import torchaudio
-import torchaudio.functional as F
 import pyworld
 import torchcrepe
 from scipy import signal
@@ -27,7 +25,7 @@ def get_f0_crepe_computation(
     if audio.ndim == 2 and audio.shape[0] > 1:
         audio = torch.mean(audio, dim=0, keepdim=True).detach()
     audio = audio.detach()
-    print("Initiating prediction with a crepe_hop_length of: " + str(hop_length))
+    # print("Initiating prediction with a crepe_hop_length of: " + str(hop_length))
     pitch: torch.Tensor = torchcrepe.predict(
         audio,
         sr,
@@ -99,48 +97,71 @@ def get_mangio_crepe_f0(x, f0_min, f0_max, p_len, sr, crepe_hop_length, model='f
 
 
 def pitch_extract(f0_method, x, f0_min, f0_max, p_len, time_step, sr, window, crepe_hop_length, filter_radius=3):
-    if f0_method == "pm":
-        f0 = (
-            parselmouth.Sound(x, sr)
-            .to_pitch_ac(
-                time_step=time_step / 1000,
-                voicing_threshold=0.6,
-                pitch_floor=f0_min,
-                pitch_ceiling=f0_max,
+    f0s = []
+    f0 = np.zeros(p_len)
+    for method in f0_method if isinstance(f0_method, list) else [f0_method]:
+        if method == "pm":
+            f0 = (
+                parselmouth.Sound(x, sr)
+                .to_pitch_ac(
+                    time_step=time_step / 1000,
+                    voicing_threshold=0.6,
+                    pitch_floor=f0_min,
+                    pitch_ceiling=f0_max,
+                )
+                .selected_array["frequency"]
             )
-            .selected_array["frequency"]
-        )
-        pad_size = (p_len - len(f0) + 1) // 2
-        if pad_size > 0 or p_len - len(f0) - pad_size > 0:
-            f0 = np.pad(
-                f0, [[pad_size, p_len - len(f0) - pad_size]], mode="constant"
-            )
-    elif f0_method in ['harvest', 'dio']:
-        if f0_method == 'harvest':
-            f0, t = pyworld.harvest(
-                x.astype(np.double),
-                fs=sr,
-                f0_ceil=f0_max,
-                f0_floor=f0_min,
-                frame_period=10,
-            )
-        elif f0_method == "dio":
-            f0, t = pyworld.dio(
-                x.astype(np.double),
-                fs=sr,
-                f0_ceil=f0_max,
-                f0_floor=f0_min,
-                frame_period=10,
-            )
-        f0 = pyworld.stonemask(x.astype(np.double), f0, t, sr)
-    elif f0_method == "torchcrepe":
-        f0 = get_f0_crepe_computation(x, f0_min, f0_max, p_len, sr, crepe_hop_length)
-    elif f0_method == "torchcrepe tiny":
-        f0 = get_f0_crepe_computation(x, f0_min, f0_max, p_len, sr, crepe_hop_length, "tiny")
-    elif f0_method == "mangio-crepe":
-        f0 = get_mangio_crepe_f0(x, f0_min, f0_max, p_len, sr, crepe_hop_length)
-    elif f0_method == "mangio-crepe tiny":
-        f0 = get_mangio_crepe_f0(x, f0_min, f0_max, p_len, sr, crepe_hop_length, 'tiny')
+            pad_size = (p_len - len(f0) + 1) // 2
+            if pad_size > 0 or p_len - len(f0) - pad_size > 0:
+                f0 = np.pad(
+                    f0, [[pad_size, p_len - len(f0) - pad_size]], mode="constant"
+                )
+        elif method in ['harvest', 'dio']:
+            if method == 'harvest':
+                f0, t = pyworld.harvest(
+                    x.astype(np.double),
+                    fs=sr,
+                    f0_ceil=f0_max,
+                    f0_floor=f0_min,
+                    frame_period=10,
+                )
+            elif method == "dio":
+                f0, t = pyworld.dio(
+                    x.astype(np.double),
+                    fs=sr,
+                    f0_ceil=f0_max,
+                    f0_floor=f0_min,
+                    frame_period=10,
+                )
+            f0 = pyworld.stonemask(x.astype(np.double), f0, t, sr)
+        elif method == "torchcrepe":
+            f0 = get_f0_crepe_computation(x, f0_min, f0_max, p_len, sr, crepe_hop_length)
+        elif method == "torchcrepe tiny":
+            f0 = get_f0_crepe_computation(x, f0_min, f0_max, p_len, sr, crepe_hop_length, "tiny")
+        elif method == "mangio-crepe":
+            f0 = get_mangio_crepe_f0(x, f0_min, f0_max, p_len, sr, crepe_hop_length)
+        elif method == "mangio-crepe tiny":
+            f0 = get_mangio_crepe_f0(x, f0_min, f0_max, p_len, sr, crepe_hop_length, 'tiny')
+        f0s.append(f0)
+
+    if not f0s:
+        f0s = f0
+
+    f0s_new = []
+    for f0_val in f0s:
+        _len = f0_val.shape[0]
+        if _len == p_len:
+            f0s_new.append(f0)
+            continue
+        if _len > p_len:
+            f0 = f0[:p_len]
+            f0s_new.append(f0)
+            continue
+        if _len < p_len:
+            print('WARNING: len < p_len, skipping this f0')
+
+
+    f0 = np.nanmedian(np.stack(f0s_new, axis=0), axis=0)
 
     if filter_radius >= 2:
         f0 = signal.medfilt(f0, filter_radius)

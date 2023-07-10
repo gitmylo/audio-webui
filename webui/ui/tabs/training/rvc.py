@@ -31,7 +31,7 @@ def train_rvc():
                     dataset_path = gradio.Textbox(label='Dataset path', info='The path to the dataset containing your training audio.')
                     dataset_path.change(fn=lambda val: change_setting('dataset', val), inputs=dataset_path)
                     process_dataset = gradio.Button('Resample and split dataset', variant='primary')
-                    f0_method = gradio.Radio(["none", "dio", "pm", "harvest", "torchcrepe", "torchcrepe tiny", "mangio-crepe", "mangio-crepe tiny"], value='harvest', label='Pitch extraction method', info='Harvest is usually good, crepe has potential to be even better.')
+                    f0_method = gradio.CheckboxGroup(["none", "dio", "pm", "harvest", "torchcrepe", "torchcrepe tiny", "mangio-crepe", "mangio-crepe tiny"], value='harvest', label='Pitch extraction method', info='Harvest is usually good, crepe has potential to be even better.')
                     crepe_hop_length = gradio.Slider(visible=False, minimum=64, maximum=512, step=64, value=128,
                                                      label='torchcrepe hop length',
                                                      info='The length of the hops used for torchcrepe\'s crepe implementation',
