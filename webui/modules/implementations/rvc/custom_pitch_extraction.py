@@ -145,7 +145,7 @@ def pitch_extract(f0_method, x, f0_min, f0_max, p_len, time_step, sr, window, cr
         f0s.append(f0)
 
     if not f0s:
-        f0s = f0
+        f0s = [f0]
 
     f0s_new = []
     for f0_val in f0s:
