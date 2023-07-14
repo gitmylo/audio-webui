@@ -175,7 +175,7 @@ def rvc():
                 crepe_hop_length = gradio.Slider(visible=False, minimum=64, maximum=512, step=64, value=128, label='torchcrepe hop length', info='The length of the hops used for torchcrepe\'s crepe implementation')
 
                 def update_crepe_hop_length_visible(pitch_mode: str):
-                    return gradio.update(visible='crepe' in pitch_mode)
+                    return gradio.update(visible=any(['crepe' in v for v in pitch_mode]))
 
                 pitch_extract.change(fn=update_crepe_hop_length_visible, inputs=pitch_extract, outputs=crepe_hop_length)
 

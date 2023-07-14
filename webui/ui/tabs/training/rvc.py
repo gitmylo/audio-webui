@@ -39,9 +39,9 @@ def train_rvc():
                     filter_radius = gradio.Slider(0, 7, 3, step=1, label='Filter radius',
                                                   info='Default: 3. Smooth out the pitches, should yield less voice cracks.', interactive=True)
 
-                    def set_f0(val: str):
+                    def set_f0(val: list[str]):
                         change_setting('f0', val)
-                        return gradio.update(visible='crepe' in val)
+                        return gradio.update(visible=any(['crepe' in v for v in val]))
 
                     f0_method.change(fn=set_f0, inputs=f0_method, outputs=crepe_hop_length)
                     crepe_hop_length.change(fn=lambda val: change_setting('crepe_hop_length', val), inputs=crepe_hop_length)
