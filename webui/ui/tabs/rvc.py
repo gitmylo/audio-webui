@@ -200,7 +200,10 @@ def rvc():
                 audio_vocal = gradio.Audio(label='vocals')
             with gradio.Row():
                 with gradio.Accordion('Real-time RVC', open=False):
-                    realtime_mic = gradio.Audio(label='Mic input', source='microphone', streaming=True)
+                    with gradio.Row():
+                        realtime_mic = gradio.Audio(label='Mic input', source='microphone', streaming=True)
+                        start_realtime = gradio.Button('Start', variant='primary')
+                        stop_realtime = gradio.Button('Stop')
 
         generate.click(fn=gen, inputs=[selected, speaker_id, pitch_extract, audio_el,
                                        up_key, index_rate, filter_radius, protect, crepe_hop_length, flags], outputs=[audio_out, video_out, audio_bg, audio_vocal])
