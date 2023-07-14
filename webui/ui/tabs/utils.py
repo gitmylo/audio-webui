@@ -1,11 +1,15 @@
 import os.path
 import time
+from tempfile import NamedTemporaryFile
 
 import gradio
 import numpy
+import soundfile
 import torch
 import torchaudio
 import torchaudio.functional as F
+
+import librosa
 
 import webui.ui.tabs.rvc as rvc
 from webui.modules.implementations.ffmpeg_utils import ffmpeg_utils_tab
@@ -185,20 +189,40 @@ def waveform_tab():
         audio_in = gradio.Audio(label='Input audio')
         video_out = gradio.PlayableVideo(label='Output waveform video')
 
-    create_waveform_button = gradio.Button('Create waveform video')
+    create_waveform_button = gradio.Button('Create waveform video', variant='primary')
     create_waveform_button.click(fn=create_waveform, inputs=audio_in, outputs=video_out)
 
+
+def enhance_tab():
+    def enhance_audio(file_in):
+        output_file = NamedTemporaryFile(suffix='.wav', delete=False).name
+
+        sampling_rate = 44100
+        y, sr = librosa.load(file_in, sr=sampling_rate)
+
+        y_shifted = librosa.effects.pitch_shift(y, sr=sr, n_steps=12, res_type="soxr_vhq")
+        soundfile.write(output_file, y + y_shifted, sampling_rate)
+        return output_file
+
+    with gradio.Row():
+        audio_in = gradio.Audio(label='Input audio', type='filepath')
+        audio_out = gradio.Audio(label='Output audio')
+
+    create_waveform_button = gradio.Button('Enhance audio quality (Mainly for audioldm).', variant='primary')
+    create_waveform_button.click(fn=enhance_audio, inputs=audio_in, outputs=audio_out)
 
 
 def utils_tab():
     with gradio.Tabs():
-        with gradio.Tab('🧹 denoise'):
+        with gradio.Tab('🧹 Denoise'):
             denoise_tab()
-        with gradio.Tab('🔊▶🗣/🎵 music splitting'):
+        with gradio.Tab('🔊▶🗣/🎵 Music splitting'):
             music_split_tab()
-        with gradio.Tab('📈 audio waveforms'):
+        with gradio.Tab('🔎 Enhance'):
+            enhance_tab()
+        with gradio.Tab('📈 Audio waveforms'):
             waveform_tab()
         with gradio.Tab('👽 FFMPEG'):
             ffmpeg_utils_tab()
-        with gradio.Tab('🔽 audio downloads'):
+        with gradio.Tab('🔽 Audio downloads'):
             audio_download_tab()

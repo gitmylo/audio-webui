@@ -3,7 +3,7 @@ name: Bug report
 about: Report a bug, or another issue
 title: "[BUG REPORT] "
 labels: bug
-assignees: ''
+assignees: gitmylo
 
 ---
 

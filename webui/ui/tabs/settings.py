@@ -43,7 +43,7 @@ class BarkMix(CustomSetting):
 
                 def s(v):
                     self.value[model] = self.valid_models[v]
-                    change_value(name, self.save_val())
+                    change_value(name)
 
                 dd.change(fn=s, inputs=dd)
 
@@ -147,9 +147,10 @@ def load_config():
     return config
 
 
-def change_value(name, value):
+def change_value(name, value=None):
     global config
-    config[name]['value'] = value
+    if value is not None:
+        config[name]['value'] = value
     if 'change_call' in config[name].keys():
         config[name].change_call()
     save_config()  # Maybe add autosave as a setting instead of always on if the amount of settings becomes too much

@@ -31,7 +31,7 @@ def train_rvc():
                     dataset_path = gradio.Textbox(label='Dataset path', info='The path to the dataset containing your training audio.')
                     dataset_path.change(fn=lambda val: change_setting('dataset', val), inputs=dataset_path)
                     process_dataset = gradio.Button('Resample and split dataset', variant='primary')
-                    f0_method = gradio.Radio(["none", "dio", "pm", "harvest", "torchcrepe", "torchcrepe tiny", "mangio-crepe", "mangio-crepe tiny"], value='harvest', label='Pitch extraction method', info='Harvest is usually good, crepe has potential to be even better.')
+                    f0_method = gradio.CheckboxGroup(["none", "dio", "pm", "harvest", "torchcrepe", "torchcrepe tiny", "mangio-crepe", "mangio-crepe tiny"], value='harvest', label='Pitch extraction method', info='Harvest is usually good, crepe has potential to be even better.')
                     crepe_hop_length = gradio.Slider(visible=False, minimum=64, maximum=512, step=64, value=128,
                                                      label='torchcrepe hop length',
                                                      info='The length of the hops used for torchcrepe\'s crepe implementation',
@@ -39,9 +39,9 @@ def train_rvc():
                     filter_radius = gradio.Slider(0, 7, 3, step=1, label='Filter radius',
                                                   info='Default: 3. Smooth out the pitches, should yield less voice cracks.', interactive=True)
 
-                    def set_f0(val: str):
+                    def set_f0(val: list[str]):
                         change_setting('f0', val)
-                        return gradio.update(visible='crepe' in val)
+                        return gradio.update(visible=any(['crepe' in v for v in val]))
 
                     f0_method.change(fn=set_f0, inputs=f0_method, outputs=crepe_hop_length)
                     crepe_hop_length.change(fn=lambda val: change_setting('crepe_hop_length', val), inputs=crepe_hop_length)
@@ -83,8 +83,7 @@ def train_rvc():
                         4. Click "Extract pitches"
                         5. Click "Create index file" (Optional, adds a .index file, which uses more space, but improves results)
                     3. Open the "train" tab.
-                        1. Set training epochs.
-                            * You can click the "Predict epochs" button to set your training epochs to the recommended amount based on how much data you have.
+                        1. Set training epochs. (you'll need more if you have less audio) Try it out, you can continue training by selecting the model to continue from and then training.
                         2. Click "Train", and wait for training to complete.
                     4. Select the model in the "Base checkpoint" dropdown (refresh first)
                     5. Now, click "Copy to RVC models". Now you can use the trained model inside of your RVC tab.

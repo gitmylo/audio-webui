@@ -82,7 +82,7 @@ def generate_fine_from_wav(file):
     wav, sr = torchaudio.load(file)
     wav = convert_audio(wav, sr, SAMPLE_RATE, model.channels)
     wav = wav.unsqueeze(0)
-    if not (settings.get('bark_offload_cpu') or settings.get('bark_use_cpu')):
+    if not settings.get('bark_use_cpu'):
         wav = wav.to('cuda')
     with torch.no_grad():
         encoded_frames = model.encode(wav)

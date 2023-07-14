@@ -1,9 +1,12 @@
 import gc
 import os.path
+from tempfile import NamedTemporaryFile
 
 import diffusers
+import soundfile
 import torch.cuda
 import transformers
+import librosa
 
 model: diffusers.AudioLDMPipeline = None
 loaded = False
@@ -56,9 +59,10 @@ def score_waveforms(text, waveforms):
     return waveform
 
 
-def generate(prompt='', negative_prompt='', steps=10, duration=5.0, cfg=2.5, seed=-1, wav_best_count=1, callback=None):
+def generate(prompt='', negative_prompt='', steps=10, duration=5.0, cfg=2.5, seed=-1, wav_best_count=1, enhance=False, callback=None):
     if is_loaded():
         try:
+            sample_rate = 16000
             seed = seed if seed >= 0 else torch.seed()
             torch.manual_seed(seed)
             output = model(prompt, negative_prompt=negative_prompt if negative_prompt else None,
@@ -69,7 +73,12 @@ def generate(prompt='', negative_prompt='', steps=10, duration=5.0, cfg=2.5, see
                 waveform = score_waveforms(prompt, waveforms)
             else:
                 waveform = waveforms[0]
-            return seed, (16000, waveform)
+            if enhance:  # https://github.com/gitmylo/audio-webui/issues/36#issuecomment-1627380868
+                sample_rate = 44100
+                audio_resampled = librosa.resample(waveform, orig_sr=16000, target_sr=sample_rate)
+                waveform = audio_resampled + librosa.effects.pitch_shift(audio_resampled, sr=sample_rate, n_steps=12, res_type="soxr_vhq")
+
+            return seed, (sample_rate, waveform)
         except Exception as e:
             return f'An exception occurred: {str(e)}'
     return 'No model loaded! Please load a model first.'

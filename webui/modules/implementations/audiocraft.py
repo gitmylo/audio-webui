@@ -27,7 +27,7 @@ def create_model(pretrained='medium', map_device='cuda' if torch.cuda.is_availab
         used_model = pretrained
         loaded = True
     except:
-        pass
+        raise gradio.Error('Could not load model!')
 
 
 def delete_model():
@@ -39,7 +39,7 @@ def delete_model():
         loaded = False
         device = None
     except:
-        pass
+        raise gradio.Error('Could not unload model!')
 
 
 def is_loaded():
@@ -81,4 +81,4 @@ def generate(prompt='', input_audio=None, use_sample=True, top_k=250, top_p=0.0,
 
         wav = wav.cpu().flatten().numpy()
         return model.sample_rate, wav
-    return 'No model loaded! Please load a model first.'
+    raise gradio.Error('No model loaded! Please load a model first.')

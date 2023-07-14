@@ -53,7 +53,7 @@ class Requirement:
             idx += 1
             print(f'\rInstalling {name} {curr_symbol}', end='')
             time.sleep(0.25)
-        print(f'\rInstalled {name}!             ')
+        print(f'\rInstalled {name}!             ' if status_dict['success'] else f'\rFailed to install {name}. Check AutoDebug output.')
 
     def install_pip(self, command, name=None) -> tuple[int, str, str]:
         global valid_last
@@ -65,9 +65,10 @@ class Requirement:
         }
         thread = Thread(target=self.loading_thread, args=[status_dict, name], daemon=True)
         thread.start()
-        args = f'{sys.executable} -m pip install --upgrade {command}'
+        args = f'"{sys.executable}" -m pip install --upgrade {command}'
         args = args if self.is_windows() else shlex.split(args)
         result = subprocess.run(args, capture_output=True, text=True)
+        status_dict['success'] = result.returncode == 0
         status_dict['running'] = False
         while thread.is_alive():
             time.sleep(0.1)
@@ -83,7 +84,7 @@ class Requirement:
         global valid_last
         if valid_last:
             return valid_last
-        args = f'{sys.executable} -m pip freeze'
+        args = f'"{sys.executable}" -m pip freeze'
         args = args if self.is_windows() else shlex.split(args)
         result = subprocess.run(args, capture_output=True, text=True)
         test_str = result.stdout

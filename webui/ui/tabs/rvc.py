@@ -171,11 +171,11 @@ def rvc():
                         refresh = gradio.Button('🔃', variant='tool secondary')
                         unload = gradio.Button('💣', variant='tool primary')
                 speaker_id = gradio.Slider(value=0, step=1, maximum=0, visible=False, label='Speaker id', info='For multi speaker models, the speaker to use.')
-                pitch_extract = gradio.Radio(choices=["dio", "pm", "harvest", "torchcrepe", "torchcrepe tiny", "mangio-crepe", "mangio-crepe tiny"], label='Pitch extraction', value='dio', interactive=True, info='Default: dio. dio and pm are faster, harvest is slower but good. Crepe is good but uses GPU.')
+                pitch_extract = gradio.CheckboxGroup(choices=["dio", "pm", "harvest", "torchcrepe", "torchcrepe tiny", "mangio-crepe", "mangio-crepe tiny"], label='Pitch extraction', value='harvest', interactive=True, info='Default: dio. dio and pm are faster, harvest is slower but good. Crepe is good but uses GPU.')
                 crepe_hop_length = gradio.Slider(visible=False, minimum=64, maximum=512, step=64, value=128, label='torchcrepe hop length', info='The length of the hops used for torchcrepe\'s crepe implementation')
 
                 def update_crepe_hop_length_visible(pitch_mode: str):
-                    return gradio.update(visible='crepe' in pitch_mode)
+                    return gradio.update(visible=any(['crepe' in v for v in pitch_mode]))
 
                 pitch_extract.change(fn=update_crepe_hop_length_visible, inputs=pitch_extract, outputs=crepe_hop_length)
 
