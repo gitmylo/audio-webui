@@ -1,6 +1,6 @@
 from .packaging_package import Packaging
 from .torch_package import Torch
-from .huggingface_package import Transformers, Diffusers, Gradio
+from .huggingface_package import Transformers, Diffusers
 from .audio2numpy_package import AudioToNumpy
 from .bark_package import Bark, SoundFileOrSox
 from .audiolm_package import AudioLM, JobLib, FairSeq
@@ -20,7 +20,7 @@ requirements = [
 
     Transformers(),
     Diffusers(),
-    Gradio(),
+    SimpleRequirementInit('gradio', CompareAction.EQ, '3.35.2'),
 
     AudioToNumpy(),
 

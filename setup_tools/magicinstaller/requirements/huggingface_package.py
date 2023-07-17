@@ -7,7 +7,3 @@ class Transformers(SimpleRequirement):
 
 class Diffusers(SimpleRequirement):
     package_name = 'diffusers'
-
-
-class Gradio(SimpleRequirement):
-    package_name = 'gradio'
