@@ -20,7 +20,7 @@ class PyWorld(SimpleRequirement):
         return version.parse(self.get_package_version(self.package_name)) >= version.parse('0.3.2')
 
     def install(self) -> tuple[int, str, str]:
-        return self.install_pip('pyworld>=0.3.2', 'pyworld')
+        return self.install_pip('pyworld>=0.3.2 --no-build-isolation', 'pyworld')
 
 
 class FaissCpu(SimpleRequirement):
