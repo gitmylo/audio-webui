@@ -28,4 +28,4 @@ with SimpleStyle(priority=0):  # 0 is default, higher is later
     with StyleRule('#id'):
         StyleValue('color', 'white')
 ```
-(Make sure to run this code before TODO: put callback info here)
+(Make sure to put your style code in extension/**style.py** for it to be recognised)

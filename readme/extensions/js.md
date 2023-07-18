@@ -6,7 +6,33 @@ If you want to add new features to the webui on the browser side. You can use ja
 All javascript scripts are module scripts, so they can use `import`.
 
 ## How to use custom javascript
-TODO: Plugin structure indicating **script.js** here
+2 different descriptions below, same structure, pick the one you understand best.  
+File placement:
+<details>
+<summary>
+As markdown list
+</summary>
+
+* extension
+  * extension.py
+  * main.py
+  * requirements.py
+  * style.py
+  * scripts
+    * **script.js** <--
+</details>
+
+<details>
+<summary>
+As file path list
+</summary>
+
+extension/extension.py
+extension/main.py  
+extension/requirements.py  
+extension/style.py  
+extension/scripts/**script.js** <--
+</details>
 
 ```js
 alert('Javascript from plugin!');
