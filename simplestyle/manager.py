@@ -20,7 +20,6 @@ class StyleRule:
         stack[-1].rules.append(stack[-1].stack.pop())
 
 
-
 class SimpleStyle:
     def __init__(self, priority=0):
         self.priority = priority
@@ -35,7 +34,6 @@ class SimpleStyle:
 
 
 stack: list[SimpleStyle] = []
-
 rules: list[SimpleStyle] = []
 
 
