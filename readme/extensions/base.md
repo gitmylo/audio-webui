@@ -14,7 +14,7 @@ As markdown list
 </summary>
 
 * extension
-  * extension.py **(required)**
+  * extension.json **(required)**
   * main.py
   * requirements.py
   * style.py
@@ -27,7 +27,7 @@ As markdown list
 As file path list
 </summary>
 
-extension/extension.py **(required)**  
+extension/extension.json **(required)**  
 extension/main.py  
 extension/requirements.py  
 extension/style.py  
@@ -35,4 +35,22 @@ extension/scripts/script.js
 </details>
 
 ## File contents
-TODO: add info about contents to get files working
+
+extension/requirements.py: Refer to [Requirements docs](requirements.md)  
+extension/style.py: Refer to [SimpleStyle docs](style.md)  
+extension/scripts/script.js: Refer to [Custom javascript docs](js.md)
+
+extension/extension.json:
+```json
+{
+  "name": "Extension name",
+  "description": "This extension does nothing.",
+  "author": "GitMylo",
+  "tags": []
+}
+```
+
+extension/main.py:
+```python
+# Put any code here, such as callback registers etc. This code will be ran after install, on plugin init.
+```

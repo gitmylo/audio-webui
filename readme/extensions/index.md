@@ -16,7 +16,7 @@ Main features
 </summary>
 
 ## [📀 Requirements](requirements.md)
-## [🤖 Callbacks](callbacks.md)
+## [🤖 Callbacks](callbacks.md) (Add tabs, features, settings and more)
 
 </details>
 
