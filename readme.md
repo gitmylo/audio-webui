@@ -47,8 +47,6 @@ To download using git, run `git clone https://github.com/gitmylo/audio-webui` in
 ### 📦 Installing
 Installation is done automatically in a venv when you run `run.bat` or `run.sh` (.bat on Windows, .sh on Linux/MacOS).
 
-Alternatively, run `install.bat` or `install.sh` to just install, and nothing else. To install with install.bat in a custom environment which is currently active. Do `install.bat --skip-venv` or `install.sh --skip-venv`.
-
 ### 🔼 Updating
 To update,  
 run `update.bat` on windows, `update.sh` on linux/macos  
