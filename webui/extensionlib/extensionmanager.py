@@ -95,3 +95,11 @@ def init_extensions():
     print(f'Found extensions: {", ".join(exts)}')
     for ext in exts:
         states[ext] = Extension(ext, s)
+
+
+def get_scripts() -> list[str]:
+    out = []
+    for script in [e.get_javascript() for e in states.values()]:
+        if script:
+            out.append(script)
+    return out
