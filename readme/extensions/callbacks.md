@@ -36,9 +36,8 @@ cb.unregister_by_name('webui.init', callback)
 ## Registering new callbacks (callback managers)
 You can register callbacks through extensionlib's callbacks manager. Use this if you want users to be able to expand
 your extension.  
-(Example: An API extension which has a callback to register additional routes.)
+(For example, an API extension which has a callback to register additional routes.)
 
-main.py
 ```python
 import webui.extensionlib.callbacks as cb
 
@@ -49,6 +48,12 @@ manager_from_name = cb.get_manager('example_extension.example')
 assert new_manager == manager_from_name
 # These 2 will be the same,
 # unless there was already a callback registered with the same name
+
+# You can activate a callback like this:
+new_manager()
+
+# You can supply parameters too
+new_manager('Positional', 2, example='keyword')
 ```
 
 ## List of callbacks

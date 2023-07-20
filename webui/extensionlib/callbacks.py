@@ -29,6 +29,9 @@ class CallBackManager:
         for cb in self.callbacks:
             cb(*args, **kwargs)
 
+    def __call__(self, *args, **kwargs):
+        self.call(*args, **kwargs)
+
 
 callbacks: list[CallBackManager] = []
 
