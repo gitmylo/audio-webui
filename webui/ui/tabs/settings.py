@@ -260,10 +260,16 @@ def settings():
                         elem.change(fn=change_setting(key), inputs=elem)
 
 
+def extensions_tab():
+    pass  # TODO: figure out stuff to do here in order to effectively list components etc.
+
+
 def extra_tab():
     with gradio.Tabs():
         with gradio.Tab('✅ Main'):
             settings()
+        with gradio.Tab('🚀 Extensions'):
+            extensions_tab()
         with gradio.Tab('➕ Extra'):
             gradio.Markdown('# 🤗 Huggingface')
             with gradio.Row():
