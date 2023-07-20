@@ -84,7 +84,9 @@ def set_load_states():
 
 
 def get_load_states():
-    return json.load(open(extension_states, 'r', encoding='utf8'))
+    if os.path.isfile(extension_states):
+        return json.load(open(extension_states, 'r', encoding='utf8'))
+    return {}
 
 
 def init_extensions():
