@@ -14,8 +14,12 @@ try:
 
     prelaunch_checks()
 
-    print('Preparing')
+    print('Activating extensions')
+    import webui.extensionlib.extensionmanager as em
+    for e in em.states.values():
+        e.activate()
 
+    print('Preparing')
     from webui.modules.implementations.tts_monkeypatching import patch as patch1
     patch1()
 
@@ -24,6 +28,7 @@ try:
 
     import torch
     print('Launching, cuda available:', torch.cuda.is_available())
+
 
     from webui.webui import launch_webui
 

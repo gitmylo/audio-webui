@@ -44,8 +44,8 @@ def get_manager(name) -> CallBackManager | None:
 
 
 def register_by_name(name: str, callback, priority: int = 0) -> CallBack | None:
-    """Get and register a callback. Good for if you want to unregister/replace a callback at some point."""
-    callback = CallBack(callbacks, priority)
+    """Get and register a callback."""
+    callback = CallBack(callback, priority)
     manager = get_manager(name)
     if not manager:
         return None
