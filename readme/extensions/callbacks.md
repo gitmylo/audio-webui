@@ -54,6 +54,11 @@ new_manager()
 
 # You can supply parameters too
 new_manager('Positional', 2, example='keyword')
+
+# You can access outputs as an array
+outputs = new_manager()
+# [] - no callbacks were ran as none were registered
+# This will store raw return values from the callbacks, make sure to check them.
 ```
 
 ## List of callbacks
