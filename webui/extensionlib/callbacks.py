@@ -4,10 +4,10 @@ class CallBack:
         self.callback = value
 
     def call(self, *args, **kwargs):
-        self.callback(*args, **kwargs)
+        return self.callback(*args, **kwargs)
 
     def __call__(self, *args, **kwargs):
-        self.call(*args, **kwargs)
+        return self.call(*args, **kwargs)
 
 
 class CallBackManager:
@@ -26,11 +26,10 @@ class CallBackManager:
         return False
 
     def call(self, *args, **kwargs):
-        for cb in self.callbacks:
-            cb(*args, **kwargs)
+        return [cb(*args, **kwargs) for cb in self.callbacks]
 
     def __call__(self, *args, **kwargs):
-        self.call(*args, **kwargs)
+        return self.call(*args, **kwargs)
 
 
 callbacks: list[CallBackManager] = []
