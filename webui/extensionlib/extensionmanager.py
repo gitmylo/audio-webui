@@ -90,6 +90,11 @@ def get_load_states():
 
 
 def init_extensions():
+    # Register default callbacks
+    from webui.extensionlib.callbacks import register_new as register
+    register('webui.init')
+
+    # Load enabled extensions
     s = get_load_states()
     exts = get_valid_extensions()
     print(f'Found extensions: {", ".join(exts)}')

@@ -62,4 +62,10 @@ outputs = new_manager()
 ```
 
 ## List of callbacks
-TODO
+Indents get replaced with ".", so for example:
+* example
+  * indented (example.indented)
+  * indented2 (example.indented2)
+
+* webui
+  * init [Called when the webui is initiated, after extensions have been initialized.]

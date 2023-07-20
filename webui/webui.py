@@ -4,12 +4,14 @@ import gradio
 
 
 def launch_webui():
+    import webui.extensionlib.extensionmanager as em
+    em.init_extensions()
+
     auth = (args.username, args.password) if args.username else None
 
     template_response_original = gradio.routes.templates.TemplateResponse
 
     # Magic monkeypatch
-    import extensionlib.extensionmanager as em
     scripts = ''.join([f'<script type="module" src="file={s}"></script>' for s in ['scripts/script.js'] + em.get_scripts()])
 
     def template_response(*args, **kwargs):
@@ -20,6 +22,9 @@ def launch_webui():
         return res
 
     gradio.routes.templates.TemplateResponse = template_response
+
+    import webui.extensionlib.callbacks as cb
+    cb.get_manager('webui.init')()
 
     create_ui(args.theme).queue().launch(share=args.share,
                                          auth=auth,
