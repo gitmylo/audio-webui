@@ -69,3 +69,4 @@ Indents get replaced with ".", so for example:
 
 * webui
   * init [Called when the webui is initiated, after extensions have been initialized.]
+  * settings [Called to fetch settings for this extension.]

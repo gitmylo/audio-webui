@@ -90,7 +90,8 @@ def get_load_states():
 
 
 register_callbacks = [
-    'webui.init'
+    'webui.init',
+    'webui.settings'
 ]
 
 
