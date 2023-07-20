@@ -5,6 +5,7 @@ import shutil
 import gradio
 import huggingface_hub
 import webui.modules.models as mod
+import webui.extensionlib.callbacks as cb
 
 
 class CustomSetting:
@@ -111,9 +112,11 @@ config = {
         'description': 'Pick a style to display the audio outputs as in a video.'
     }
 }
-import webui.extensionlib.callbacks as cb
 settings_add = cb.get_manager('webui.settings')()
-print(settings_add)
+for settings_dict in settings_add:
+    for k, v in zip(settings_dict.keys(), settings_dict.values()):
+        if k not in config.keys():
+            config[k] = v
 
 
 config_path = os.path.join('data', 'config.json')
