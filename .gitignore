@@ -1,3 +1,4 @@
 data/**
 !**/.placeholder
 *.wav
+./extensions/

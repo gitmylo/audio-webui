@@ -89,10 +89,16 @@ def get_load_states():
     return {}
 
 
+register_callbacks = [
+    'webui.init'
+]
+
+
 def init_extensions():
     # Register default callbacks
     from webui.extensionlib.callbacks import register_new as register
-    register('webui.init')
+    for cb in register_callbacks:
+        register(cb)
 
     # Load enabled extensions
     s = get_load_states()
