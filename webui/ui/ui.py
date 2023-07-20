@@ -56,7 +56,6 @@ def create_ui(theme) -> gr.Blocks:
             StyleValue('margin-right', 'auto !important')
             StyleValue('text-align', 'center !important')
 
-
         with StyleRule('.tab-nav'):
             StyleValue('overflow-x', 'auto')
             StyleValue('overflow-y', 'hidden')
@@ -78,6 +77,11 @@ def create_ui(theme) -> gr.Blocks:
 
         with StyleRule('.leftscroll.rightscroll'):
             StyleValue('border-radius', '10px')
+
+    import webui.extensionlib.extensionmanager as em
+
+    for e in em.states.values():
+        e.get_style_rules()
 
     tabs = [
         ('📜▶🗣 Text to speech', text_to_speech),
