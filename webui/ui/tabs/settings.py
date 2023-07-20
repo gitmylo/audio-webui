@@ -111,6 +111,9 @@ config = {
         'description': 'Pick a style to display the audio outputs as in a video.'
     }
 }
+import webui.extensionlib.callbacks as cb
+settings_add = cb.get_manager('webui.settings')()
+print(settings_add)
 
 
 config_path = os.path.join('data', 'config.json')

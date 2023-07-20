@@ -43,11 +43,11 @@ class Extension:
 
     def activate(self):
         if self.enabled and os.path.isfile(self.main_file):
-            __import__(self.main_file.replace(os.path.sep, '.'))
+            __import__(os.path.splitext(self.main_file)[0].replace(os.path.sep, '.'), fromlist=[''])
 
     def get_style_rules(self):
         if self.enabled and os.path.isfile(self.style_file):
-            __import__(self.style_file.replace(os.path.sep, '.'))
+            __import__(os.path.splitext(self.style_file)[0].replace(os.path.sep, '.'), fromlist=[''])
 
     def get_requirements(self):
         if self.enabled and os.path.isfile(self.req_file):
