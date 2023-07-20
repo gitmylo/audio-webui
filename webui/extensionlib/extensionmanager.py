@@ -51,7 +51,7 @@ class Extension:
 
     def get_requirements(self):
         if self.enabled and os.path.isfile(self.req_file):
-            return __import__(self.req_file.replace(os.path.sep, '.')).requirements()
+            return __import__(os.path.splitext(self.req_file)[0].replace(os.path.sep, '.'), fromlist=['']).requirements()
         return []
 
     def get_javascript(self) -> str | bool:
@@ -114,4 +114,12 @@ def get_scripts() -> list[str]:
     for script in [e.get_javascript() for e in states.values()]:
         if script:
             out.append(script)
+    return out
+
+
+def get_requirements():
+    out = []
+    for req in [e.get_requirements() for e in states.values()]:
+        if req:
+            out += req
     return out
