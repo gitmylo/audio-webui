@@ -43,7 +43,7 @@ class Extension:
 
     def activate(self):
         if self.enabled and os.path.isfile(self.main_file):
-            pass
+            __import__(self.main_file.replace(os.path.sep, '.'))
 
     def get_style_rules(self):
         if self.enabled and os.path.isfile(self.style_file):
@@ -89,5 +89,7 @@ def get_load_states():
 
 def init_extensions():
     s = get_load_states()
-    for ext in get_valid_extensions():
+    exts = get_valid_extensions()
+    print(f'Found extensions: {", ".join(exts)}')
+    for ext in exts:
         states[ext] = Extension(ext, s)
