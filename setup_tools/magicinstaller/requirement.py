@@ -150,4 +150,18 @@ class SimpleRequirementInit(SimpleRequirement):
     def install(self) -> tuple[int, str, str]:
         if self.version is None:
             return self.install_pip(self.package_name)
-        return self.install_pip(f'{self.package_name}=={self.version}', self.package_name)
+        match self.compare:
+            case CompareAction.LT:
+                symbol = '<'
+            case CompareAction.LEQ:
+                symbol = '<='
+            case CompareAction.EQ:
+                symbol = '=='
+            case CompareAction.GEQ:
+                symbol = '>='
+            case CompareAction.GT:
+                symbol = '>'
+            case _:
+                symbol = '=='
+
+        return self.install_pip(f'{self.package_name}{symbol}{self.version}', self.package_name)
