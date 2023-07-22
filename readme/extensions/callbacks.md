@@ -69,4 +69,5 @@ Indents get replaced with ".", so for example:
 
 * webui
   * init [Called when the webui is initiated, after extensions have been initialized.]
-  * settings [Called to fetch settings for this extension.]
+  * [settings](callbacks/webui/settings.md) [Called to fetch settings for this extension.]
+  * tabs [Called after the base tabs have been registered, allows you to add new tabs]
