@@ -15,12 +15,13 @@ You also need to have [Git](https://git-scm.com/downloads) installed, you might 
 
 On Windows, you need to have visual studio C++ build tools installed.
 
-[Common issues](https://github.com/gitmylo/audio-webui/wiki/common-issues)
+[Common issues](https://github.com/gitmylo/audio-webui/blob/master/readme/common_issues.md)
 
 <!-- TOC -->
 * [<img alt="logo" height="15" src="assets/logo.png" width="15"/> Audio Webui <img alt="logo" height="15" src="assets/logo.png" width="15"/>](#img-altlogo-height25-srcassetslogopng-width25-audio-webui-img-altlogo-height25-srcassetslogopng-width25)
   * [❗❗ Please read ❗❗](#-please-read-)
-  * [👍 NEW: Automatic installers](#-new-automatic-installers)
+  * [Latest big features](#latest-big-features)
+  * [👍 Automatic installers](#-automatic-installers)
   * [💻 Local install (Manual)](#-local-install-manual)
     * [🔽 Downloading](#-downloading)
     * [📦 Installing](#-installing)
@@ -80,10 +81,7 @@ If there's an issue with running, please create an [issue](https://github.com/gi
 | --port          | port (int)                             | [None]     | --port 12345          | Set a custom port to listen on, by default a port is picked automatically                                              |
 
 ## ✨ Current goals and features ✨
-moved to [wiki](https://github.com/gitmylo/audio-webui/wiki/Features)
+moved to [a separate readme](https://github.com/gitmylo/audio-webui/tree/master/readme/features.md)
 
 ## More readme
-* 🐶 Bark info
-* 😎 RVC info
-
-[Link](https://github.com/gitmylo/audio-webui/wiki/info)
+[Link](https://github.com/gitmylo/audio-webui/tree/master/readme/readme.md)

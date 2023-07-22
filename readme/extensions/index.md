@@ -29,3 +29,5 @@ Styling and JS
 ## [📜 Running custom javascript](js.md)
 
 </details>
+
+[Guidelines](guidelines.md)
