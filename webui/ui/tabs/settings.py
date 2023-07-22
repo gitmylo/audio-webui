@@ -261,7 +261,6 @@ def settings():
 
 
 def extensions_tab():
-    import webui.extensionlib.extensionmanager as em
     with gradio.Tabs():
         with gradio.Tab('✅ Installed'):
             list_all_extensions()
@@ -274,9 +273,11 @@ def list_all_extensions():
 
     with gradio.Row():
         check_updates = gradio.Button('Check for updates', variant='primary')
-        update_seleted = gradio.Button('Update selected', variant='primary')
+        update_selected = gradio.Button('Update selected', variant='primary')
         shutdown = gradio.Button('Shutdown audio webui')
         shutdown.click(fn=lambda: os._exit(0))
+
+    gradio.Markdown('Extension managing is still work in progress, and will require restarts of the webui.')
 
     with gradio.Row():
         gradio.Markdown('## Name')
@@ -285,16 +286,78 @@ def list_all_extensions():
         gradio.Markdown('## Update if available')
         gradio.Markdown('## Enabled')
 
+    updatelist = []
+
+    def add_or_remove(name):
+        def f(val):
+            if val:
+                updatelist.append(val)
+            else:
+                try:
+                    updatelist.remove(val)
+                except:
+                    pass
+
+        return f
+
     for e in em.states.values():
         with gradio.Row() as parent:
             gradio.Markdown(e.info['name'])
             gradio.Markdown(e.info['description'])
             gradio.Markdown(e.info['author'])
             with gradio.Row():
-                updatemd = gradio.Markdown('Not checked')
-                updatecheck = gradio.Checkbox(False, label='Update', visible=False)
+                e.update_el = [gradio.Markdown('Not checked'), gradio.Checkbox(False, label='Update', visible=False)]
+                e.update_el[1].change(fn=add_or_remove(e.extname), inputs=e.update_el[1])
             enabled = gradio.Checkbox(e.enabled, label='Enabled')
             enabled.change(fn=e.set_enabled, inputs=enabled, outputs=enabled)
+
+    def quick_update_return(val, l):
+        if isinstance(val, str):
+            l.append(gradio.update(visible=True, value=val))
+            l.append(gradio.update(visible=False))
+            return
+        l.append(gradio.update(visible=False))
+        l.append(gradio.update(visible=True, value=val))
+
+    def check_for_updates():
+        if em.git_ready():
+            out_list = []
+            for e in em.states.values():
+                update_status = e.check_updates()
+                match update_status:
+                    case em.UpdateStatus.no_git:
+                        if e.extname in updatelist:
+                            updatelist.remove(e.extname)
+                        quick_update_return('Git not installed', out_list)
+                    case em.UpdateStatus.updated:
+                        if e.extname in updatelist:
+                            updatelist.remove(e.extname)
+                        quick_update_return('Up to date', out_list)
+                    case em.UpdateStatus.unmanaged:
+                        if e.extname in updatelist:
+                            updatelist.remove(e.extname)
+                        quick_update_return('I had an issue with git', out_list)
+                    case em.UpdateStatus.outdated:
+                        if e.extname not in updatelist:
+                            updatelist.append(e.extname)
+                        quick_update_return(True, out_list)
+            return out_list
+
+        return quick_update_return('Git not installed') * len(em.states)
+
+    all_els = []
+    for e in em.states.values():
+        all_els.append(e.update_el[0])
+        all_els.append(e.update_el[1])
+
+    check_updates.click(fn=check_for_updates, outputs=all_els)
+
+    def update_exts():
+        for e in updatelist:
+            ext = em.states[e]
+            ext.update()
+
+    update_selected.click(fn=update_exts())
 
 
 def install_extensions_tab():

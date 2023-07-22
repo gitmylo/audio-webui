@@ -13,7 +13,7 @@ ext_folder = os.path.join('extensions')
 def git_ready():
     cmd = 'git -v'
     cmd = cmd if is_windows() else shlex.split(cmd)
-    result = subprocess.run(cmd).returncode
+    result = subprocess.run(cmd, capture_output=True).returncode
     return result == 0
 
 
@@ -28,12 +28,13 @@ class Extension:
     def __init__(self, ext_name, load_states):
         self.enabled = (ext_name not in load_states.keys()) or load_states[ext_name]
         self.extname = ext_name
-        self.path = os.path.join(ext_folder, ext_name)
+        self.path = os.path.abspath(os.path.join(ext_folder, ext_name))
         self.main_file = os.path.join(self.path, 'main.py')
         self.req_file = os.path.join(self.path, 'requirements.py')  # Optional
         self.style_file = os.path.join(self.path, 'style.py')
         self.js_file = os.path.join(self.path, 'scripts', 'script.js')
         self.git_dir = os.path.join(self.path, '.git')
+        self.update_el = None
         extinfo = os.path.join(self.path, 'extension.json')
         if os.path.isfile(extinfo):
             with open(extinfo, 'r', encoding='utf8') as info_file:
@@ -76,7 +77,30 @@ class Extension:
     def check_updates(self) -> UpdateStatus:
         if not os.path.isdir(self.git_dir):
             return UpdateStatus.unmanaged
-        return UpdateStatus.updated  # No check yet, TODO: add check
+        command1 = 'git fetch'
+        command1 = command1 if is_windows() else shlex.split(command1)
+        command2 = 'git status -uno'
+        command2 = command2 if is_windows() else shlex.split(command2)
+        search_string = 'git pull'  # Included in message from git if not up to date
+        neg_search_string = 'Your branch is up to date'
+
+        a = subprocess.run(command1, capture_output=True, cwd=self.path)
+        if a.returncode != 0:
+            return UpdateStatus.no_git
+        b = subprocess.run(command2, capture_output=True, cwd=self.path)
+        if a.returncode != 0:
+            return UpdateStatus.no_git
+
+        if search_string in b.stdout:
+            return UpdateStatus.outdated
+        if neg_search_string in b.stdout:
+            return UpdateStatus.updated
+        return UpdateStatus.outdated
+
+
+    def update(self):
+        pass
+
 
 
 def get_valid_extensions():
