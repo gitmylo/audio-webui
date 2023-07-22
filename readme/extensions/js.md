@@ -27,7 +27,7 @@ As markdown list
 As file path list
 </summary>
 
-extension/extension.py
+extension/extension.py  
 extension/main.py  
 extension/requirements.py  
 extension/style.py  
