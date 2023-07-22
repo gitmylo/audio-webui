@@ -1,11 +1,14 @@
 import json
 import os.path
+import shlex
 import shutil
+import subprocess
 
 import gradio
 import huggingface_hub
 import webui.modules.models as mod
 import webui.extensionlib.callbacks as cb
+from setup_tools.os import is_windows
 
 
 class CustomSetting:
@@ -361,7 +364,22 @@ def list_all_extensions():
 
 
 def install_extensions_tab():
-    pass
+    import webui.extensionlib.extensionmanager as em
+
+    def install_extension(url):
+        command = f'git clone {url}'
+        command = command if is_windows() else shlex.split(command)
+        out = subprocess.run(command, cwd=os.path.abspath(em.ext_folder))
+        if out.returncode != 0:
+            return '', f'Something went wrong with installing! Check output in console for details.'
+        return '', f'Installed {url} (Not checked if successful, check console for status)'
+
+    with gradio.Row():
+        repo_url = gradio.Textbox(placeholder='https://www.github.com/user/repo', label='Git repo url', max_lines=1)
+        download_button = gradio.Button('Install from url', variant='primary')
+    markdown = gradio.Markdown()
+
+    download_button.click(fn=install_extension, inputs=repo_url, outputs=[repo_url, markdown])
 
 
 def extra_tab():
