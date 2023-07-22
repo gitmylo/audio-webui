@@ -226,3 +226,5 @@ def utils_tab():
             ffmpeg_utils_tab()
         with gradio.Tab('🔽 Audio downloads'):
             audio_download_tab()
+        import webui.extensionlib.callbacks as cb
+        cb.get_manager('webui.tabs.utils')()

@@ -66,12 +66,15 @@ Indents get replaced with ".", so for example:
 * example
   * indented (example.indented)
   * indented2 (example.indented2)
+  * *non-callback*
+    * callback (example.non-callback.callback)
 
 * webui
   * init [Called when the webui is initiated, after extensions have been initialized.]
   * [settings](callbacks/webui/settings.md) [Called to fetch settings for this extension.]
-  * tabs [Called after the base tabs have been registered, allows you to add new tabs]
-  * tts
+  * [tabs](your_first_extension.md) [Called after the base tabs have been registered, allows you to add new tabs]
+    * utils [Same as tabs, but on the utils tab]
+  * *tts*
     * [list](callbacks/webui/tts/list.md) [Called on tts list init, register new tts modules here]
 
 Please request new callbacks if you need them, don't monkeypatch them in, that might break compatibility with updates and other extensions.

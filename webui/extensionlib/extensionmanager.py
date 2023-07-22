@@ -131,6 +131,7 @@ register_callbacks = [
     'webui.init',
     'webui.settings',
     'webui.tabs',
+    'webui.tabs.utils',
     'webui.tts.list'
 ]
 
