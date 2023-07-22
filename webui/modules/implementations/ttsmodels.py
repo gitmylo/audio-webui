@@ -339,7 +339,16 @@ elements = []
 
 def init_elements():
     global elements
-    elements = [BarkTTS(), CoquiTTS()]
+
+    import webui.extensionlib.callbacks as cb
+    extension_elements = []
+    for el in cb.get_manager('webui.tts.list')():
+        if isinstance(el, mod.TTSModelLoader):
+            extension_elements.append(el)
+        elif isinstance(el, list):
+            extension_elements += el
+    extension_elements = [e for e in extension_elements if isinstance(e, mod.TTSModelLoader)]  # Cleanup
+    elements = [BarkTTS(), CoquiTTS()] + extension_elements
 
 
 def all_tts() -> list[mod.TTSModelLoader]:

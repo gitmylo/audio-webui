@@ -1,10 +1,14 @@
 import json
 import os.path
+import shlex
 import shutil
+import subprocess
 
 import gradio
 import huggingface_hub
 import webui.modules.models as mod
+import webui.extensionlib.callbacks as cb
+from setup_tools.os import is_windows
 
 
 class CustomSetting:
@@ -111,6 +115,11 @@ config = {
         'description': 'Pick a style to display the audio outputs as in a video.'
     }
 }
+settings_add = cb.get_manager('webui.settings')()
+for settings_dict in settings_add:
+    for k, v in zip(settings_dict.keys(), settings_dict.values()):
+        if k not in config.keys():
+            config[k] = v
 
 
 config_path = os.path.join('data', 'config.json')
@@ -254,10 +263,131 @@ def settings():
                         elem.change(fn=change_setting(key), inputs=elem)
 
 
+def extensions_tab():
+    with gradio.Tabs():
+        with gradio.Tab('✅ Installed'):
+            list_all_extensions()
+        with gradio.Tab('⬇️ Install new extensions'):
+            install_extensions_tab()
+
+
+def list_all_extensions():
+    import webui.extensionlib.extensionmanager as em
+
+    with gradio.Row():
+        check_updates = gradio.Button('Check for updates', variant='primary')
+        update_selected = gradio.Button('Update selected', variant='primary')
+        shutdown = gradio.Button('Shutdown audio webui')
+        shutdown.click(fn=lambda: os._exit(0))
+
+    gradio.Markdown('Extension managing is still work in progress, and will require restarts of the webui.')
+
+    with gradio.Row():
+        gradio.Markdown('## Name')
+        gradio.Markdown('## Description')
+        gradio.Markdown('## Author')
+        gradio.Markdown('## Update if available')
+        gradio.Markdown('## Enabled')
+
+    updatelist = []
+
+    def add_or_remove(name):
+        def f(val):
+            if val:
+                updatelist.append(val)
+            else:
+                try:
+                    updatelist.remove(val)
+                except:
+                    pass
+
+        return f
+
+    for e in em.states.values():
+        with gradio.Row() as parent:
+            gradio.Markdown(e.info['name'])
+            gradio.Markdown(e.info['description'])
+            gradio.Markdown(e.info['author'])
+            with gradio.Row():
+                e.update_el = [gradio.Markdown('Not checked'), gradio.Checkbox(False, label='Update', visible=False)]
+                e.update_el[1].change(fn=add_or_remove(e.extname), inputs=e.update_el[1])
+            enabled = gradio.Checkbox(e.enabled, label='Enabled')
+            enabled.change(fn=e.set_enabled, inputs=enabled, outputs=enabled)
+
+    def quick_update_return(val, l):
+        if isinstance(val, str):
+            l.append(gradio.update(visible=True, value=val))
+            l.append(gradio.update(visible=False))
+            return
+        l.append(gradio.update(visible=False))
+        l.append(gradio.update(visible=True, value=val))
+
+    def check_for_updates():
+        if em.git_ready():
+            out_list = []
+            for e in em.states.values():
+                update_status = e.check_updates()
+                match update_status:
+                    case em.UpdateStatus.no_git:
+                        if e.extname in updatelist:
+                            updatelist.remove(e.extname)
+                        quick_update_return('Git not installed', out_list)
+                    case em.UpdateStatus.updated:
+                        if e.extname in updatelist:
+                            updatelist.remove(e.extname)
+                        quick_update_return('Up to date', out_list)
+                    case em.UpdateStatus.unmanaged:
+                        if e.extname in updatelist:
+                            updatelist.remove(e.extname)
+                        quick_update_return('I had an issue with git', out_list)
+                    case em.UpdateStatus.outdated:
+                        if e.extname not in updatelist:
+                            updatelist.append(e.extname)
+                        quick_update_return(True, out_list)
+            return out_list
+
+        return quick_update_return('Git not installed') * len(em.states)
+
+    all_els = []
+    for e in em.states.values():
+        all_els.append(e.update_el[0])
+        all_els.append(e.update_el[1])
+
+    check_updates.click(fn=check_for_updates, outputs=all_els)
+
+    def update_exts():
+        for e in updatelist:
+            ext = em.states[e]
+            ext.update()
+
+    update_selected.click(fn=update_exts())
+
+
+def install_extensions_tab():
+    import webui.extensionlib.extensionmanager as em
+
+    def install_extension(url):
+        command = f'git clone {url}'
+        command = command if is_windows() else shlex.split(command)
+        out = subprocess.run(command, cwd=os.path.abspath(em.ext_folder))
+        if out.returncode != 0:
+            return '', f'Something went wrong with installing! Check output in console for details.'
+        return '', f'Installed {url} (Not checked if successful, check console for status)'
+
+    with gradio.Row():
+        repo_url = gradio.Textbox(placeholder='https://www.github.com/user/repo', label='Git repo url', max_lines=1)
+        download_button = gradio.Button('Install from url', variant='primary')
+    markdown = gradio.Markdown()
+
+    download_button.click(fn=install_extension, inputs=repo_url, outputs=[repo_url, markdown])
+
+
 def extra_tab():
     with gradio.Tabs():
         with gradio.Tab('✅ Main'):
             settings()
+        with gradio.Tab('🚀 Extensions'):
+            extensions_tab()
         with gradio.Tab('➕ Extra'):
             gradio.Markdown('# 🤗 Huggingface')
             with gradio.Row():
