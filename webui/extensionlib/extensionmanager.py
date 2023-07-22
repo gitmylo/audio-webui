@@ -97,10 +97,14 @@ class Extension:
             return UpdateStatus.updated
         return UpdateStatus.outdated
 
-
     def update(self):
-        pass
-
+        if not os.path.isdir(self.git_dir):
+            return
+        command = 'git pull'
+        command = command if is_windows() else shlex.split(command)
+        output = subprocess.run(command, capture_output=True, cwd=self.path)
+        if output.returncode != 0:
+            print(f'Something went wrong during git pull for {self.extname}')
 
 
 def get_valid_extensions():
