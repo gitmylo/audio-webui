@@ -39,7 +39,7 @@ def get_manager(name) -> CallBackManager | None:
     """Get a callback manager by its registered name. (case insensitive)"""
     matches = [callback for callback in callbacks if callback.name.casefold() == name.casefold()]
     if len(matches) == 0:
-        return None
+        return register_new(name)
     return matches[0]
 
 

@@ -79,6 +79,7 @@ def create_ui(theme) -> gr.Blocks:
             StyleValue('border-radius', '10px')
 
     import webui.extensionlib.extensionmanager as em
+    import webui.extensionlib.callbacks as cb
 
     for e in em.states.values():
         e.get_style_rules()
@@ -101,4 +102,5 @@ def create_ui(theme) -> gr.Blocks:
             for name, content in tabs:
                 with gr.Tab(name, id=name):
                     content()
+            cb.get_manager('webui.tabs')()
     return webui

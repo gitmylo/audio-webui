@@ -129,7 +129,9 @@ def get_load_states():
 
 register_callbacks = [
     'webui.init',
-    'webui.settings'
+    'webui.settings',
+    'webui.tabs',
+    'webui.tts.list'
 ]
 
 

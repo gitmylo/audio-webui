@@ -5,7 +5,7 @@ If you find something that you'd want a callback in, please suggest it on discor
 Hooking callbacks is the main use for callbacks from the extension developer's side, callbacks are basically events,
 which can easily be hooked.
 
-You can hook a callback like this:
+You can hook a callback like this (Not required, as callbacks will be auto-registered if missing):
 ```python
 # Define a function for the callback to run
 def callback_function(*args, **kwargs):
@@ -71,3 +71,7 @@ Indents get replaced with ".", so for example:
   * init [Called when the webui is initiated, after extensions have been initialized.]
   * [settings](callbacks/webui/settings.md) [Called to fetch settings for this extension.]
   * tabs [Called after the base tabs have been registered, allows you to add new tabs]
+  * tts
+    * [list](callbacks/webui/tts/list.md) [Called on tts list init, register new tts modules here]
+
+Please request new callbacks if you need them, don't monkeypatch them in, that might break compatibility with updates and other extensions.
