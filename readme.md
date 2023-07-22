@@ -32,7 +32,10 @@ On Windows, you need to have visual studio C++ build tools installed.
   * [More readme](#more-readme)
 <!-- TOC -->
 
-## 👍 NEW: Automatic installers
+## Latest big features
+* Extensions
+
+## 👍 Automatic installers
 [Automatic installers! (Download)](https://github.com/gitmylo/audio-webui/releases/tag/Installers)
 1. Put the installer in a folder
 2. Run the installer for your operating system.
