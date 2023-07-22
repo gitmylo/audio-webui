@@ -261,7 +261,44 @@ def settings():
 
 
 def extensions_tab():
-    pass  # TODO: figure out stuff to do here in order to effectively list components etc.
+    import webui.extensionlib.extensionmanager as em
+    with gradio.Tabs():
+        with gradio.Tab('✅ Installed'):
+            list_all_extensions()
+        with gradio.Tab('⬇️ Install new extensions'):
+            install_extensions_tab()
+
+
+def list_all_extensions():
+    import webui.extensionlib.extensionmanager as em
+
+    with gradio.Row():
+        check_updates = gradio.Button('Check for updates', variant='primary')
+        update_seleted = gradio.Button('Update selected', variant='primary')
+        shutdown = gradio.Button('Shutdown audio webui')
+        shutdown.click(fn=lambda: os._exit(0))
+
+    with gradio.Row():
+        gradio.Markdown('## Name')
+        gradio.Markdown('## Description')
+        gradio.Markdown('## Author')
+        gradio.Markdown('## Update if available')
+        gradio.Markdown('## Enabled')
+
+    for e in em.states.values():
+        with gradio.Row() as parent:
+            gradio.Markdown(e.info['name'])
+            gradio.Markdown(e.info['description'])
+            gradio.Markdown(e.info['author'])
+            with gradio.Row():
+                updatemd = gradio.Markdown('Not checked')
+                updatecheck = gradio.Checkbox(False, label='Update', visible=False)
+            enabled = gradio.Checkbox(e.enabled, label='Enabled')
+            enabled.change(fn=e.set_enabled, inputs=enabled, outputs=enabled)
+
+
+def install_extensions_tab():
+    pass
 
 
 def extra_tab():

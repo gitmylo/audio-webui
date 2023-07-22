@@ -1,0 +1,1 @@
+console.log('This script was loaded through an extension.')

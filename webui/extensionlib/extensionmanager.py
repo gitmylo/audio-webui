@@ -38,6 +38,11 @@ class Extension:
         if os.path.isfile(extinfo):
             with open(extinfo, 'r', encoding='utf8') as info_file:
                 self.info = json.load(info_file)
+                for k in ['name', 'description', 'author']:
+                    if k not in self.info:
+                        self.info[k] = 'Not provided'
+                if 'tags' not in self.info:
+                    self.info['tags'] = []
         else:
             raise FileNotFoundError(f'No extension.json file for {ext_name} extension.')
 
@@ -62,6 +67,11 @@ class Extension:
     def set_enabled(self, new):
         self.enabled = new
         set_load_states()
+        try:
+            import gradio
+            return gradio.update(value=new)
+        except:
+            return new
 
     def check_updates(self) -> UpdateStatus:
         if not os.path.isdir(self.git_dir):
