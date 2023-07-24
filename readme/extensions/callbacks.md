@@ -5,7 +5,7 @@ If you find something that you'd want a callback in, please suggest it on discor
 Hooking callbacks is the main use for callbacks from the extension developer's side, callbacks are basically events,
 which can easily be hooked.
 
-You can hook a callback like this (Not required, as callbacks will be auto-registered if missing):
+You can hook a callback like this:
 ```python
 # Define a function for the callback to run
 def callback_function(*args, **kwargs):
@@ -36,7 +36,8 @@ cb.unregister_by_name('webui.init', callback)
 ## Registering new callbacks (callback managers)
 You can register callbacks through extensionlib's callbacks manager. Use this if you want users to be able to expand
 your extension.  
-(For example, an API extension which has a callback to register additional routes.)
+(For example, an API extension which has a callback to register additional routes.)  
+(Not required, as callbacks will be auto-registered if missing)
 
 ```python
 import webui.extensionlib.callbacks as cb
