@@ -52,9 +52,9 @@ def audioldm_tab():
                 enhance = gradio.Checkbox(label='Enhance output', info='This could sound better, but could also sound worse.', value=True)
         with gradio.Column():
             with gradio.Row():
-                audio_out = gradio.Audio(label='Generated audio')
+                audio_out = gradio.Audio(label='Generated audio', interactive=False)
             with gradio.Row():
-                video_out = gradio.Video(label='Waveform video')
+                video_out = gradio.Video(label='Waveform video', interactive=False)
             with gradio.Row():
                 text_out = gradio.Textbox(label='Result')
 

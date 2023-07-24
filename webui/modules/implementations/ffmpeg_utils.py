@@ -60,7 +60,7 @@ def video_audio():
 def video_strip():
     with gradio.Row():
         video = gradio.File(label='Video or other file with audio.')
-        output = gradio.Audio(label='Audio')
+        output = gradio.Audio(label='Audio', interactive=False)
     with gradio.Row():
         strip_button = gradio.Button('Strip', variant='primary')
         clear_button = gradio.Button('Clear')

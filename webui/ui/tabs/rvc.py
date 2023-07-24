@@ -191,13 +191,13 @@ def rvc():
             with gradio.Row():
                 generate = gradio.Button('Generate', variant='primary', elem_id='rvc-generate')
             with gradio.Row():
-                audio_out = gradio.Audio(label='output audio')
+                audio_out = gradio.Audio(label='output audio', interactive=False)
             with gradio.Row():
-                video_out = gradio.Video(label='output spectrogram video')
+                video_out = gradio.Video(label='output spectrogram video', interactive=False)
             with gradio.Row():
-                audio_bg = gradio.Audio(label='background')
+                audio_bg = gradio.Audio(label='background', interactive=False)
             with gradio.Row():
-                audio_vocal = gradio.Audio(label='vocals')
+                audio_vocal = gradio.Audio(label='vocals', interactive=False)
 
         generate.click(fn=gen, inputs=[selected, speaker_id, pitch_extract, audio_el,
                                        up_key, index_rate, filter_radius, protect, crepe_hop_length, flags], outputs=[audio_out, video_out, audio_bg, audio_vocal])

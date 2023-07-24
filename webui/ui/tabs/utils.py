@@ -18,7 +18,7 @@ from webui.modules.implementations.ffmpeg_utils import ffmpeg_utils_tab
 def denoise_tab():
     with gradio.Row():
         audio_in = gradio.Audio(label='Input audio')
-        audio_out = gradio.Audio(label='Denoised audio')
+        audio_out = gradio.Audio(label='Denoised audio', interactive=False)
     denoise_button = gradio.Button('Denoise', variant='primary')
 
     def denoise_func(audio):
@@ -65,8 +65,8 @@ def music_split_tab():
     with gradio.Row():
         audio_in = gradio.Audio(label='Input audio')
         with gradio.Column():
-            audio_vocal = gradio.Audio(label='Vocals')
-            audio_background = gradio.Audio(label='Other audio')
+            audio_vocal = gradio.Audio(label='Vocals', interactive=False)
+            audio_background = gradio.Audio(label='Other audio', interactive=False)
 
     def music_split_func(audio):
         sr, wav = audio
@@ -137,7 +137,7 @@ def music_split_tab():
             audio_combine_1 = gradio.File(label='Input audio 1')
             # audio_combine_2 = gradio.Audio(label='Input audio 2', type='filepath')
             audio_combine_2 = gradio.File(label='Input audio 2')
-        audio_out = gradio.Audio(label='Combined audio')
+        audio_out = gradio.Audio(label='Combined audio', interactive=False)
 
     def music_merge_func(audio1, audio2):
         x, sr = torchaudio.load(audio1.name)
@@ -187,7 +187,7 @@ def waveform_tab():
 
     with gradio.Row():
         audio_in = gradio.Audio(label='Input audio')
-        video_out = gradio.PlayableVideo(label='Output waveform video')
+        video_out = gradio.PlayableVideo(label='Output waveform video', interactive=False)
 
     create_waveform_button = gradio.Button('Create waveform video', variant='primary')
     create_waveform_button.click(fn=create_waveform, inputs=audio_in, outputs=video_out)
@@ -206,7 +206,7 @@ def enhance_tab():
 
     with gradio.Row():
         audio_in = gradio.Audio(label='Input audio', type='filepath')
-        audio_out = gradio.Audio(label='Output audio')
+        audio_out = gradio.Audio(label='Output audio', interactive=False)
 
     create_waveform_button = gradio.Button('Enhance audio quality (Mainly for audioldm).', variant='primary')
     create_waveform_button.click(fn=enhance_audio, inputs=audio_in, outputs=audio_out)

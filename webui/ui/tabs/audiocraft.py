@@ -47,8 +47,8 @@ def audiocraft_tab():
                                  minimum=0, value=1, maximum=2)
         with gradio.Column():
             with gradio.Row():
-                audio_out = gradio.Audio(label='Generated audio')
+                audio_out = gradio.Audio(label='Generated audio', interactive=False)
             with gradio.Row():
-                video_out = gradio.Video(label='Waveform video')
+                video_out = gradio.Video(label='Waveform video', interactive=False)
     gen_button.click(generate, inputs=[prompt, input_audio, top_k, top_p, temp, duration],
                      outputs=[audio_out, video_out])
