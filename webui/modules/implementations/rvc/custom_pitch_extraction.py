@@ -1,3 +1,6 @@
+import gc
+import os.path
+
 import numpy as np
 import parselmouth
 import torch
@@ -142,6 +145,18 @@ def pitch_extract(f0_method, x, f0_min, f0_max, p_len, time_step, sr, window, cr
             f0 = get_mangio_crepe_f0(x, f0_min, f0_max, p_len, sr, crepe_hop_length)
         elif method == "mangio-crepe tiny":
             f0 = get_mangio_crepe_f0(x, f0_min, f0_max, p_len, sr, crepe_hop_length, 'tiny')
+        elif method == "rmvpe":
+            rmvpe_model_path = os.path.join('data', 'models', 'rmvpe')
+            import huggingface_hub
+            rmvpe_model_file = huggingface_hub.hf_hub_download('lj1995/VoiceConversionWebUI', 'rmvpe.pt', local_dir=rmvpe_model_path, local_dir_use_symlinks=False)
+
+            from webui.modules.implementations.rvc.rmvpe import RMVPE
+            print("loading rmvpe model")
+            model_rmvpe = RMVPE(rmvpe_model_file, is_half=True, device=None)
+            f0 = model_rmvpe.infer_from_audio(x, thred=0.03)
+            del model_rmvpe
+            torch.cuda.empty_cache()
+            gc.collect()
         f0s.append(f0)
 
     if not f0s:
