@@ -1,3 +1,4 @@
+from .no_colab_package import NoColabRequirement
 from .packaging_package import Packaging
 from .torch_package import Torch
 from .huggingface_package import Transformers, Diffusers
@@ -14,7 +15,8 @@ from setup_tools.magicinstaller.requirement import SimpleRequirementInit, Compar
 requirements = [
     Packaging(),  # Allows for version checks
 
-    SimpleRequirementInit('numpy', CompareAction.EQ, '1.23.5'),
+    # SimpleRequirementInit('numpy', CompareAction.EQ, '1.23.5'),
+    NoColabRequirement('numpy', CompareAction.EQ, '1.23.5'),  # Don't install this one when in google colab
 
     Torch(),
 
