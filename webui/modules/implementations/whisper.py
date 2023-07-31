@@ -52,16 +52,22 @@ def unload():
 
 def load(pretrained_model='openai/whisper-base', map_device='cuda' if torch.cuda.is_available() else 'cpu'):
     global model, processor, device, loaded_model
+    print('Loading map_device=', map_device, flush=True)
     try:
         if loaded_model != pretrained_model:
             unload()
+            print('Loading pretrained_model=', pretrained_model, flush=True)
             # model = pipeline('automatic-speech-recognition', pretrained_model, device=map_device, model_kwargs={'cache_dir': 'models/automatic-speech-recognition'})
             model = whisper.load_model(pretrained_model, map_device, 'data/models/automatic-speech-recognition/whisper')
+            print('Loaded pretrained_model=', pretrained_model, flush=True)
             loaded_model = pretrained_model
             device = map_device
+        else:
+            print('Already loaded loaded_model=', loaded_model, flush=True)
         return f'Loaded {pretrained_model}'
     except Exception as e:
         unload()
+        print('Loading failed', e, flush=True)
         return f'Failed to load, {e}'
 
 
@@ -73,6 +79,7 @@ def transcribe_wav(wav):
     global model, processor, device, loaded_model
     if loaded_model is not None:
         if wav is None:
+            print('Processing failed wav=', wav, flush=True)
             return None
         sr, wav = wav
         import traceback
@@ -80,14 +87,20 @@ def transcribe_wav(wav):
             if sr != 16000:
                 import torchaudio.functional as F
                 import numpy as np
+                print('Pre-processing wav ...', sr, wav.max(), wav.min(), flush=True)
                 wav = np.frombuffer(wav, np.int16).flatten().astype(np.float32) / 32768.0
                 wav = F.resample(torch.from_numpy(wav), sr, 16000)
                 sr = 16000
-            return whisper.transcribe(model, wav)['text'].strip()
+                print('Pre-processed', wav.max(), wav.min(), len(wav), flush=True)
+            transcribed = whisper.transcribe(model, wav)
+            print(transcribed, flush=True)
+            return transcribed['text'].strip()
         except Exception as e:
             traceback.print_exception(e)
+            print('Processing failed', e, flush=True)
             return f'Exception: {e}'
     else:
+        print('No model loaded! Please load a model.', flush=True)
         return 'No model loaded! Please load a model.'
 
 
