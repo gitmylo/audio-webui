@@ -1,5 +1,5 @@
 import gc
-import os.path
+import os
 from tempfile import NamedTemporaryFile
 
 import torch
@@ -57,9 +57,11 @@ def load(pretrained_model='openai/whisper-base', map_device='cuda' if torch.cuda
         if loaded_model != pretrained_model:
             unload()
             print('Loading pretrained_model=', pretrained_model, flush=True)
+            workspace_root = os.environ.get("MODELS_ROOT", 'data/models')
+            model_path = os.path.join(workspace_root, "automatic-speech-recognition/whisper")
             # model = pipeline('automatic-speech-recognition', pretrained_model, device=map_device, model_kwargs={'cache_dir': 'models/automatic-speech-recognition'})
-            model = whisper.load_model(pretrained_model, map_device, 'data/models/automatic-speech-recognition/whisper')
-            print('Loaded pretrained_model=', pretrained_model, flush=True)
+            model = whisper.load_model(pretrained_model, map_device, model_path)
+            print('Loaded pretrained_model=', pretrained_model, 'from', model_path, flush=True)
             loaded_model = pretrained_model
             device = map_device
         else:

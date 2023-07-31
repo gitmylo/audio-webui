@@ -1,0 +1,22 @@
+version: "3.3"
+services:
+  audio-generation-webui:
+    build:
+      context: .
+      args:
+        # specify which cuda version your card supports: https://developer.nvidia.com/cuda-gpus
+        TORCH_CUDA_ARCH_LIST: ${TORCH_CUDA_ARCH_LIST:-"6.0 6.1 6.2"}
+        USER_UID: ${USER_UID:-1000}
+    ports:
+      - "7860:7860"
+    volumes:
+      - "${AUDIO_DATA_DIR:-/opt/ai_stack/audio-webui}/datasets:/datasets"
+      - "${AUDIO_DATA_DIR:-/opt/ai_stack/audio-webui}/models:/home/dev/.local/share/tts"
+      - "${AUDIO_DATA_DIR:-/opt/ai_stack/audio-webui}/models:/models"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['0']
+              capabilities: [gpu]

@@ -24,7 +24,8 @@ class BarkTTS(mod.TTSModelLoader):
     @staticmethod
     def get_voices():
         found_prompts = []
-        base_path = 'data/bark_custom_speakers/'
+        workspace_root = os.environ.get("MODELS_ROOT", 'data')
+        base_path = os.path.join(workspace_root, 'bark_custom_speakers')
         for path, subdirs, files in os.walk(base_path):
             for name in files:
                 if name.endswith('.npz'):
@@ -34,9 +35,10 @@ class BarkTTS(mod.TTSModelLoader):
 
     @staticmethod
     def create_voice(file, clone_model):
+        workspace_root = os.environ.get("MODELS_ROOT", 'data')
         clone_model_obj = [model for model in hubert_models_cache if model['name'].casefold() == clone_model.casefold()][0]
         file_name = '.'.join(file.replace('\\', '/').split('/')[-1].split('.')[:-1])
-        out_file = f'data/bark_custom_speakers/{file_name}.npz'
+        out_file = f'{workspace_root}/bark_custom_speakers/{file_name}.npz'
 
         semantic_prompt = wav_to_semantics(file, clone_model_obj)
         fine_prompt = generate_fine_from_wav(file)

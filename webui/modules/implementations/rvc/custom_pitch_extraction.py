@@ -146,7 +146,8 @@ def pitch_extract(f0_method, x, f0_min, f0_max, p_len, time_step, sr, window, cr
         elif method == "mangio-crepe tiny":
             f0 = get_mangio_crepe_f0(x, f0_min, f0_max, p_len, sr, crepe_hop_length, 'tiny')
         elif method == "rmvpe":
-            rmvpe_model_path = os.path.join('data', 'models', 'rmvpe')
+            workspace_root = os.environ.get("MODELS_ROOT", 'data')
+            rmvpe_model_path = os.path.join(workspace_root, 'models', 'rmvpe')
             rmvpe_model_file = os.path.join(rmvpe_model_path, 'rmvpe.pt')
             if not os.path.isfile(rmvpe_model_file):
                 import huggingface_hub

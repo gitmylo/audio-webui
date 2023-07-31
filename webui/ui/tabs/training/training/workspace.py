@@ -13,7 +13,8 @@ class Workspace:
 
     @property
     def space_path(self):
-        return os.path.join('data', 'training', self.base_path, self.name)
+        workspace_root = os.environ.get("MODELS_ROOT", 'data')
+        return os.path.join(workspace_root, 'training', self.base_path, self.name)
 
     @property
     def json_path(self):

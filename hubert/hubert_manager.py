@@ -3,12 +3,12 @@ import shutil
 import urllib.request
 
 import huggingface_hub
-
+workspace_root = os.environ.get("MODELS_ROOT", 'data')
 
 class HuBERTManager:
     @staticmethod
     def make_sure_hubert_installed(download_url: str = 'https://dl.fbaipublicfiles.com/hubert/hubert_base_ls960.pt', file_name: str = 'hubert.pt'):
-        install_dir = os.path.join('data', 'models', 'hubert')
+        install_dir = os.path.join(workspace_root, 'models', 'hubert')
         if not os.path.isdir(install_dir):
             os.makedirs(install_dir, exist_ok=True)
         install_file = os.path.join(install_dir, file_name)
@@ -21,7 +21,7 @@ class HuBERTManager:
 
     @staticmethod
     def make_sure_tokenizer_installed(model: str = 'quantifier_hubert_base_ls960_14.pth', repo: str = 'GitMylo/bark-voice-cloning', local_file: str = 'tokenizer.pth'):
-        install_dir = os.path.join('data', 'models', 'hubert')
+        install_dir = os.path.join(workspace_root, 'models', 'hubert')
         if not os.path.isdir(install_dir):
             os.makedirs(install_dir, exist_ok=True)
         install_file = os.path.join(install_dir, local_file)
@@ -34,7 +34,7 @@ class HuBERTManager:
 
     @staticmethod
     def make_sure_hubert_rvc_installed(model: str = 'hubert_base.pt', repo: str = 'lj1995/VoiceConversionWebUI', local_file: str = 'hubert_rvc.pt'):
-        install_dir = os.path.join('data', 'models', 'hubert')
+        install_dir = os.path.join(workspace_root, 'models', 'hubert')
         if not os.path.isdir(install_dir):
             os.makedirs(install_dir, exist_ok=True)
         install_file = os.path.join(install_dir, local_file)

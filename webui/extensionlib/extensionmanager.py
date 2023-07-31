@@ -6,7 +6,8 @@ from enum import Enum
 
 from setup_tools.os import is_windows
 
-extension_states = os.path.join('data', 'extensions.json')
+workspace_root = os.environ.get("MODELS_ROOT", 'data')
+extension_states = os.path.join(workspace_root, 'extensions.json')
 ext_folder = os.path.join('extensions')
 
 

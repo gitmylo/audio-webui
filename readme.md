@@ -27,6 +27,7 @@ On Windows, you need to have visual studio C++ build tools installed.
     * [📦 Installing](#-installing)
     * [🔼 Updating](#-updating)
     * [🏃‍ Running](#-running)
+    * [🏃‍ Running with docker](#-running)
   * [💻 Google colab notebook](#-google-colab-notebook)
   * [💻 Common command line flags](#-common-command-line-flags)
   * [✨ Current goals and features ✨](#-current-goals-and-features-)
@@ -61,6 +62,12 @@ Running should be as simple as running `run.bat` or `run.sh` depending on your O
 Everything should get installed automatically.
 
 If there's an issue with running, please create an [issue](https://github.com/gitmylo/audio-webui/issues)
+
+### 🏃‍ Running with docker
+Ensure docker and docker compose are installed.  
+Make persistent directory `sudo mkdir -p /opt/ai_stack/audio-webui/models /opt/ai_stack/audio-webui/datasets && sudo chown $USER:$USER -R /opt/ai_stack/audio-webui`
+Then `docker compose up --build`
+`models` directory will keep all downloaded files in the disk, `datasets` is used to put your RVC datasets.
 
 ## 💻 Google colab notebook
 [![Open in colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gitmylo/audio-webui/blob/master/audio_webui_colab.ipynb) [![Open in github](https://img.shields.io/badge/Github-Open%20file-green)](audio_webui_colab.ipynb)

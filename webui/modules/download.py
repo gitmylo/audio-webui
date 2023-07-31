@@ -17,7 +17,9 @@ class AutoModel:
 
 
 def get_rvc_models():
-    path = os.path.join('data', 'models', 'rvc')
+    workspace_root = os.environ.get("MODELS_ROOT", 'data')
+    path = os.path.join(workspace_root, 'models', 'rvc')
+    os.makedirs(path, exist_ok=True)
     output = []
     for f in os.listdir(path):
         f_path = os.path.join(path, f)

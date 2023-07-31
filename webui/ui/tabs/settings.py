@@ -121,8 +121,8 @@ for settings_dict in settings_add:
         if k not in config.keys():
             config[k] = v
 
-
-config_path = os.path.join('data', 'config.json')
+workspace_root = os.environ.get("MODELS_ROOT", 'data')
+config_path = os.path.join(workspace_root, 'config.json')
 
 
 def get(name):

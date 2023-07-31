@@ -22,7 +22,8 @@ def create_model(pretrained='cvssp/audioldm-m-full', map_device='cuda' if torch.
         delete_model()
     global model, loaded, clap_model, processor, device
     try:
-        cache_dir = os.path.join('data', 'models', 'audioldm')
+        workspace_root = os.environ.get("MODELS_ROOT", 'data')
+        cache_dir = os.path.join(workspace_root, 'models', 'audioldm')
         model = diffusers.AudioLDMPipeline.from_pretrained(pretrained, cache_dir=cache_dir).to(map_device)
         clap_model = transformers.ClapModel.from_pretrained("sanchit-gandhi/clap-htsat-unfused-m-full", cache_dir=cache_dir).to(map_device)
         processor = transformers.AutoProcessor.from_pretrained("sanchit-gandhi/clap-htsat-unfused-m-full", cache_dir=cache_dir)

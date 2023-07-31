@@ -27,8 +27,8 @@ from webui.modules.implementations.rvc.infer_pack.models import (
 )
 
 hubert_model = None
-weight_root = os.path.join('data', 'models', 'rvc')
-
+workspace_root = os.environ.get("MODELS_ROOT", 'data')
+weight_root = os.path.join(workspace_root, 'models', 'rvc')
 
 def config_file_change_fp32():
     try:
