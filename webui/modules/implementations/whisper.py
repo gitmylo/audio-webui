@@ -79,7 +79,9 @@ def transcribe_wav(wav):
         try:
             if sr != 16000:
                 import torchaudio.functional as F
-                wav = F.resample((torch.tensor(wav).to(device).float() / 32767.0).mean(-1).squeeze().unsqueeze(0), sr, 16000).flatten().cpu().detach().numpy()
+                import numpy as np
+                wav = np.frombuffer(wav, np.int16).flatten().astype(np.float32) / 32768.0
+                wav = F.resample(torch.from_numpy(wav), sr, 16000)
                 sr = 16000
             return whisper.transcribe(model, wav)['text'].strip()
         except Exception as e:
