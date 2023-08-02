@@ -1,0 +1,10 @@
+services:
+  audio-webui:
+    container_name: audio-webui
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - USERNAME=your_username
+      - PASSWORD=your_password
+    restart: unless-stopped
