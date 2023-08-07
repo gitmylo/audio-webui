@@ -10,9 +10,9 @@ loaded = False
 used_model = ''
 device: str = None
 
-melody_models = ['melody']
+melody_models = ['facebook/musicgen-melody']
 audiogen_models = ['facebook/audiogen-medium']
-models = ['small', 'medium', 'large'] + melody_models + audiogen_models
+models = ['facebook/musicgen-small', 'facebook/musicgen-medium', 'facebook/musicgen-large'] + melody_models + audiogen_models
 
 
 def supports_melody():
