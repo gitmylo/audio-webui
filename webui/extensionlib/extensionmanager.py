@@ -11,7 +11,7 @@ ext_folder = os.path.join('extensions')
 
 
 def git_ready():
-    cmd = 'git -v'
+    cmd = 'git --version'
     cmd = cmd if is_windows() else shlex.split(cmd)
     result = subprocess.run(cmd, capture_output=True).returncode
     return result == 0
