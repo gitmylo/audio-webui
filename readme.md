@@ -26,6 +26,7 @@ On Windows, you need to have visual studio C++ build tools installed.
   * [❗❗ Please read ❗❗](#-please-read-)
   * [Latest big features](#latest-big-features)
   * [👍 Automatic installers](#-automatic-installers)
+  * [📦 Docker](#-docker)
   * [💻 Local install (Manual)](#-local-install-manual)
     * [🔽 Downloading](#-downloading)
     * [📦 Installing](#-installing)
@@ -45,6 +46,13 @@ On Windows, you need to have visual studio C++ build tools installed.
 1. Put the installer in a folder
 2. Run the installer for your operating system.
 3. Now run the webui's install script. Follow the steps at [📦 Installing](#-installing)
+
+## 📦 Docker
+<details>
+<summary>Links to community audio-webui docker projects</summary>
+
+* https://github.com/LajaSoft/audio-webui-docker
+</details>
 
 ## 💻 Local install (Manual)
 ### 🔽 Downloading
