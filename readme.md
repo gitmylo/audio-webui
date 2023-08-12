@@ -51,8 +51,12 @@ On Windows, you need to have visual studio C++ build tools installed.
 <details>
 <summary>Links to community audio-webui docker projects</summary>
 
-* https://github.com/LajaSoft/audio-webui-docker
+* https://github.com/LajaSoft/audio-webui-docker (Docker compose which downloads jacen92's fork)
+* https://github.com/jacen92/audio-webui-docker (Fork of audio-webui which includes docker compose)
+
 </details>
+Note: The docker repositories are not maintained by me. And docker related issues should go to the docker repositories.  
+If an issue is related to audio-webui directly, create the issue here. Unless a fix has already been made.
 
 ## 💻 Local install (Manual)
 ### 🔽 Downloading
