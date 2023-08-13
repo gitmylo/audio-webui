@@ -9,6 +9,7 @@ import requests
 import scipy.io.wavfile
 import torch.cuda
 from TTS.api import TTS
+from TTS.utils.manage import ModelManager
 
 import webui.modules.models as mod
 from webui.modules.implementations.patches.bark_custom_voices import wav_to_semantics, generate_fine_from_wav, \
@@ -277,7 +278,7 @@ class CoquiTTS(mod.TTSModelLoader):
 
     def _components(self, **quick_kwargs):
         with gradio.Row(visible=False) as r1:
-            selected_tts = gradio.Dropdown(TTS.list_models(), label='TTS model', info='The TTS model to use for text-to-speech',
+            selected_tts = gradio.Dropdown(ModelManager(models_file=TTS.get_models_file_path(), progress_bar=False, verbose=False).list_tts_models(), label='TTS model', info='The TTS model to use for text-to-speech',
                                            allow_custom_value=True, **quick_kwargs)
             selected_tts_unload = gradio.Button('💣', variant='primary tool offset--10', **quick_kwargs)
 
