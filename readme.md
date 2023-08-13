@@ -1,5 +1,9 @@
 # <img alt="logo" height="25" src="assets/logo.png" width="25"/> Audio Webui <img alt="logo" height="25" src="assets/logo.png" width="25"/>
 
+
+https://github.com/gitmylo/audio-webui/assets/36931363/c285b4dc-63cf-4b1c-895d-9723a2cbf91e
+
+
 [![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/t/gitmylo/audio-webui)](https://github.com/gitmylo/audio-webui/commits/master)
 [![GitHub contributors](https://img.shields.io/github/contributors-anon/gitmylo/audio-webui)](https://github.com/gitmylo/audio-webui/graphs/contributors)
 [![GitHub all releases](https://img.shields.io/github/downloads/gitmylo/audio-webui/total?label=installer%20downloads)](https://github.com/gitmylo/audio-webui/releases/tag/Installers)
@@ -22,6 +26,7 @@ On Windows, you need to have visual studio C++ build tools installed.
   * [❗❗ Please read ❗❗](#-please-read-)
   * [Latest big features](#latest-big-features)
   * [👍 Automatic installers](#-automatic-installers)
+  * [📦 Docker](#-docker)
   * [💻 Local install (Manual)](#-local-install-manual)
     * [🔽 Downloading](#-downloading)
     * [📦 Installing](#-installing)
@@ -41,6 +46,17 @@ On Windows, you need to have visual studio C++ build tools installed.
 1. Put the installer in a folder
 2. Run the installer for your operating system.
 3. Now run the webui's install script. Follow the steps at [📦 Installing](#-installing)
+
+## 📦 Docker
+<details>
+<summary>Links to community audio-webui docker projects</summary>
+
+* https://github.com/LajaSoft/audio-webui-docker (Docker compose which downloads jacen92's fork)
+* https://github.com/jacen92/audio-webui-docker (Fork of audio-webui which includes docker compose)
+
+</details>
+Note: The docker repositories are not maintained by me. And docker related issues should go to the docker repositories.  
+If an issue is related to audio-webui directly, create the issue here. Unless a fix has already been made.
 
 ## 💻 Local install (Manual)
 ### 🔽 Downloading

@@ -3,14 +3,16 @@ import gc
 import gradio
 import torch
 from audiocraft.models import MusicGen
+from audiocraft.models import AudioGen
 
 model: MusicGen = None
 loaded = False
 used_model = ''
 device: str = None
 
-melody_models = ['melody']
-models = ['small', 'medium', 'large'] + melody_models
+melody_models = ['facebook/musicgen-melody']
+audiogen_models = ['facebook/audiogen-medium']
+models = ['facebook/musicgen-small', 'facebook/musicgen-medium', 'facebook/musicgen-large'] + melody_models + audiogen_models
 
 
 def supports_melody():
@@ -22,7 +24,7 @@ def create_model(pretrained='medium', map_device='cuda' if torch.cuda.is_availab
         delete_model()
     global model, loaded, device, used_model
     try:
-        model = MusicGen.get_pretrained(pretrained, device=map_device)
+        model = MusicGen.get_pretrained(pretrained, device=map_device) if pretrained not in audiogen_models else AudioGen.get_pretrained(pretrained, device=map_device)
         device = map_device
         used_model = pretrained
         loaded = True
