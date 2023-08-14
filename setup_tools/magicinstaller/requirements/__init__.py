@@ -15,6 +15,8 @@ from setup_tools.magicinstaller.requirement import SimpleRequirementInit, Compar
 requirements = [
     Packaging(),  # Allows for version checks
 
+    TTS(),
+
     # SimpleRequirementInit('numpy', CompareAction.EQ, '1.23.5'),
     NoColabRequirement('numpy', CompareAction.EQ, '1.23.5'),  # Don't install this one when in google colab
 
@@ -41,8 +43,6 @@ requirements = [
     NoiseReduce(),
     LibRosa(),
     Demucs(),
-
-    TTS(),
 
     PyTube(),
 
