@@ -16,7 +16,7 @@ requirements = [
     Packaging(),  # Allows for version checks
 
     # SimpleRequirementInit('numpy', CompareAction.EQ, '1.23.5'),
-    NoColabRequirement('numpy', CompareAction.EQ, '1.23.5'),  # Don't install this one when in google colab
+    NoColabRequirement('numpy'),  # Don't install this one when in google colab
 
     Torch(),
 
