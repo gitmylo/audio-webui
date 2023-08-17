@@ -260,7 +260,7 @@ def pitch_extract():
     model = models[0]
     model = model.to(device)
     if device != "cpu":
-        model = model.half()
+        model = model.float()
     model.eval()
 
     output += '\nProcessing features...'
@@ -282,7 +282,7 @@ def pitch_extract():
 
             padding_mask = torch.BoolTensor(features.shape).fill_(False)
             inputs = {
-                "source": features.half().to(device)
+                "source": features.float().to(device)
                 if device not in ["mps", "cpu"]
                 else features.to(device),
                 "padding_mask": padding_mask.to(device),
