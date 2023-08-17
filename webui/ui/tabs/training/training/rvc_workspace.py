@@ -733,7 +733,6 @@ def train_model(base_ckpt_, epochs):
                 # Generator
                 y_d_hat_r, y_d_hat_g, fmap_r, fmap_g = net_d(wave, y_hat)
                 with autocast(enabled=False):
-                    print(y_mel.shape, y_hat_mel.shape)
                     loss_mel = F.l1_loss(y_mel, y_hat_mel) * HParams.c_mel
                     loss_kl = kl_loss(z_p, logs_q, m_p, logs_p, z_mask) * HParams.c_kl
                     loss_fm = feature_loss(fmap_r, fmap_g)
