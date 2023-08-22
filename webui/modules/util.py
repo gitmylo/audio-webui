@@ -9,6 +9,7 @@ import gradio
 import numpy as np
 import scipy.io.wavfile
 from gradio import processing_utils, utils
+from gradio_client.client import DEFAULT_TEMP_DIR
 from matplotlib import pyplot as plt
 
 import setup_tools.os
@@ -24,11 +25,11 @@ def showwaves(
             audio_file = audio
             audio = processing_utils.audio_from_file(audio)
         else:
-            tmp_wav = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+            tmp_wav = tempfile.NamedTemporaryFile(dir=DEFAULT_TEMP_DIR, suffix=".wav", delete=False)
             processing_utils.audio_to_file(audio[0], audio[1], tmp_wav.name, format="wav")
             audio_file = tmp_wav.name
 
-        output_mp4 = tempfile.NamedTemporaryFile(suffix=".mkv", delete=False)
+        output_mp4 = tempfile.NamedTemporaryFile(dir=DEFAULT_TEMP_DIR, suffix=".mkv", delete=False)
 
         command = f'ffmpeg -y -i {audio_file} -filter_complex "[0:a]showwaves=s=1280x720:mode=line,format=yuv420p[v]" -map "[v]" -map 0:a -preset veryfast -c:v libx264 -c:a copy {output_mp4.name}'
 

@@ -1,9 +1,7 @@
 import gc
 import os.path
-from tempfile import NamedTemporaryFile
 
 import diffusers
-import soundfile
 import torch.cuda
 import transformers
 import librosa

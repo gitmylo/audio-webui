@@ -4,7 +4,8 @@ from tempfile import NamedTemporaryFile
 
 import torch
 import whisper
-from transformers import WhisperProcessor, WhisperForConditionalGeneration, pipeline, AutomaticSpeechRecognitionPipeline
+from transformers import WhisperProcessor, WhisperForConditionalGeneration, AutomaticSpeechRecognitionPipeline
+from gradio_client.client import DEFAULT_TEMP_DIR
 
 processor: WhisperProcessor = None
 model: WhisperForConditionalGeneration | AutomaticSpeechRecognitionPipeline = None
@@ -99,7 +100,7 @@ def transcribe_files(files: list) -> list[str]:
             filename = os.path.basename(f.name)
             print('Processing ', filename)
             filename_noext, fileext = os.path.splitext(filename)
-            out_file = NamedTemporaryFile(mode='w', delete=False, suffix='.txt', prefix=filename_noext, encoding='utf8')
+            out_file = NamedTemporaryFile(dir=DEFAULT_TEMP_DIR, mode='w', delete=False, suffix='.txt', prefix=filename_noext, encoding='utf8')
 
             out_file.write(whisper.transcribe(model, f.name)['text'].strip())
 

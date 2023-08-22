@@ -6,6 +6,9 @@ if not args.no_data_cache:
     os.environ['HF_HOME'] = os.getenv('HF_HOME', os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'models', 'unclassified'))
     os.environ['MUSICGEN_ROOT'] = os.getenv('MUSICGEN_ROOT', os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'models', 'musicgen'))
 
+# Set custom gradio temp dir
+os.environ['GRADIO_TEMP_DIR'] = os.getenv('GRADIO_TEMP_DIR', os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'temp'))
+
 from autodebug.prelaunch import prelaunch_checks
 from autodebug import autodebug
 

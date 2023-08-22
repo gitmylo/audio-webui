@@ -1,6 +1,7 @@
 import shlex
 import subprocess
 from tempfile import NamedTemporaryFile
+from gradio_client.client import DEFAULT_TEMP_DIR
 
 import gradio
 
@@ -48,7 +49,7 @@ def video_audio():
         clear_button = gradio.Button('Clear')
 
     def image_audio_func(v, a):
-        out_file = NamedTemporaryFile(delete=False, suffix='.mp4').name
+        out_file = NamedTemporaryFile(dir=DEFAULT_TEMP_DIR, delete=False, suffix='.mp4').name
         result = run_command(f'ffmpeg -y -i "{v}" -i "{a}" -c:v copy -map 0:v:0 -map 1:a:0 -c:a aac -b:a 192k -shortest "{out_file}"')
         assert result.returncode == 0
         return out_file
@@ -66,7 +67,7 @@ def video_strip():
         clear_button = gradio.Button('Clear')
 
     def strip(a):
-        out_file = NamedTemporaryFile(delete=False, suffix='.wav').name
+        out_file = NamedTemporaryFile(dir=DEFAULT_TEMP_DIR, delete=False, suffix='.wav').name
         result = run_command(f'ffmpeg -y -i "{a.name}" "{out_file}"')
         assert result.returncode == 0
         return out_file
