@@ -9,7 +9,6 @@ from autodebug.autodebug import InstallFailException
 from setup_tools.os import is_windows
 from threading import Thread
 
-
 valid_last: list[tuple[str, str]] = None
 
 
@@ -28,7 +27,6 @@ class Requirement:
     def install_or_upgrade_if_needed(self):
         if not self.is_installed() or not self.is_right_version():
             self.post_install(self.install())
-
 
     def post_install(self, install_output: tuple[int, str, str]):
         exit_code, stdout, stderr = install_output
@@ -53,7 +51,8 @@ class Requirement:
             idx += 1
             print(f'\rInstalling {name} {curr_symbol}', end='')
             time.sleep(0.25)
-        print(f'\rInstalled {name}!             ' if status_dict['success'] else f'\rFailed to install {name}. Check AutoDebug output.')
+        print(f'\rInstalled {name}!             ' if status_dict[
+            'success'] else f'\rFailed to install {name}. Check AutoDebug output.')
 
     def install_pip(self, command, name=None) -> tuple[int, str, str]:
         global valid_last
@@ -95,7 +94,6 @@ class Requirement:
 
         valid_last = out_list
         return out_list
-
 
     def get_package_version(self, name: str, freeze: dict[tuple[str, str]] | None = None) -> bool | str:
         if freeze is None:
@@ -165,3 +163,19 @@ class SimpleRequirementInit(SimpleRequirement):
                 symbol = '=='
 
         return self.install_pip(f'{self.package_name}{symbol}{self.version}', self.package_name)
+
+
+class SimpleGitRequirement(SimpleRequirement):
+    def __init__(self, package_name, repo, check_version=False):
+        super().__init__()
+        self.package_name = package_name
+        self.repo = repo
+        self.check_version = check_version
+
+    def is_right_version(self):
+        if not self.check_version:
+            return True
+        return self.get_package_version(self.package_name) == self.repo
+
+    def install(self) -> tuple[int, str, str]:
+        return self.install_pip(self.repo, self.package_name)

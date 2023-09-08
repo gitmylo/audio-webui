@@ -1,7 +1,7 @@
 from .no_colab_package import NoColabRequirement
 from .packaging_package import Packaging
 from .torch_package import Torch
-from .huggingface_package import Transformers, Diffusers
+from .huggingface_package import Transformers, diffusers
 from .audio2numpy_package import AudioToNumpy
 from .bark_package import Bark, SoundFileOrSox
 from .audiolm_package import AudioLM, JobLib, FairSeq
@@ -23,7 +23,7 @@ requirements = [
     Torch(),
 
     Transformers(),
-    Diffusers(),
+    diffusers(),  # This one's a function
     SimpleRequirementInit('gradio', CompareAction.EQ, '3.35.2'),
 
     AudioToNumpy(),
