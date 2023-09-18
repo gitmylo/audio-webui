@@ -48,5 +48,7 @@ requirements = [
 
     Whisper(),
 
-    AudioCraft()
+    AudioCraft(),
+
+    SimpleRequirementInit('beartype', CompareAction.EQ, '0.15.0')  # Overwrite version of beartype which broke things.
 ]
