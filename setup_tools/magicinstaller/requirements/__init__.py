@@ -25,6 +25,7 @@ requirements = [
     Transformers(),
     diffusers(),  # This one's a function
     SimpleRequirementInit('gradio', CompareAction.EQ, '3.35.2'),
+    SimpleRequirementInit('huggingface-hub', CompareAction.EQ, '0.17.1'),  # TODO: remove this once huggingface-hub downloads work again on windows (FileNotFoundError: [WinError 3] The system cannot find the path specified, #137)
 
     AudioToNumpy(),
 
