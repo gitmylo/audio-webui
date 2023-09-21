@@ -17,6 +17,8 @@ This code works on python 3.10 (lower versions don't support "|" type annotation
 
 You also need to have [Git](https://git-scm.com/downloads) installed, you might already have it, run `git --version` in a console/terminal to see if you already have it installed.
 
+Some features require [ffmpeg](http://ffmpeg.org/) to be installed.
+
 On Windows, you need to have visual studio C++ build tools installed.
 
 [Common issues](https://github.com/gitmylo/audio-webui/blob/master/readme/common_issues.md)
