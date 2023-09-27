@@ -17,7 +17,7 @@ def run_command(command: list[tuple[str, str]] | str, args='', show_output=True)
     
     # Ensure bin/bash shell
     if not is_windows():
-        commandstr = f'/bin/bash -c "{commandstr}"'
+        commandstr = f'/usr/bin/env bash -c "{commandstr}"'
         
     system(commandstr)
 
