@@ -14,7 +14,9 @@ def get_base_prefix_compat():
 
 
 def in_venv():
-    return get_base_prefix_compat() != sys.prefix
+    in_conda = os.environ.get('CONDA_PREFIX') is not None
+    return (get_base_prefix_compat() != sys.prefix) or in_conda
+
 
 
 def activate_venv():
