@@ -13,20 +13,21 @@ https://github.com/gitmylo/audio-webui/assets/36931363/c285b4dc-63cf-4b1c-895d-9
 
 
 ## ❗❗ Please read ❗❗
-This code works on python 3.10 (lower versions don't support "|" type annotations, and i believe 3.11 doesn't have support for the TTS library currently).
+This code works using Python 3.10 (lower versions don't support union types, and I believe version 3.11 doesn't have support for the current TTS library at the moment).
 
-You also need to have [Git](https://git-scm.com/downloads) installed, you might already have it, run `git --version` in a console/terminal to see if you already have it installed.
+You also need to have [Git](https://git-scm.com/downloads) installed, you might already have it, to see if you do, run `git --version` in a console/terminal.
 
-Some features require [ffmpeg](http://ffmpeg.org/) to be installed.
+Some features require [FFmpeg](http://ffmpeg.org/) to be installed.
 
-On Windows, you need to have visual studio C++ build tools installed.
+On Windows, you need to have [Build Tools for Visual Studio](https://aka.ms/vs/17/release/vs_BuildTools.exe) installed.
 
 [Common issues](https://github.com/gitmylo/audio-webui/blob/master/readme/common_issues.md)
 
 <!-- TOC -->
+### Content
 * [<img alt="logo" height="15" src="assets/logo.png" width="15"/> Audio Webui <img alt="logo" height="15" src="assets/logo.png" width="15"/>](#img-altlogo-height25-srcassetslogopng-width25-audio-webui-img-altlogo-height25-srcassetslogopng-width25)
-  * [❗❗ Please read ❗❗](#-please-read-)
-  * [Latest big features](#latest-big-features)
+  * [❗ Please read](#-please-read-)
+  * [📰 Latest features](#-latest-features)
   * [👍 Automatic installers](#-automatic-installers)
   * [📦 Docker](#-docker)
   * [💻 Local install (Manual)](#-local-install-manual)
@@ -34,14 +35,14 @@ On Windows, you need to have visual studio C++ build tools installed.
     * [📦 Installing](#-installing)
     * [🔼 Updating](#-updating)
     * [🏃‍ Running](#-running)
-  * [💻 Google colab notebook](#-google-colab-notebook)
+  * [💻 Google Colab notebook](#-google-colab-notebook)
   * [💻 Common command line flags](#-common-command-line-flags)
-  * [✨ Current goals and features ✨](#-current-goals-and-features-)
-  * [More readme](#more-readme)
+  * [✨ Current goals and features](#-current-goals-and-features-)
+  * [➕ More](#-more)
 <!-- TOC -->
 
-## Latest big features
-* Extensions
+## 📰 Latest features
+* [🧩 Extensions](readme/extensions/index.md)
 
 ## 👍 Automatic installers
 [Automatic installers! (Download)](https://github.com/gitmylo/audio-webui/releases/tag/Installers)
@@ -80,8 +81,9 @@ Everything should get installed automatically.
 
 If there's an issue with running, please create an [issue](https://github.com/gitmylo/audio-webui/issues)
 
-## 💻 Google colab notebook
-[![Open in colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gitmylo/audio-webui/blob/master/audio_webui_colab.ipynb) [![Open in github](https://img.shields.io/badge/Github-Open%20file-green)](audio_webui_colab.ipynb)
+## 💻 Google Colab notebook
+[![Open in colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gitmylo/audio-webui/blob/master/audio_webui_colab.ipynb) [![Open in github](https://img.shields.io/badge/Open%20in%20GitHub-green?logo=github&labelColor=555
+)](audio_webui_colab.ipynb)
 
 ## 💻 Common command line flags
 
@@ -98,8 +100,8 @@ If there's an issue with running, please create an [issue](https://github.com/gi
 | --listen        | [None]                                 | -l         | -l                    | Listen a server, allowing other devices within your local network to access the server. (or outside if port forwarded) |
 | --port          | port (int)                             | [None]     | --port 12345          | Set a custom port to listen on, by default a port is picked automatically                                              |
 
-## ✨ Current goals and features ✨
-moved to [a separate readme](https://github.com/gitmylo/audio-webui/tree/master/readme/features.md)
+## ✨ Current goals and features
+Moved to [a separate readme](readme/features.md)
 
-## More readme
-[Link](https://github.com/gitmylo/audio-webui/tree/master/readme/readme.md)
+## ➕ More
+There are additional resources for individual topics not covered in this readme. You can view them in [this list](readme/readme.md).

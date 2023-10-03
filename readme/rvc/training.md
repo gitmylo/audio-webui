@@ -1,11 +1,11 @@
-# 🏃‍ RVC training
+# 🏃‍ RVC Training
 
 ## 🥼 General guidelines
 
 ### 🧬 Train for about 300 computer minutes (AKA minutes of audio on disk)
 #### ➗ To calculate: you would need (300/training audio duration) epochs
 * If you have 20 minutes of training audio, 15 epochs will usually be enough.
-* if you have 10 minutes of training audio, 30 epochs will usually be enough.
+* If you have 10 minutes of training audio, 30 epochs will usually be enough.
 
 If you still don't understand, refer to this graph. Click the graph to try for yourself:
 
