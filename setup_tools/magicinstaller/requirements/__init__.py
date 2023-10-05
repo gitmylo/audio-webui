@@ -24,6 +24,7 @@ requirements = [
     Transformers(),
     diffusers(),  # This one's a function
     SimpleRequirementInit('gradio', CompareAction.EQ, '3.35.2'),
+    SimpleRequirementInit('huggingface-hub', CompareAction.EQ, '0.17.1'),
     AudioToNumpy(),
 
     Bark(),
