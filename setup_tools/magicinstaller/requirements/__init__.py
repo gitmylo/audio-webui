@@ -6,7 +6,7 @@ from .audio2numpy_package import AudioToNumpy
 from .bark_package import Bark, SoundFileOrSox
 from .audiolm_package import AudioLM, JobLib, FairSeq
 from .rvc_package import Praat, PyWorld, FaissCpu, TorchCrepe, FfmpegPython, NoiseReduce, LibRosa, Demucs
-from .tts_package import TTS
+# from .tts_package import TTS
 from .pytube_package import PyTube
 from .whisper_package import Whisper
 from setup_tools.magicinstaller.requirement import SimpleRequirementInit, CompareAction
@@ -14,7 +14,7 @@ from setup_tools.magicinstaller.requirement import SimpleRequirementInit, Compar
 requirements = [
     Packaging(),  # Allows for version checks
 
-    TTS(),
+    # TTS(),
 
     # SimpleRequirementInit('numpy', CompareAction.EQ, '1.23.5'),
     NoColabRequirement('numpy', CompareAction.EQ, '1.23.5'),  # Don't install this one when in google colab
