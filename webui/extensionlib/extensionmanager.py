@@ -28,7 +28,8 @@ class Extension:
     def __init__(self, ext_name, load_states):
         self.enabled = (ext_name not in load_states.keys()) or load_states[ext_name]
         self.extname = ext_name
-        self.path = os.path.abspath(os.path.join(ext_folder, ext_name))
+        # self.abspath = os.path.abspath(os.path.join(ext_folder, ext_name))
+        self.path = os.path.join(ext_folder, ext_name)
         self.main_file = os.path.join(self.path, 'main.py')
         self.req_file = os.path.join(self.path, 'requirements.py')  # Optional
         self.style_file = os.path.join(self.path, 'style.py')
