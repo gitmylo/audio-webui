@@ -9,7 +9,6 @@ from .rvc_package import Praat, PyWorld, FaissCpu, TorchCrepe, FfmpegPython, Noi
 from .tts_package import TTS
 from .pytube_package import PyTube
 from .whisper_package import Whisper
-from .audiocraft_package import AudioCraft
 from setup_tools.magicinstaller.requirement import SimpleRequirementInit, CompareAction
 
 requirements = [
@@ -25,8 +24,6 @@ requirements = [
     Transformers(),
     diffusers(),  # This one's a function
     SimpleRequirementInit('gradio', CompareAction.EQ, '3.35.2'),
-    SimpleRequirementInit('huggingface-hub', CompareAction.EQ, '0.17.1'),  # TODO: remove this once huggingface-hub downloads work again on windows (FileNotFoundError: [WinError 3] The system cannot find the path specified, #137)
-
     AudioToNumpy(),
 
     Bark(),
@@ -49,7 +46,7 @@ requirements = [
 
     Whisper(),
 
-    AudioCraft(),
+    SimpleRequirementInit('audiocraft', CompareAction.GEQ, '1.0.0'),
 
     SimpleRequirementInit('beartype', CompareAction.EQ, '0.15.0')  # Overwrite version of beartype which broke things.
 ]
