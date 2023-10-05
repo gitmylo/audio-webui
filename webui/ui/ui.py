@@ -41,11 +41,17 @@ def create_ui(theme) -> gr.Blocks:
             StyleValue('padding-right', '0 !important')
 
         with StyleRule('table:not(.file-preview)'):
-            StyleValue('border', '1px solid white !important')
+            StyleValue('border', '1px solid black !important')
             StyleValue('margin-left', 'auto')
             StyleValue('margin-right', 'auto')
 
+        with StyleRule('.dark table:not(.file-preview)'):
+            StyleValue('border', '1px solid white !important')
+
         with StyleRule('table a'):
+            StyleValue('color', 'black !important')
+
+        with StyleRule('.dark table a'):
             StyleValue('color', 'white !important')
 
         with StyleRule('table th, table td'):
