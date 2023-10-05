@@ -91,9 +91,11 @@ class Extension:
         if a.returncode != 0:
             return UpdateStatus.no_git
 
-        if search_string in b.stdout:
+        out_string = b.stdout.decode()
+
+        if search_string in out_string:
             return UpdateStatus.outdated
-        if neg_search_string in b.stdout:
+        if neg_search_string in out_string:
             return UpdateStatus.updated
         return UpdateStatus.outdated
 
