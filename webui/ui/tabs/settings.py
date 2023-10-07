@@ -99,14 +99,14 @@ config = {
         'readname': 'Use cpu',
         'description': 'Do all processing on cpu, slow.'
     },
-    'tts_use_gpu': {
-        'tab': '🐸 Coqui TTS',
-        'type': bool,
-        'default': False,
-        'readname': 'use gpu',
-        'description': 'Use the GPU for TTS',
-        'el_kwargs': {}  # Example
-    },
+    # 'tts_use_gpu': {
+    #     'tab': '🐸 Coqui TTS',
+    #     'type': bool,
+    #     'default': False,
+    #     'readname': 'use gpu',
+    #     'description': 'Use the GPU for TTS',
+    #     'el_kwargs': {}  # Example
+    # },
     'wav_type': {
         'type': str,
         'default': 'gradio',
