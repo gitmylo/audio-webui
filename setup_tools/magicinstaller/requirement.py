@@ -5,6 +5,7 @@ import sys
 import time
 from enum import Enum
 
+import webui.args
 from autodebug.autodebug import InstallFailException
 from setup_tools.os import is_windows
 from threading import Thread
@@ -62,15 +63,20 @@ class Requirement:
         status_dict = {
             'running': True
         }
-        thread = Thread(target=self.loading_thread, args=[status_dict, name], daemon=True)
-        thread.start()
+
+        verbose = webui.args.args.verbose
+
+        if not verbose:
+            thread = Thread(target=self.loading_thread, args=[status_dict, name], daemon=True)
+            thread.start()
         args = f'"{sys.executable}" -m pip install --upgrade {command}'
         args = args if self.is_windows() else shlex.split(args)
-        result = subprocess.run(args, capture_output=True, text=True)
+        result = subprocess.run(args, capture_output=not verbose, text=True)
         status_dict['success'] = result.returncode == 0
         status_dict['running'] = False
-        while thread.is_alive():
-            time.sleep(0.1)
+        if not verbose:
+            while thread.is_alive():
+                time.sleep(0.1)
         return result.returncode, result.stdout, result.stderr
 
     def is_windows(self) -> bool:
