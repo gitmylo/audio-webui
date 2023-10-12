@@ -143,7 +143,7 @@ def process_dataset():
     output = 'Resampling and then splitting audios into chunks.'
     yield output
     i = 0
-    for f in [dataset] if os.path.isfile(dataset) else os.listdir(dataset):
+    for f in os.listdir(dataset) if os.path.isdir(dataset) else [dataset]:
         split = os.path.splitext(f)
         filename = split[0]
         if split[-1] in ['.wav', '.mp3']:
