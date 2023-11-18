@@ -32,6 +32,9 @@ try:
     from webui.modules.implementations.huggingface_hub_monkeypatching import patch as patch3
     patch3()
 
+    from webui.modules.implementations.numpy_monkeypatching import patch as patch4
+    patch4()
+
     import torch
     print('Launching, cuda available:', torch.cuda.is_available())
 
