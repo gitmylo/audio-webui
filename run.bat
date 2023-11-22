@@ -7,3 +7,4 @@ if %errorlevel%==0 (
     echo Launching anyways, running python command.
     call run_python.bat %*
 )
+julia> clone ]
