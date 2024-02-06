@@ -23,6 +23,7 @@ from scipy.io import wavfile
 from torch.utils.data import DataLoader
 
 from hubert import hubert_manager
+from webui.modules.download import hub_download
 from webui.modules.implementations.rvc import utils
 from webui.modules.implementations.rvc.data_utils import TextAudioLoaderMultiNSFsid, TextAudioLoader, \
     DistributedBucketSampler, TextAudioCollateMultiNSFsid, TextAudioCollate, spec_to_mel_torch, mel_spectrogram_torch
@@ -932,8 +933,7 @@ def download_base_models(version_sr):
     for file in version_sr_models[version_sr]['files']:
         sf = version_sr_models[version_sr]['sf']
         if not os.path.isfile(os.path.join(dl_path, sf, file)):
-            huggingface_hub.hf_hub_download(repo, file, subfolder=sf,
-                                            local_dir=dl_path, local_dir_use_symlinks=False)
+            hub_download(repo, file, subfolder=sf, local_dir=dl_path, local_dir_use_symlinks=False)
 
 
 current_workspace: RvcWorkspace = None

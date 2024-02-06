@@ -45,10 +45,17 @@ def get_file_name(repo_id: str):
     return repo_id.replace('/', '--')
 
 
-def hub_download(repo_id: str, model_type: str):
+def hub_download(repo, file, subfolder=None, local_dir="", local_dir_use_symlinks=False):
     try:
-        huggingface_hub.snapshot_download(repo_id, local_dir_use_symlinks=False,
-                                          local_dir=f'data/models/{model_type}/{get_file_name(repo_id)}')
+        repo_id = f'{repo}/{file}'
+        app_root = os.getenv('APP_ROOT', None)
+        if not app_root:
+            raise Exception('APP_ROOT not set')
+        full_path = os.path.join(app_root, local_dir)
+        if not os.path.isdir(full_path):
+            os.makedirs(full_path, exist_ok=True)
+        path = huggingface_hub.hf_hub_download(repo, file, subfolder, full_path, local_dir_use_symlinks)
     except Exception as e:
-        return [f'<p style="color: red;">{str(e)}</p>', gradio.Dropdown.update()]
-    return [f"Successfully downloaded <a target='_blank' href='https://www.huggingface.co/{repo_id}'>{repo_id}</a>", mod.refresh_choices()]
+        return None
+    print('Downloaded', repo_id, 'to', full_path)
+    return path
