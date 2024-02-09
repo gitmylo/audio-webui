@@ -9,12 +9,13 @@ from .rvc_package import Praat, PyWorld, FaissCpu, TorchCrepe, FfmpegPython, Noi
 # from .tts_package import TTS
 from .pytube_package import PyTube
 from .whisper_package import Whisper
-from setup_tools.magicinstaller.requirement import SimpleRequirementInit, CompareAction
+from setup_tools.magicinstaller.requirement import SimpleRequirementInit, CompareAction, SimpleRequirement
 
 requirements = [
     Packaging(),  # Allows for version checks
 
     # TTS(),
+    SimpleRequirement('wheel'),
 
     # SimpleRequirementInit('numpy', CompareAction.EQ, '1.23.5'),
     NoColabRequirement('numpy', CompareAction.EQ, '1.23.5'),  # Don't install this one when in google colab
