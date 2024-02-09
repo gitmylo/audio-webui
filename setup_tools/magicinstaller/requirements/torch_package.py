@@ -14,6 +14,6 @@ class Torch(Requirement):
 
     def install(self):
         # if self.is_windows():
-            return self.install_pip('torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117', 'PyTorch')
+            return self.install_pip('torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu118', 'PyTorch')
         # else:
         #     return self.install_pip('torch torchvision torchaudio', 'PyTorch')
