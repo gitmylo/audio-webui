@@ -6,16 +6,16 @@ from .audio2numpy_package import AudioToNumpy
 from .bark_package import Bark, SoundFileOrSox
 from .audiolm_package import AudioLM, JobLib, FairSeq
 from .rvc_package import Praat, PyWorld, FaissCpu, TorchCrepe, FfmpegPython, NoiseReduce, LibRosa, Demucs
-from .tts_package import TTS
+# from .tts_package import TTS
 from .pytube_package import PyTube
 from .whisper_package import Whisper
-from .audiocraft_package import AudioCraft
 from setup_tools.magicinstaller.requirement import SimpleRequirementInit, CompareAction
 
 requirements = [
     Packaging(),  # Allows for version checks
 
-    TTS(),
+    # TTS(),
+    SimpleRequirementInit('wheel'),
 
     # SimpleRequirementInit('numpy', CompareAction.EQ, '1.23.5'),
     NoColabRequirement('numpy', CompareAction.EQ, '1.23.5'),  # Don't install this one when in google colab
@@ -25,8 +25,8 @@ requirements = [
     Transformers(),
     diffusers(),  # This one's a function
     SimpleRequirementInit('gradio', CompareAction.EQ, '3.35.2'),
-    SimpleRequirementInit('huggingface-hub', CompareAction.EQ, '0.17.1'),  # TODO: remove this once huggingface-hub downloads work again on windows (FileNotFoundError: [WinError 3] The system cannot find the path specified, #137)
-
+    SimpleRequirementInit('gradio_client', CompareAction.EQ, '0.8.0'),
+    SimpleRequirementInit('huggingface-hub', CompareAction.EQ, '0.19.4'),
     AudioToNumpy(),
 
     Bark(),
@@ -49,7 +49,7 @@ requirements = [
 
     Whisper(),
 
-    AudioCraft(),
+    SimpleRequirementInit('audiocraft', CompareAction.GEQ, '1.0.0'),
 
     SimpleRequirementInit('beartype', CompareAction.EQ, '0.15.0')  # Overwrite version of beartype which broke things.
 ]

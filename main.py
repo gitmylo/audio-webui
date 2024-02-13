@@ -3,16 +3,11 @@ import os
 
 # Set custom default huggingface download path
 if not args.no_data_cache:
-    os.environ['XDG_CACHE_HOME'] = os.getenv('XDG_CACHE_HOME',
-                                             os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'models',
-                                                          'unclassified'))
-    os.environ['HF_HOME'] = os.getenv('HF_HOME',
-                                      os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'models',
-                                                   'unclassified'))
-    os.environ['MUSICGEN_ROOT'] = os.getenv('MUSICGEN_ROOT',
-                                            os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'models',
-                                                         'musicgen'))
-    os.environ['APP_ROOT'] = os.getenv('APP_ROOT', os.path.dirname(os.path.realpath(__file__)))
+    os.environ['XDG_CACHE_HOME'] = os.getenv('XDG_CACHE_HOME', os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'models', 'unclassified'))
+    os.environ['HF_HOME'] = os.getenv('HF_HOME', os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'models', 'unclassified'))
+    os.environ['MUSICGEN_ROOT'] = os.getenv('MUSICGEN_ROOT', os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'models', 'musicgen'))
+    os.environ['HF_HUB_CACHE'] = os.getenv('HF_HUB_CACHE', os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'models', 'hf_cache'))  # Experimental, due to some people being unable to install from this variable missing, set a default here.
+
 # Set custom gradio temp dir
 os.environ['GRADIO_TEMP_DIR'] = os.getenv('GRADIO_TEMP_DIR',
                                           os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'temp'))

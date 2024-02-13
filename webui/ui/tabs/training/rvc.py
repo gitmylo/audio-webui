@@ -108,7 +108,9 @@ def train_rvc():
     def list_models():
         return gradio.update(choices=rvc_ws.get_continue_models())
 
-    def create_workspace(name, vsr):
+    def create_workspace(name: str, vsr):
+        if name == "":
+            raise gradio.Error("Please enter a name for your new workspace.")
         rvc_ws.current_workspace = rvc_ws.RvcWorkspace(name).create({
             'vsr': vsr
         })

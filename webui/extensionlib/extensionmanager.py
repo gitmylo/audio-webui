@@ -28,7 +28,8 @@ class Extension:
     def __init__(self, ext_name, load_states):
         self.enabled = (ext_name not in load_states.keys()) or load_states[ext_name]
         self.extname = ext_name
-        self.path = os.path.abspath(os.path.join(ext_folder, ext_name))
+        # self.abspath = os.path.abspath(os.path.join(ext_folder, ext_name))
+        self.path = os.path.join(ext_folder, ext_name)
         self.main_file = os.path.join(self.path, 'main.py')
         self.req_file = os.path.join(self.path, 'requirements.py')  # Optional
         self.style_file = os.path.join(self.path, 'style.py')
@@ -91,9 +92,11 @@ class Extension:
         if a.returncode != 0:
             return UpdateStatus.no_git
 
-        if search_string in b.stdout:
+        out_string = b.stdout.decode()
+
+        if search_string in out_string:
             return UpdateStatus.outdated
-        if neg_search_string in b.stdout:
+        if neg_search_string in out_string:
             return UpdateStatus.updated
         return UpdateStatus.outdated
 

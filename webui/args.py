@@ -7,6 +7,7 @@ parser = argparse.ArgumentParser(prog='Audio-Webui', description='A webui for au
 parser.add_argument('-si', '--skip-install', action='store_true', help='Skip installing packages')
 parser.add_argument('-sv', '--skip-venv', action='store_true', help='Skip creating/activating venv, also skips install (for advanced users)')
 parser.add_argument('--no-data-cache', action='store_true', help='Don\'t override the default huggingface_hub cache path.')
+parser.add_argument('-v', '--verbose', action='store_true', help='Show more info, like logs during installs')
 
 # Gradio
 parser.add_argument('-s', '--share', action='store_true', help='Share this gradio instance.')
