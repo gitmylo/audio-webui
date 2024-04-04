@@ -4,3 +4,5 @@ data/**
 ./extensions/**
 .idea/**
 *__pycache__*
+venv/**
+*.pyc

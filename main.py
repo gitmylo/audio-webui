@@ -31,10 +31,9 @@ try:
 
     patch1()
 
-    from webui.modules.implementations.gradio_monkeypatching import patch as patch2
-
-    patch2()
-
+    # from webui.modules.implementations.gradio_monkeypatching import patch as patch2
+    # patch2()
+    #
     from webui.modules.implementations.huggingface_hub_monkeypatching import patch as patch3
 
     patch3()
