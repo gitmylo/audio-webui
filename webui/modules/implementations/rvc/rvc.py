@@ -7,24 +7,22 @@ License: MIT
 import gc
 import os
 import traceback
+from multiprocessing import cpu_count
 
 import ffmpeg
 import numpy as np
-import torch.cuda
-import argparse
 import torch
-from multiprocessing import cpu_count
+import torch.cuda
 from fairseq import checkpoint_utils
 
-from hubert.hubert_manager import HuBERTManager
-from webui.modules.implementations.rvc.vc_infer_pipeline import VC
-
+from model_manager import get_model_path
 from webui.modules.implementations.rvc.infer_pack.models import (
     SynthesizerTrnMs256NSFsid,
     SynthesizerTrnMs256NSFsid_nono,
     SynthesizerTrnMs768NSFsid,
     SynthesizerTrnMs768NSFsid_nono,
 )
+from webui.modules.implementations.rvc.vc_infer_pipeline import VC
 
 hubert_model = None
 weight_root = os.path.join('data', 'models', 'rvc')
@@ -124,8 +122,10 @@ config = Config()
 def load_hubert():
     global hubert_model
     if not hubert_model:
+        hubert_path = get_model_path(model_url='lj1995/VoiceConversionWebUI', model_type='hubert', single_file=True,
+                                      single_file_name="hubert_base.pt", save_file_name='hubert_rvc.pt')
         models, _, _ = checkpoint_utils.load_model_ensemble_and_task(
-            [HuBERTManager.make_sure_hubert_rvc_installed()],
+            [hubert_path],
             suffix="",
         )
         hubert_model = models[0]

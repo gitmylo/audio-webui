@@ -1,9 +1,11 @@
+from pathlib import Path
 from typing import Union
 
 import bark.generation as o
 import gradio
 from bark.generation import *
 
+import model_manager
 from webui.ui.tabs import settings
 
 SUPPORTED_LANGS = [
@@ -558,9 +560,7 @@ def _load_model(ckpt_path, device, use_small=False, model_type="text"):
         raise NotImplementedError()
     model_key = f"{model_type}_small" if use_small or USE_SMALL_MODELS else model_type
     model_info = REMOTE_MODEL_PATHS[model_key]
-    if not os.path.exists(ckpt_path):
-        logger.info(f"{model_type} model not found, downloading into `{CACHE_DIR}`.")
-        o._download(model_info["repo_id"], model_info["file_name"])
+    ckpt_path = model_manager.get_model_path(model_info["repo_id"], model_type="text-to-speech", single_file=True, single_file_name=model_info["file_name"])
     checkpoint = torch.load(ckpt_path, map_location=device)
     # this is a hack
     model_args = checkpoint["model_args"]
@@ -594,8 +594,9 @@ def _load_model(ckpt_path, device, use_small=False, model_type="text"):
     model.to(device)
     del checkpoint, state_dict
     o._clear_cuda_cache()
+    bert_path = model_manager.get_model_path("google-bert/bert-base-multilingual-cased", allow_patterns=['*.safetensors', '*.json', '*.txt'])
     if model_type == "text":
-        tokenizer = BertTokenizer.from_pretrained("bert-base-multilingual-cased")
+        tokenizer = BertTokenizer.from_pretrained(bert_path)
         return {
             "model": model,
             "tokenizer": tokenizer,
@@ -631,6 +632,19 @@ def load_model(use_gpu=True, use_small=False, force_reload=False, model_type="te
     return models[model_key]
 
 
+def encodec_load_codec_model(device):
+    model_base_url = "https://dl.fbaipublicfiles.com/encodec/v0/"
+    checkpoint_name = 'encodec_24khz-d7cc33bc.th'
+    model_file = model_manager.get_model_path(f"{model_base_url}{checkpoint_name}", model_type="encodec", single_file=True, single_file_name=checkpoint_name)
+    model_path_obj = Path(os.path.dirname(model_file))
+    model = EncodecModel.encodec_model_24khz(repository=model_path_obj)
+    model.set_target_bandwidth(6.0)
+    model.eval()
+    model.to(device)
+    o._clear_cuda_cache()
+    return model
+
+
 def load_codec_model(use_gpu=True, force_reload=False):
     global models
     global models_devices
@@ -644,7 +658,7 @@ def load_codec_model(use_gpu=True, force_reload=False):
         device = "cpu"
     if model_key not in models or force_reload:
         clean_models(model_key=model_key)
-        model = o._load_codec_model(device)
+        model = encodec_load_codec_model(device)
         models[model_key] = model
     models[model_key].to(device)
     return models[model_key]

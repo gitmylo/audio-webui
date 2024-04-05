@@ -9,6 +9,8 @@ import torchcrepe
 from scipy import signal
 from torch import Tensor
 
+import model_manager
+
 
 def get_f0_crepe_computation(
         x,
@@ -149,8 +151,7 @@ def pitch_extract(f0_method, x, f0_min, f0_max, p_len, time_step, sr, window, cr
             rmvpe_model_path = os.path.join('data', 'models', 'rmvpe')
             rmvpe_model_file = os.path.join(rmvpe_model_path, 'rmvpe.pt')
             if not os.path.isfile(rmvpe_model_file):
-                import huggingface_hub
-                rmvpe_model_file = huggingface_hub.hf_hub_download('lj1995/VoiceConversionWebUI', 'rmvpe.pt', local_dir=rmvpe_model_path, local_dir_use_symlinks=False)
+                rmvpe_model_file = model_manager.get_model_path('lj1995/VoiceConversionWebUI', 'rmvpe.pt', single_file=True)
 
             from webui.modules.implementations.rvc.rmvpe import RMVPE
             print("loading rmvpe model")

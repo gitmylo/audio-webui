@@ -6,6 +6,8 @@ import torch.cuda
 import transformers
 import librosa
 
+import model_manager
+
 model: diffusers.AudioLDMPipeline = None
 loaded = False
 clap_model: transformers.ClapModel = None
@@ -20,10 +22,11 @@ def create_model(pretrained='cvssp/audioldm-m-full', map_device='cuda' if torch.
         delete_model()
     global model, loaded, clap_model, processor, device
     try:
-        cache_dir = os.path.join('data', 'models', 'audioldm')
-        model = diffusers.AudioLDMPipeline.from_pretrained(pretrained, cache_dir=cache_dir).to(map_device)
-        clap_model = transformers.ClapModel.from_pretrained("sanchit-gandhi/clap-htsat-unfused-m-full", cache_dir=cache_dir).to(map_device)
-        processor = transformers.AutoProcessor.from_pretrained("sanchit-gandhi/clap-htsat-unfused-m-full", cache_dir=cache_dir)
+        model_path = model_manager.get_model_path(pretrained, model_type="music-generation", allow_patterns=['*.safetensors', '*.json', '*.txt'])
+        model = diffusers.AudioLDMPipeline.from_pretrained(model_path).to(map_device)
+        clap_model_path = model_manager.get_model_path('sanchit-gandhi/clap-htsat-unfused-m-full', model_type="music-generation")
+        clap_model = transformers.ClapModel.from_pretrained(clap_model_path).to(map_device)
+        processor = transformers.AutoProcessor.from_pretrained(clap_model_path)
         device = map_device
         loaded = True
     except:

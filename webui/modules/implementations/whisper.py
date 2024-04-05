@@ -1,43 +1,24 @@
 import gc
 import os.path
 from tempfile import NamedTemporaryFile
+from typing import Union
 
 import torch
 import whisper
 from transformers import WhisperProcessor, WhisperForConditionalGeneration, AutomaticSpeechRecognitionPipeline
 from gradio_client.client import DEFAULT_TEMP_DIR
 
+import model_manager
+
 processor: WhisperProcessor = None
-model: WhisperForConditionalGeneration | AutomaticSpeechRecognitionPipeline = None
+model: Union[WhisperForConditionalGeneration, AutomaticSpeechRecognitionPipeline] = None
 device: str = None
 loaded_model: str = None
 
 
 def get_official_models():
-    # return [
-    #     'openai/whisper-tiny.en',
-    #     'openai/whisper-small.en',
-    #     'openai/whisper-base.en',
-    #     'openai/whisper-medium.en',
-    #     'openai/whisper-tiny',
-    #     'openai/whisper-small',
-    #     'openai/whisper-base',
-    #     'openai/whisper-medium',
-    #     'openai/whisper-large',
-    #     'openai/whisper-large-v2'
-    # ]
-    return [
-        'tiny.en',
-        'small.en',
-        'base.en',
-        'medium.en',
-        'tiny',
-        'small',
-        'base',
-        'medium',
-        'large',
-        'large-v2'
-    ]
+    models = whisper._MODELS
+    return models.keys()
 
 
 def unload():
@@ -56,10 +37,18 @@ def load(pretrained_model='openai/whisper-base', map_device='cuda' if torch.cuda
     try:
         if loaded_model != pretrained_model:
             unload()
-            # model = pipeline('automatic-speech-recognition', pretrained_model, device=map_device, model_kwargs={'cache_dir': 'models/automatic-speech-recognition'})
-            model = whisper.load_model(pretrained_model, map_device, 'data/models/automatic-speech-recognition/whisper')
-            loaded_model = pretrained_model
-            device = map_device
+            print(f'Loading {pretrained_model}')
+            whisper_models = whisper._MODELS
+            official_models = get_official_models()
+            if pretrained_model in official_models:
+                model_url = whisper_models[pretrained_model]
+                model_name = os.path.basename(model_url)
+                model_path = model_manager.get_model_path(model_url, model_type="whisper", single_file=True, single_file_name=model_name)
+                model = whisper.load_model(model_path, map_device)
+                loaded_model = pretrained_model
+                device = map_device
+            else:
+                raise Exception(f'Model {pretrained_model} not found; available models = {get_official_models()}')
         return f'Loaded {pretrained_model}'
     except Exception as e:
         unload()
