@@ -38,28 +38,9 @@ def download_from_url(url: str, filename: str, local_dir: str) -> str:
     return local_path
 
 
-def get_model_path(
-        model_url: str,
-        model_name: str = None,
-        model_type: str = None,
-        single_file: bool = False,
-        single_file_name: str = None,
-        save_file_name: str = None,
-        allow_patterns: Union[str, List[str]] = None,
-        ignore_patterns: Union[str, List[str]] = None) -> str:
-    """
-    Get the model path from the model URL
-    :param model_url: The URL of the model on the HF Hub
-    :param model_name: The directory to store the model in the models folder, defaults to the model/creator name
-    :param model_type: The type of model to download - this will be inserted into the model path
-    :param single_file: Whether the model is a single file
-    :param single_file_name: The name of the single file to download
-    :param save_file_name: The name of the file to save
-    :param allow_patterns: The patterns to allow for file downloads
-    :param ignore_patterns: The patterns to ignore for file downloads
-    :return: The model path
-    """
-    calls_file_path = os.path.join(os.path.dirname(__file__), 'all_models.json')
+def export_model_record(model_url: str, model_name: str, model_type: str, single_file: bool, single_file_name: str,
+                        save_file_name: str, allow_patterns: Union[str, List[str]], ignore_patterns: Union[str, List[str]]):
+    calls_file_path = os.path.join(os.path.dirname(__file__), 'default_models.json')
     try:
         with open(calls_file_path, 'r') as calls_file:
             model_calls = json.load(calls_file)
@@ -82,6 +63,32 @@ def get_model_path(
         }
         with open(calls_file_path, 'w') as calls_file:
             json.dump(model_calls, calls_file, indent=4)
+
+
+def get_model_path(
+        model_url: str,
+        model_name: str = None,
+        model_type: str = None,
+        single_file: bool = False,
+        single_file_name: str = None,
+        save_file_name: str = None,
+        allow_patterns: Union[str, List[str]] = None,
+        ignore_patterns: Union[str, List[str]] = None) -> str:
+    """
+    Get the model path from the model URL
+    :param model_url: The URL of the model on the HF Hub
+    :param model_name: The directory to store the model in the models folder, defaults to the model/creator name
+    :param model_type: The type of model to download - this will be inserted into the model path
+    :param single_file: Whether the model is a single file
+    :param single_file_name: The name of the single file to download
+    :param save_file_name: The name of the file to save
+    :param allow_patterns: The patterns to allow for file downloads
+    :param ignore_patterns: The patterns to ignore for file downloads
+    :return: The model path
+    """
+    # This is for development purposes only, uncomment to log the model calls
+    # export_model_record(model_url, model_name, model_type, single_file, single_file_name, save_file_name,
+    #                     allow_patterns, ignore_patterns)
 
     if "http" in model_url:
         model_dir = os.path.join(os.path.dirname(__file__), 'data', 'models')
@@ -130,3 +137,12 @@ def get_model_path(
             raise Exception(f"Failed to download model from {model_url}: {e}")
 
     return model_path
+
+
+def download_all_models():
+    calls_file_path = os.path.join(os.path.dirname(__file__), 'default_models.json')
+    with open(calls_file_path, 'r') as calls_file:
+        model_calls = json.load(calls_file)
+
+    for model_url, model_params in model_calls.items():
+        get_model_path(model_url, **model_params)
