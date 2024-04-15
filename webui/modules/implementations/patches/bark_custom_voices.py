@@ -1,13 +1,13 @@
 import torch
 import torchaudio
-from bark.generation import SAMPLE_RATE, _grab_best_device, OFFLOAD_CPU, clean_models, models, models_devices
+from bark.generation import SAMPLE_RATE
 from encodec.utils import convert_audio
 
 import model_manager
 from hubert.customtokenizer import CustomTokenizer
 from hubert.pre_kmeans_hubert import CustomHubert
 from webui.modules.implementations.patches.bark_generation import generate_text_semantic_new, generate_coarse_new, \
-    generate_fine_new, encodec_load_codec_model
+    generate_fine_new, load_codec_model
 from webui.ui.tabs import settings
 
 
@@ -29,10 +29,13 @@ huberts = {}
 
 def load_hubert(clone_model):
     global huberts
-    hubert_path = model_manager.get_model_path(model_url='https://dl.fbaipublicfiles.com/hubert/hubert_base_ls960.pt', model_type='hubert', single_file=True, single_file_name='hubert_base_ls960.pt', save_file_name='hubert.pt')
+    hubert_path = model_manager.get_model_path(model_url='https://dl.fbaipublicfiles.com/hubert/hubert_base_ls960.pt',
+                                               model_type='hubert', single_file=True,
+                                               single_file_name='hubert_base_ls960.pt', save_file_name='hubert.pt')
 
     tokenizer_path = model_manager.get_model_path(model_url=clone_model['repo'], model_type='hubert', single_file=True,
-                                                  single_file_name=clone_model['file'], save_file_name=clone_model['dlfilename'])
+                                                  single_file_name=clone_model['file'],
+                                                  save_file_name=clone_model['dlfilename'])
     if 'hubert' not in huberts:
         print('Loading HuBERT')
         huberts['hubert'] = CustomHubert(hubert_path)
@@ -79,23 +82,6 @@ def eval_semantics(code):
 
 def generate_course_history(fine_history):
     return fine_history[:2, :]
-
-
-def load_codec_model(use_gpu=True, force_reload=False):
-    device = _grab_best_device(use_gpu=use_gpu)
-    if device == "mps":
-        # encodec doesn't support mps
-        device = "cpu"
-    model_key = "codec"
-    if OFFLOAD_CPU:
-        models_devices[model_key] = device
-        device = "cpu"
-    if model_key not in models or force_reload:
-        clean_models(model_key=model_key)
-        model = encodec_load_codec_model(device)
-        models[model_key] = model
-    models[model_key].to(device)
-    return models[model_key]
 
 
 def generate_fine_from_wav(file):
