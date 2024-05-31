@@ -6,6 +6,8 @@ import torch.cuda
 import transformers
 import librosa
 
+import model_manager
+
 model: diffusers.AudioLDM2Pipeline = None
 loaded = False
 device: str = None
@@ -18,8 +20,8 @@ def create_model(pretrained='cvssp/audioldm2', map_device='cuda' if torch.cuda.i
         delete_model()
     global model, loaded, device
     try:
-        cache_dir = os.path.join('data', 'models', 'audioldm')
-        model = diffusers.AudioLDM2Pipeline.from_pretrained(pretrained, cache_dir=cache_dir).to(map_device)
+        model_path = model_manager.get_model_path(pretrained, model_type="music-generation")
+        model = diffusers.AudioLDM2Pipeline.from_pretrained(model_path).to(map_device)
         device = map_device
         loaded = True
     except:

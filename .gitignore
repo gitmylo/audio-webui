@@ -4,3 +4,4 @@ data/**
 ./extensions/**
 venv/**
 *.pyc
+.idea/**

@@ -5,6 +5,8 @@ import torch
 from audiocraft.models import MusicGen
 from audiocraft.models import AudioGen
 
+import model_manager
+
 model: MusicGen = None
 loaded = False
 used_model = ''
@@ -24,7 +26,8 @@ def create_model(pretrained='medium', map_device='cuda' if torch.cuda.is_availab
         delete_model()
     global model, loaded, device, used_model
     try:
-        model = MusicGen.get_pretrained(pretrained, device=map_device) if pretrained not in audiogen_models else AudioGen.get_pretrained(pretrained, device=map_device)
+        model_path = model_manager.get_model_path(pretrained, model_type="music-generation")
+        model = MusicGen.get_pretrained(model_path, device=map_device) if pretrained not in audiogen_models else AudioGen.get_pretrained(pretrained, device=map_device)
         device = map_device
         used_model = pretrained
         loaded = True

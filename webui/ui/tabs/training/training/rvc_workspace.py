@@ -22,7 +22,7 @@ import numpy as np
 from scipy.io import wavfile
 from torch.utils.data import DataLoader
 
-from hubert import hubert_manager
+from model_manager import get_model_path
 from webui.modules.implementations.rvc import utils
 from webui.modules.implementations.rvc.data_utils import TextAudioLoaderMultiNSFsid, TextAudioLoader, \
     DistributedBucketSampler, TextAudioCollateMultiNSFsid, TextAudioCollate, spec_to_mel_torch, mel_spectrogram_torch
@@ -249,9 +249,10 @@ def pitch_extract():
 
     output += '\nLoading HuBERT model...'
     yield output
-
+    hubert_path = get_model_path(model_url='lj1995/VoiceConversionWebUI', model_type='hubert', single_file=True,
+                                      single_file_name="hubert_base.pt", save_file_name='hubert_rvc.pt')
     models, saved_cfg, task = checkpoint_utils.load_model_ensemble_and_task(
-        [hubert_manager.HuBERTManager.make_sure_hubert_rvc_installed()],
+        [hubert_path],
         suffix="",
     )
 

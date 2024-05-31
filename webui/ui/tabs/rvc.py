@@ -3,6 +3,8 @@ import os
 import torch.cuda
 import torchaudio
 import gradio
+
+import model_manager
 from webui.modules import util
 
 from webui.modules.download import fill_models
@@ -60,6 +62,10 @@ def load_rvc(model):
     if not model:
         return unload_rvc()
     import webui.modules.implementations.rvc.rvc as rvc
+    if not os.path.exists(model):
+        model_path = model_manager.get_model_path(model, model_type="rvc", single_file=True, single_file_name="model.pth")
+        if not os.path.exists(model_path):
+            return [gradio.update(), gradio.update(maximum=0, value=0, visible=False)]
     maximum = rvc.load_rvc(model)
     return [gradio.update(), gradio.update(maximum=maximum, value=0, visible=maximum > 0)]
 

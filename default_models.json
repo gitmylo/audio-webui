@@ -1,0 +1,310 @@
+{
+    "suno/bark||text_2.pt": {
+        "model_name": null,
+        "model_type": "text-to-speech",
+        "single_file": true,
+        "single_file_name": "text_2.pt",
+        "save_file_name": null,
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "google-bert/bert-base-multilingual-cased": {
+        "model_name": null,
+        "model_type": null,
+        "single_file": false,
+        "single_file_name": null,
+        "save_file_name": null,
+        "allow_patterns": [
+            "*.safetensors",
+            "*.json",
+            "*.txt"
+        ],
+        "ignore_patterns": null
+    },
+    "suno/bark||coarse_2.pt": {
+        "model_name": null,
+        "model_type": "text-to-speech",
+        "single_file": true,
+        "single_file_name": "coarse_2.pt",
+        "save_file_name": null,
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "suno/bark||fine_2.pt": {
+        "model_name": null,
+        "model_type": "text-to-speech",
+        "single_file": true,
+        "single_file_name": "fine_2.pt",
+        "save_file_name": null,
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "https://dl.fbaipublicfiles.com/encodec/v0/encodec_24khz-d7cc33bc.th||encodec_24khz-d7cc33bc.th": {
+        "model_name": null,
+        "model_type": "encodec",
+        "single_file": true,
+        "single_file_name": "encodec_24khz-d7cc33bc.th",
+        "save_file_name": null,
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "https://dl.fbaipublicfiles.com/hubert/hubert_base_ls960.pt||hubert_base_ls960.pt": {
+        "model_name": null,
+        "model_type": "hubert",
+        "single_file": true,
+        "single_file_name": "hubert_base_ls960.pt",
+        "save_file_name": "hubert.pt",
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "GitMylo/bark-voice-cloning||quantifier_hubert_base_ls960_14.pth": {
+        "model_name": null,
+        "model_type": "hubert",
+        "single_file": true,
+        "single_file_name": "quantifier_hubert_base_ls960_14.pth",
+        "save_file_name": "tokenizer.pth",
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "Hobis/bark-voice-cloning-polish-HuBERT-quantizer||polish-HuBERT-quantizer_8_epoch.pth": {
+        "model_name": null,
+        "model_type": "hubert",
+        "single_file": true,
+        "single_file_name": "polish-HuBERT-quantizer_8_epoch.pth",
+        "save_file_name": "tokenizer_pol.pth",
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "cvssp/audioldm": {
+        "model_name": null,
+        "model_type": "music-generation",
+        "single_file": false,
+        "single_file_name": null,
+        "save_file_name": null,
+        "allow_patterns": [
+            "*.safetensors",
+            "*.json",
+            "*.txt"
+        ],
+        "ignore_patterns": null
+    },
+    "cvssp/audioldm-s-full-v2": {
+        "model_name": null,
+        "model_type": "music-generation",
+        "single_file": false,
+        "single_file_name": null,
+        "save_file_name": null,
+        "allow_patterns": [
+            "*.safetensors",
+            "*.json",
+            "*.txt"
+        ],
+        "ignore_patterns": null
+    },
+    "cvssp/audioldm-m-full": {
+        "model_name": null,
+        "model_type": "music-generation",
+        "single_file": false,
+        "single_file_name": null,
+        "save_file_name": null,
+        "allow_patterns": [
+            "*.safetensors",
+            "*.json",
+            "*.txt"
+        ],
+        "ignore_patterns": null
+    },
+    "sanchit-gandhi/clap-htsat-unfused-m-full": {
+        "model_name": null,
+        "model_type": "music-generation",
+        "single_file": false,
+        "single_file_name": null,
+        "save_file_name": null,
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "cvssp/audioldm-l-full": {
+        "model_name": null,
+        "model_type": "music-generation",
+        "single_file": false,
+        "single_file_name": null,
+        "save_file_name": null,
+        "allow_patterns": [
+            "*.safetensors",
+            "*.json",
+            "*.txt"
+        ],
+        "ignore_patterns": null
+    },
+    "facebook/musicgen-small": {
+        "model_name": null,
+        "model_type": "music-generation",
+        "single_file": false,
+        "single_file_name": null,
+        "save_file_name": null,
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "facebook/musicgen-medium": {
+        "model_name": null,
+        "model_type": "music-generation",
+        "single_file": false,
+        "single_file_name": null,
+        "save_file_name": null,
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "facebook/musicgen-large": {
+        "model_name": null,
+        "model_type": "music-generation",
+        "single_file": false,
+        "single_file_name": null,
+        "save_file_name": null,
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "https://openaipublic.azureedge.net/main/whisper/models/e5b1a55b89c1367dacf97e3e19bfd829a01529dbfdeefa8caeb59b3f1b81dadb/large-v3.pt||large-v3.pt": {
+        "model_name": null,
+        "model_type": "whisper",
+        "single_file": true,
+        "single_file_name": "large-v3.pt",
+        "save_file_name": null,
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "https://openaipublic.azureedge.net/main/whisper/models/81f7c96c852ee8fc832187b0132e569d6c3065a3252ed18e56effd0b6a73e524/large-v2.pt||large-v2.pt": {
+        "model_name": null,
+        "model_type": "whisper",
+        "single_file": true,
+        "single_file_name": "large-v2.pt",
+        "save_file_name": null,
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "https://openaipublic.azureedge.net/main/whisper/models/e4b87e7e0bf463eb8e6956e646f1e277e901512310def2c24bf0e11bd3c28e9a/large-v1.pt||large-v1.pt": {
+        "model_name": null,
+        "model_type": "whisper",
+        "single_file": true,
+        "single_file_name": "large-v1.pt",
+        "save_file_name": null,
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt||medium.pt": {
+        "model_name": null,
+        "model_type": "whisper",
+        "single_file": true,
+        "single_file_name": "medium.pt",
+        "save_file_name": null,
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "https://openaipublic.azureedge.net/main/whisper/models/d7440d1dc186f76616474e0ff0b3b6b879abc9d1a4926b7adfa41db2d497ab4f/medium.en.pt||medium.en.pt": {
+        "model_name": null,
+        "model_type": "whisper",
+        "single_file": true,
+        "single_file_name": "medium.en.pt",
+        "save_file_name": null,
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "https://openaipublic.azureedge.net/main/whisper/models/9ecf779972d90ba49c06d968637d720dd632c55bbf19d441fb42bf17a411e794/small.pt||small.pt": {
+        "model_name": null,
+        "model_type": "whisper",
+        "single_file": true,
+        "single_file_name": "small.pt",
+        "save_file_name": null,
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "https://openaipublic.azureedge.net/main/whisper/models/f953ad0fd29cacd07d5a9eda5624af0f6bcf2258be67c92b79389873d91e0872/small.en.pt||small.en.pt": {
+        "model_name": null,
+        "model_type": "whisper",
+        "single_file": true,
+        "single_file_name": "small.en.pt",
+        "save_file_name": null,
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "https://openaipublic.azureedge.net/main/whisper/models/ed3a0b6b1c0edf879ad9b11b1af5a0e6ab5db9205f891f668f8b0e6c6326e34e/base.pt||base.pt": {
+        "model_name": null,
+        "model_type": "whisper",
+        "single_file": true,
+        "single_file_name": "base.pt",
+        "save_file_name": null,
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "https://openaipublic.azureedge.net/main/whisper/models/25a8566e1d0c1e2231d1c762132cd20e0f96a85d16145c3a00adf5d1ac670ead/base.en.pt||base.en.pt": {
+        "model_name": null,
+        "model_type": "whisper",
+        "single_file": true,
+        "single_file_name": "base.en.pt",
+        "save_file_name": null,
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "https://openaipublic.azureedge.net/main/whisper/models/65147644a518d12f04e32d6f3b26facc3f8dd46e5390956a9424a650c0ce22b9/tiny.pt||tiny.pt": {
+        "model_name": null,
+        "model_type": "whisper",
+        "single_file": true,
+        "single_file_name": "tiny.pt",
+        "save_file_name": null,
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "https://openaipublic.azureedge.net/main/whisper/models/d3dd57d32accea0b295c96e26691aa14d8822fac7d9d27d5dc00b4ca2826dd03/tiny.en.pt||tiny.en.pt": {
+        "model_name": null,
+        "model_type": "whisper",
+        "single_file": true,
+        "single_file_name": "tiny.en.pt",
+        "save_file_name": null,
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "sail-rvc/Rick_Sanchez_Lat_v2": {
+        "model_name": null,
+        "model_type": "rvc",
+        "single_file": false,
+        "single_file_name": null,
+        "save_file_name": null,
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "sail-rvc/Rick_Sanchez_Lat_v2||model.pth": {
+        "model_name": null,
+        "model_type": "rvc",
+        "single_file": true,
+        "single_file_name": "model.pth",
+        "save_file_name": "Rick_Sanchez_Lat_v2",
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "sail-rvc/Rick_Sanchez_C137_lat||model.pth": {
+        "model_name": null,
+        "model_type": "rvc",
+        "single_file": true,
+        "single_file_name": "model.pth",
+        "save_file_name": "Rick_Sanchez_C137_lat",
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "sail-rvc/georgewbush||model.pth": {
+        "model_name": null,
+        "model_type": "rvc",
+        "single_file": true,
+        "single_file_name": "model.pth",
+        "save_file_name": null,
+        "allow_patterns": null,
+        "ignore_patterns": null
+    },
+    "0x3e9/Trump_RVC||model.pth": {
+        "model_name": null,
+        "model_type": "rvc",
+        "single_file": true,
+        "single_file_name": "model.pth",
+        "save_file_name": null,
+        "allow_patterns": null,
+        "ignore_patterns": null
+    }
+}
