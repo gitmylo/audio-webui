@@ -37,7 +37,7 @@ def fill_models(model_type: str):
         return [m for m in mod.all_tts() if not m.no_install]
     if model_type == 'rvc':
         return get_rvc_models()
-    return [model.modelId for model in
+    return [model.id for model in
             huggingface_hub.list_models(filter=huggingface_hub.ModelFilter(task=model_type), sort='downloads')]
 
 
