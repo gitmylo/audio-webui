@@ -22,10 +22,10 @@ requirements = [
 
     Torch(),
 
-    Transformers(),
+    SimpleRequirementInit('transformers', CompareAction.EQ, '4.44.0'),
     diffusers(),  # This one's a function
     SimpleRequirementInit('gradio', CompareAction.EQ, '3.49.0'),
-    SimpleRequirementInit('huggingface-hub', CompareAction.EQ, '0.23.0'),
+    SimpleRequirementInit('huggingface-hub', CompareAction.EQ, '0.23.2'),
     AudioToNumpy(),
 
     Bark(),
