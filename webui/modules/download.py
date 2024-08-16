@@ -38,7 +38,7 @@ def fill_models(model_type: str):
     if model_type == 'rvc':
         return get_rvc_models()
     return [model.id for model in
-            huggingface_hub.list_models(filter=huggingface_hub.ModelFilter(task=model_type), sort='downloads')]
+            huggingface_hub.list_models(task=model_type, sort='downloads')]
 
 
 def get_file_name(repo_id: str):
