@@ -12,6 +12,9 @@ def ensure_installed():
         ensure_venv()
     if not args.skip_install:
         install_requirements()
+    if args.download_models:
+        from webui.modules import model_manager
+        model_manager.download_all_models()
 
 
 if __name__ == '__main__':

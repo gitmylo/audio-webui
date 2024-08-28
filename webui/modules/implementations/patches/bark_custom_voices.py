@@ -1,16 +1,18 @@
 import torch
 import torchaudio
-from bark.generation import SAMPLE_RATE, load_codec_model
-
-from hubert.customtokenizer import CustomTokenizer
-from hubert.hubert_manager import HuBERTManager
-from hubert.pre_kmeans_hubert import CustomHubert
-from webui.modules.implementations.patches.bark_generation import generate_text_semantic_new, generate_coarse_new, generate_fine_new
+from bark.generation import SAMPLE_RATE
 from encodec.utils import convert_audio
+
+import model_manager
+from hubert.customtokenizer import CustomTokenizer
+from hubert.pre_kmeans_hubert import CustomHubert
+from webui.modules.implementations.patches.bark_generation import generate_text_semantic_new, generate_coarse_new, \
+    generate_fine_new, load_codec_model
 from webui.ui.tabs import settings
 
 
-def generate_semantic_fine(transcript='There actually isn\'t a way to do that. It\'s impossible. Please don\'t even bother.'):
+def generate_semantic_fine(
+        transcript='There actually isn\'t a way to do that. It\'s impossible. Please don\'t even bother.'):
     """
     Creates a speech file with semantics and fine audio
     :param transcript: The transcript.
@@ -27,13 +29,18 @@ huberts = {}
 
 def load_hubert(clone_model):
     global huberts
-    hubert_path = HuBERTManager.make_sure_hubert_installed()
-    # model = ('quantifier_V1_hubert_base_ls960_23.pth', 'tokenizer_large.pth') if args.bark_cloning_large_model else ('quantifier_hubert_base_ls960_14.pth', 'tokenizer.pth')
-    tokenizer_path = HuBERTManager.make_sure_tokenizer_installed(model=clone_model['file'], local_file=clone_model['dlfilename'], repo=clone_model['repo'])
+    hubert_path = model_manager.get_model_path(model_url='https://dl.fbaipublicfiles.com/hubert/hubert_base_ls960.pt',
+                                               model_type='hubert', single_file=True,
+                                               single_file_name='hubert_base_ls960.pt', save_file_name='hubert.pt')
+
+    tokenizer_path = model_manager.get_model_path(model_url=clone_model['repo'], model_type='hubert', single_file=True,
+                                                  single_file_name=clone_model['file'],
+                                                  save_file_name=clone_model['dlfilename'])
     if 'hubert' not in huberts:
         print('Loading HuBERT')
         huberts['hubert'] = CustomHubert(hubert_path)
-    if 'tokenizer' not in huberts or ('tokenizer_name' in huberts and huberts['tokenizer_name'] != clone_model['name'].casefold()):
+    if 'tokenizer' not in huberts or (
+            'tokenizer_name' in huberts and huberts['tokenizer_name'] != clone_model['name'].casefold()):
         print('Loading Custom Tokenizer')
         tokenizer = CustomTokenizer.load_from_checkpoint(tokenizer_path, map_location=torch.device('cpu'))
         huberts['tokenizer'] = tokenizer
@@ -78,7 +85,8 @@ def generate_course_history(fine_history):
 
 
 def generate_fine_from_wav(file):
-    model = load_codec_model(use_gpu=not settings.get('bark_use_cpu'))  # Don't worry about reimporting, it stores the loaded model in a dict
+    model = load_codec_model(
+        use_gpu=not settings.get('bark_use_cpu'))  # Don't worry about reimporting, it stores the loaded model in a dict
     wav, sr = torchaudio.load(file)
     wav = convert_audio(wav, sr, SAMPLE_RATE, model.channels)
     wav = wav.unsqueeze(0)
@@ -91,4 +99,3 @@ def generate_fine_from_wav(file):
     codes = codes.cpu().numpy()
 
     return codes
-

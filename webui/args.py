@@ -8,7 +8,7 @@ parser.add_argument('-si', '--skip-install', action='store_true', help='Skip ins
 parser.add_argument('-sv', '--skip-venv', action='store_true', help='Skip creating/activating venv, also skips install (for advanced users)')
 parser.add_argument('--no-data-cache', action='store_true', help='Don\'t override the default huggingface_hub cache path.')
 parser.add_argument('-v', '--verbose', action='store_true', help='Show more info, like logs during installs')
-
+parser.add_argument('--download-models', action='store_true', help='Pre-Download all models from the hub')
 # Gradio
 parser.add_argument('-s', '--share', action='store_true', help='Share this gradio instance.')
 parser.add_argument('-u', '--username', '--user', type=str, help='Gradio username')

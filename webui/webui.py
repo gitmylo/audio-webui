@@ -6,6 +6,8 @@ import gradio
 def launch_webui():
     auth = (args.username, args.password) if args.username else None
 
+    download_models = args.download_models
+
     template_response_original = gradio.routes.templates.TemplateResponse
 
     # Magic monkeypatch
