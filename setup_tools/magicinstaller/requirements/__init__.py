@@ -16,6 +16,7 @@ requirements = [
 
     # TTS(),
     SimpleRequirementInit('wheel'),
+    SimpleRequirementInit('numba', CompareAction.EQ, '0.60.0'),
 
     # SimpleRequirementInit('numpy', CompareAction.EQ, '1.23.5'),
     NoColabRequirement('numpy', CompareAction.EQ, '1.23.5'),  # Don't install this one when in google colab
@@ -31,7 +32,7 @@ requirements = [
     Bark(),
     SoundFileOrSox(),
 
-    AudioLM(),
+    # AudioLM(),
     JobLib(),
     FairSeq(),
 

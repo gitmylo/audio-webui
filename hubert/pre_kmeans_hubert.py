@@ -1,19 +1,25 @@
+﻿"""
+Modified HuBERT model without kmeans.
+Original author: https://github.com/lucidrains/
+Modified by: https://www.github.com/gitmylo/
+License: MIT
+"""
+
+# Modified code from https://github.com/lucidrains/audiolm-pytorch/blob/main/audiolm_pytorch/hubert_kmeans.py
+
+# Modified again in 2025 to use transformers instead of fairseq
+
 from pathlib import Path
 
 import torch
+import transformers
 from torch import nn
 from einops import pack, unpack
 
-import joblib
-
-import fairseq
+# import fairseq
 
 from torchaudio.functional import resample
-
-from audiolm_pytorch.utils import curtail_to_multiple
-
-import logging
-logging.root.setLevel(logging.ERROR)
+from transformers import HubertModel
 
 
 def exists(val):
@@ -22,6 +28,16 @@ def exists(val):
 
 def default(val, d):
     return val if exists(val) else d
+
+# Taken from https://github.com/lucidrains/audiolm-pytorch/blob/main/audiolm_pytorch/utils.py to not add new dependencies
+def round_down_nearest_multiple(num, divisor):
+    return num // divisor * divisor
+
+def curtail_to_multiple(t, mult, from_left = False):
+    data_len = t.shape[-1]
+    rounded_seq_len = round_down_nearest_multiple(data_len, mult)
+    seq_slice = slice(None, rounded_seq_len) if not from_left else slice(-rounded_seq_len, None)
+    return t[..., seq_slice]
 
 
 class CustomHubert(nn.Module):
@@ -32,26 +48,28 @@ class CustomHubert(nn.Module):
 
     def __init__(
         self,
-        checkpoint_path,
+        # checkpoint_path,
         target_sample_hz=16000,
-        seq_len_multiple_of=None,
-        output_layer=9
+        seq_len_multiple_of=None
     ):
         super().__init__()
         self.target_sample_hz = target_sample_hz
         self.seq_len_multiple_of = seq_len_multiple_of
-        self.output_layer = output_layer
+        # self.output_layer = output_layer
 
-        model_path = Path(checkpoint_path)
+        # model_path = Path(checkpoint_path)
 
-        assert model_path.exists(), f'path {checkpoint_path} does not exist'
+        # assert model_path.exists(), f'path {checkpoint_path} does not exist'
 
-        checkpoint = torch.load(checkpoint_path)
-        load_model_input = {checkpoint_path: checkpoint}
-        model, *_ = fairseq.checkpoint_utils.load_model_ensemble_and_task(load_model_input)
+        # checkpoint = torch.load(checkpoint_path, map_location=device)
+        # load_model_input = {checkpoint_path: checkpoint}
+        # model, *_ = fairseq.checkpoint_utils.load_model_ensemble_and_task(load_model_input)
 
-        self.model = model[0]
+        self.model: HubertModel = HubertModel.from_pretrained("facebook/hubert-base-ls960")
         self.model.eval()
+
+    def to(self, *args, **kwargs):
+        self.model.to(*args, **kwargs)
 
     @property
     def groups(self):
@@ -62,7 +80,8 @@ class CustomHubert(nn.Module):
         self,
         wav_input,
         flatten=True,
-        input_sample_hz=None
+        input_sample_hz=None,
+        output_layer=9
     ):
         device = wav_input.device
 
@@ -72,14 +91,19 @@ class CustomHubert(nn.Module):
         if exists(self.seq_len_multiple_of):
             wav_input = curtail_to_multiple(wav_input, self.seq_len_multiple_of)
 
-        embed = self.model(
+        embed = self.model.forward(
             wav_input,
-            features_only=True,
-            mask=False,  # thanks to @maitycyrus for noticing that mask is defaulted to True in the fairseq code
-            output_layer=self.output_layer
-        )
+            output_hidden_states=True
+            # wav_input,
+            # features_only=True,
+            # mask=False,  # thanks to @maitycyrus for noticing that mask is defaulted to True in the fairseq code
+            # output_layer=self.output_layer
+        ).hidden_states
 
-        embed, packed_shape = pack([embed['x']], '* d')
+        embed = embed[output_layer]
+
+        # embed, packed_shape = pack([embed['x']], '* d')
+        embed, packed_shape = pack([embed], '* d')
 
         # codebook_indices = self.kmeans.predict(embed.cpu().detach().numpy())
 

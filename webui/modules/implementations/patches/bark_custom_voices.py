@@ -27,12 +27,12 @@ huberts = {}
 
 def load_hubert(clone_model):
     global huberts
-    hubert_path = HuBERTManager.make_sure_hubert_installed()
+    # hubert_path = HuBERTManager.make_sure_hubert_installed()
     # model = ('quantifier_V1_hubert_base_ls960_23.pth', 'tokenizer_large.pth') if args.bark_cloning_large_model else ('quantifier_hubert_base_ls960_14.pth', 'tokenizer.pth')
     tokenizer_path = HuBERTManager.make_sure_tokenizer_installed(model=clone_model['file'], local_file=clone_model['dlfilename'], repo=clone_model['repo'])
     if 'hubert' not in huberts:
         print('Loading HuBERT')
-        huberts['hubert'] = CustomHubert(hubert_path)
+        huberts['hubert'] = CustomHubert()
     if 'tokenizer' not in huberts or ('tokenizer_name' in huberts and huberts['tokenizer_name'] != clone_model['name'].casefold()):
         print('Loading Custom Tokenizer')
         tokenizer = CustomTokenizer.load_from_checkpoint(tokenizer_path, map_location=torch.device('cpu'))
@@ -56,6 +56,7 @@ def wav_to_semantics(file, clone_model) -> torch.Tensor:
 
     # Extract semantics in HuBERT style
     print('Extracting semantics')
+    print(type(sr))
     semantics = huberts['hubert'].forward(wav, input_sample_hz=sr)
     print('Tokenizing semantics')
     tokens = huberts['tokenizer'].get_token(semantics)
